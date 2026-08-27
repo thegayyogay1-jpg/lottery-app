@@ -18,7 +18,7 @@
 </head>
 <body>
   <div class="header">
-    <span id="userInfo" style="font-weight: bold; color: #007bff;"></span>
+    <span id="userInfo" style="font-weight: bold; color: #007bff;">กำลังโหลด...</span>
     <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
   </div>
 
@@ -46,16 +46,45 @@
   <div id="status"></div>
 
   <script>
-    // 1. เช็คว่าล็อกอินหรือยัง ตั้งแต่เปิดหน้าเว็บ
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
 
-    if (!token) {
-      alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
-      window.location.href = '/login.html';
-    } else {
-      document.getElementById('userInfo').innerText = '👤 ผู้ใช้งาน: ' + username;
+    // 1. ฟังก์ชันตรวจสอบสิทธิ์และดึงชื่อผู้ใช้จาก API
+    async function checkAuth() {
+      if (!token) {
+        alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      try {
+        // ยืนยัน Token กับ backend (/api/me) เพื่อรับชื่อผู้ใช้ที่ถูกต้อง
+        const res = await fetch('/api/me', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+
+        if (data.success && data.user) {
+          document.getElementById('userInfo').innerText = '👤 ผู้ใช้งาน: ' + data.user.username;
+          // อัปเดต username ใน localStorage ให้ตรงเสมอ
+          localStorage.setItem('username', data.user.username);
+        } else {
+          alert('เซสชั่นหมดอายุ กรุณาล็อกอินใหม่');
+          logout();
+        }
+      } catch (err) {
+        console.error('Error fetching user info:', err);
+        // Fallback กรณีเซิร์ฟเวอร์ตอบช้า ให้ดึงจาก localStorage ก่อน
+        const savedUsername = localStorage.getItem('username');
+        if (savedUsername && savedUsername !== 'undefined') {
+          document.getElementById('userInfo').innerText = '👤 ผู้ใช้งาน: ' + savedUsername;
+        } else {
+          document.getElementById('userInfo').innerText = '👤 ผู้ใช้งาน: ไม่ระบุตัวตน';
+        }
+      }
     }
+
+    // เรียกทำงานทันทีเมื่อโหลดหน้าเว็บ
+    checkAuth();
 
     // 2. ฟังก์ชันส่งข้อมูลโพย
     document.getElementById('betForm').addEventListener('submit', async (e) => {
@@ -74,7 +103,7 @@
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token // แนบบัตรผ่าน (Token) เพื่อยืนยันตัวตน
+            'Authorization': 'Bearer ' + token
           },
           body: JSON.stringify(data)
         });
@@ -88,7 +117,7 @@
         } else {
           statusDiv.style.color = 'red';
           statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + result.message;
-          if(response.status === 401 || response.status === 403) logout();
+          if (response.status === 401 || response.status === 403) logout();
         }
       } catch (err) {
         statusDiv.style.color = 'red';
@@ -98,9 +127,7 @@
 
     // 3. ฟังก์ชันออกจากระบบ
     function logout() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
-      localStorage.removeItem('username');
+      localStorage.clear();
       window.location.href = '/login.html';
     }
   </script>
