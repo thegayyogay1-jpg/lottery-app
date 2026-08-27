@@ -8,9 +8,18 @@
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f6f9; }
     .container { max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    h2 { margin-top: 0; color: #333; }
-    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .search-box { padding: 8px 12px; width: 250px; border: 1px solid #ccc; border-radius: 4px; }
+    h2 { margin: 0; color: #333; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .actions-group { display: flex; align-items: center; gap: 10px; }
+    .search-box { padding: 8px 12px; width: 220px; border: 1px solid #ccc; border-radius: 4px; }
+    
+    /* สไตล์ปุ่มกด */
+    .btn-nav { text-decoration: none; padding: 8px 14px; border-radius: 4px; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; cursor: pointer; border: none; }
+    .btn-back { background-color: #6c757d; color: white; }
+    .btn-back:hover { background-color: #5a6268; }
+    .btn-logout { background-color: #dc3545; color: white; }
+    .btn-logout:hover { background-color: #c82333; }
+
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
     th { background-color: #007bff; color: white; }
@@ -34,7 +43,13 @@
 <div class="container">
   <div class="header-bar">
     <h2>👑 ระบบจัดการสิทธิ์ผู้ใช้งาน (Admin Management)</h2>
-    <input type="text" id="searchInput" class="search-box" placeholder="ค้นหา ยูสเซอร์ / ชื่อ / เบอร์..." onkeyup="filterUsers()">
+    
+    <!-- ปุ่มกดกลับ และ ออกจากระบบ -->
+    <div class="actions-group">
+      <input type="text" id="searchInput" class="search-box" placeholder="ค้นหา ยูสเซอร์ / ชื่อ / เบอร์..." onkeyup="filterUsers()">
+      <a href="/admin.html" class="btn-nav btn-back">📊 หน้าโพยหวย</a>
+      <button onclick="logout()" class="btn-nav btn-logout">ออกจากระบบ</button>
+    </div>
   </div>
 
   <div id="message"></div>
@@ -83,21 +98,19 @@
         return;
       }
 
-      loadUsers(); // สิทธิ์ถูกต้อง โหลดข้อมูลผู้ใช้
+      loadUsers();
     } catch (err) {
       alert('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
       window.location.href = '/login.html';
     }
   }
 
-  // 2. ดึงรายชื่อผู้ใช้ทั้งหมด (แก้ไข: ใส่ Authorization Header)
+  // 2. ดึงรายชื่อผู้ใช้ทั้งหมด
   async function loadUsers() {
-    const token = localStorage.getItem('token'); // ดึง Token
+    const token = localStorage.getItem('token');
     try {
       const res = await fetch('/api/admin/users', {
-        headers: { 
-          'Authorization': 'Bearer ' + token // 👈 เพิ่มจุดนี้
-        }
+        headers: { 'Authorization': 'Bearer ' + token }
       });
       const data = await res.json();
 
@@ -150,17 +163,17 @@
     });
   }
 
-  // 4. บันทึกการเปลี่ยน Role (แก้ไข: ใส่ Authorization Header)
+  // 4. บันทึกการเปลี่ยน Role
   async function updateRole(userId) {
     const selectedRole = document.getElementById(`role-${userId}`).value;
-    const token = localStorage.getItem('token'); // ดึง Token
+    const token = localStorage.getItem('token');
 
     try {
       const res = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token // 👈 เพิ่มจุดนี้
+          'Authorization': 'Bearer ' + token
         },
         body: JSON.stringify({ role: selectedRole })
       });
@@ -186,6 +199,12 @@
       (u.phone && u.phone.includes(query))
     );
     renderTable(filtered);
+  }
+
+  // 6. ฟังก์ชันออกจากระบบ
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/login.html';
   }
 
   // แสดงข้อความแจ้งเตือน
