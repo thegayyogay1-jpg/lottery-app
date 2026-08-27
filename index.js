@@ -44,12 +44,7 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log("Database initialized successfully.");
-  } catch (err) {
-    console.error("Error initializing DB:", err);
-  }
-}
-// เพิ่มท้ายฟังก์ชัน initDB() ใน index.js
+    // เพิ่มท้ายฟังก์ชัน initDB() ใน index.js
 const adminCheck = await pool.query("SELECT * FROM users WHERE role = 'admin' OR role = 'superadmin'");
 if (adminCheck.rows.length === 0) {
   const defaultPassword = await bcrypt.hash('admin1234', 10); // 🔑 รหัสผ่านแอดมินตัวแรก
@@ -59,6 +54,11 @@ if (adminCheck.rows.length === 0) {
     ['admin_master', defaultPassword, '0000000000', 'Super Admin Master', 'System', '000000']
   );
   console.log("สร้างบัญชี Super Admin เรียบร้อย (User: admin_master / Pass: admin1234)");
+}
+    console.log("Database initialized successfully.");
+  } catch (err) {
+    console.error("Error initializing DB:", err);
+  }
 }
 initDB();
 
