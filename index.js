@@ -51,6 +51,18 @@ async function initDB() {
 }
 initDB();
 
+// เพิ่มท้ายฟังก์ชัน initDB() ใน index.js
+const adminCheck = await pool.query("SELECT * FROM users WHERE role = 'admin' OR role = 'superadmin'");
+if (adminCheck.rows.length === 0) {
+  const defaultPassword = await bcrypt.hash('admin1234', 10); // 🔑 รหัสผ่านแอดมินตัวแรก
+  await pool.query(
+    `INSERT INTO users (username, password, phone, full_name, bank_name, account_number, role)
+     VALUES ($1, $2, $3, $4, $5, $6, 'superadmin')`,
+    ['admin_master', defaultPassword, '0000000000', 'Super Admin Master', 'System', '000000']
+  );
+  console.log("สร้างบัญชี Super Admin เรียบร้อย (User: admin_master / Pass: admin1234)");
+}
+
 // ==========================================
 // ระบบยามเฝ้าประตู (Middleware)
 // ==========================================
