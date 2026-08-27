@@ -45,34 +45,32 @@
       };
 
       try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
+        // ตัวอย่างส่วนประมวลผลการล็อกอินใน login.html
+const res = await fetch('/api/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username, password })
+});
 
-        if (result.success) {
-          statusDiv.style.color = 'green';
-          statusDiv.innerText = 'เข้าสู่ระบบสำเร็จ';
+const data = await res.json();
 
-          // รองรับโครงสร้างข้อมูลผู้ใช้ทั้ง 2 รูปแบบ (แบบ result.user.role หรือ result.role)
-          const userRole = result.user ? result.user.role : result.role;
-          const username = result.user ? result.user.username : result.username;
+if (data.success) {
+  // ✅ บันทึกข้อมูลสำคัญลง LocalStorage
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('role', data.user.role);
+  localStorage.setItem('username', data.user.username);
 
-          // เซฟ Token และข้อมูลผู้ใช้ลงใน LocalStorage ของเบราว์เซอร์
-          localStorage.setItem('token', result.token);
-          localStorage.setItem('username', result.username);
-          localStorage.setItem('role', result.role);
+  alert('ล็อกอินสำเร็จ!');
 
-          // แยกทางไปตามสิทธิ์การใช้งาน
-          setTimeout(() => {
-            if (userRole === 'admin' || userRole === 'superadmin') {
-              window.location.href = '/admin.html'; // ถ้าเป็นแอดมิน ไปหน้าแอดมิน
-            } else {
-              window.location.href = '/index.html'; // ถ้าเป็นสมาชิกทั่วไป ไปหน้าส่งโพย
-            }
-          }, 1000);
+  // แยกหน้าตามสิทธิ์ผู้ใช้งาน
+  if (data.user.role === 'admin' || data.user.role === 'superadmin') {
+    window.location.href = '/admin.html';
+  } else {
+    window.location.href = '/index.html';
+  }
+} else {
+  alert(data.message);
+}
 
         } else {
           statusDiv.style.color = 'red';
