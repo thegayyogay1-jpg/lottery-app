@@ -9,6 +9,9 @@
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
     .btn-logout { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
     .btn-logout:hover { background-color: #c82333; }
+    /* สไตล์สำหรับปุ่ม Super Admin */
+    .btn-superadmin { display: none; background-color: #17a2b8; color: white; padding: 8px 14px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+    .btn-superadmin:hover { background-color: #138496; }
     .summary { background-color: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 18px; font-weight: bold; }
     
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -22,6 +25,12 @@
     <h2>📊 หน้าจัดการโพยหวย (Admin)</h2>
     <div>
       <span id="adminName" style="margin-right: 15px; font-weight: bold;"></span>
+      
+      <!-- 1. วางปุ่ม Super Admin ไว้ตรงนี้ (ตั้ง display: none ซ่อนไว้ก่อน) -->
+      <a href="/admin-users.html" id="superAdminBtn" class="btn-superadmin">
+        ⚙️ จัดการสมาชิก & สิทธิ์
+      </a>
+
       <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
     </div>
   </div>
@@ -56,6 +65,12 @@
       window.location.href = '/login.html';
     } else {
       document.getElementById('adminName').innerText = 'สวัสดีคุณ: ' + username;
+
+      // 2. เช็คว่าเป็น superadmin หรือไม่ ถ้าใช่สั่งให้แสดงปุ่มขึ้นมา
+      if (role === 'superadmin') {
+        document.getElementById('superAdminBtn').style.display = 'inline-block';
+      }
+
       fetchBets(); // ถ้าเป็นแอดมิน ให้โหลดข้อมูลเลย
     }
 
@@ -66,7 +81,7 @@
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token // แนบบัตรผ่าน (Token) ไปด้วย
+            'Authorization': 'Bearer ' + token
           }
         });
         const result = await res.json();
@@ -75,7 +90,7 @@
           renderTable(result.bets);
         } else {
           alert('เกิดข้อผิดพลาด: ' + result.message);
-          if(res.status === 401 || res.status === 403) logout(); // ถ้า Token หมดอายุให้เด้งออก
+          if(res.status === 401 || res.status === 403) logout();
         }
       } catch (err) {
         alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
@@ -87,7 +102,7 @@
       const tbody = document.getElementById('betsTableBody');
       const totalAmountSpan = document.getElementById('totalAmount');
       
-      tbody.innerHTML = ''; // ล้างค่าเดิม
+      tbody.innerHTML = '';
       let total = 0;
 
       if (bets.length === 0) {
@@ -99,7 +114,6 @@
         total += parseFloat(bet.amount);
         const tr = document.createElement('tr');
         
-        // แปลงเวลาให้ดูง่ายขึ้น
         const dateObj = new Date(bet.created_at);
         const timeString = dateObj.toLocaleString('th-TH');
 
@@ -113,15 +127,12 @@
         tbody.appendChild(tr);
       });
 
-      // อัปเดตยอดรวม
       totalAmountSpan.innerText = total.toLocaleString();
     }
 
     // 4. ฟังก์ชันออกจากระบบ
     function logout() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
-      localStorage.removeItem('username');
+      localStorage.clear();
       window.location.href = '/login.html';
     }
   </script>
