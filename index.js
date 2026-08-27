@@ -55,6 +55,71 @@ if (adminCheck.rows.length === 0) {
   );
   console.log("สร้างบัญชี Super Admin เรียบร้อย (User: admin_master / Pass: admin1234)");
 }
+    // 🔒 Middleware ตรวจสอบว่าผู้ใช้เป็น Super Admin หรือไม่
+function verifySuperAdmin(req, res, next) {
+  // สมมติว่ามีการเก็บข้อมูล user ไว้ใน session ( req.session.user )
+  if (!req.session || !req.session.user || req.session.user.role !== 'superadmin') {
+    return res.status(403).json({ success: false, message: 'ปฏิเสธการเข้าถึง: สำหรับ Super Admin เท่านั้น' });
+  }
+  next();
+}
+
+// 1. API สำหรับดึงข้อมูลผู้ใช้ปัจจุบัน (ใช้เช็คว่าใครกำลังล็อกอินอยู่)
+app.get('/api/me', (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ success: true, user: req.session.user });
+  } else {
+    res.status(401).json({ success: false, message: 'ยังไม่ได้ล็อกอิน' });
+  }
+});
+
+// 2. API ดึงรายชื่อสมาชิกทั้งหมด (สำหรับ Super Admin)
+app.get('/api/admin/users', verifySuperAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, username, phone, full_name, bank_name, account_number, role, created_at 
+       FROM users 
+       ORDER BY id ASC`
+    );
+    res.json({ success: true, users: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการดึงข้อมูลสมาชิก' });
+  }
+});
+
+// 3. API เปลี่ยน Role ของผู้ใช้งาน (สำหรับ Super Admin)
+app.put('/api/admin/users/:id/role', verifySuperAdmin, async (req, res) => {
+  const userId = req.params.id;
+  const { role } = req.body;
+
+  // ตรวจสอบค่า Role ที่ส่งมา
+  const allowedRoles = ['member', 'admin', 'superadmin'];
+  if (!allowedRoles.includes(role)) {
+    return res.status(400).json({ success: false, message: 'ยศ/บทบาทไม่ถูกต้อง' });
+  }
+
+  // ป้องกัน Super Admin เปลี่ยนยศตัวเองเป็นสิทธิ์ต่ำกว่า
+  if (parseInt(userId) === req.session.user.id && role !== 'superadmin') {
+    return res.status(400).json({ success: false, message: 'คุณไม่สามารถลดระดับสิทธิ์ Super Admin ของตัวเองได้' });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE users SET role = $1 WHERE id = $2 RETURNING id, username, role`,
+      [role, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'ไม่พบผู้ใช้นี้ในระบบ' });
+    }
+
+    res.json({ success: true, message: `อัปเดตสิทธิ์ของ ${result.rows[0].username} เป็น ${role} เรียบร้อยแล้ว`, user: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการอัปเดตสิทธิ์' });
+  }
+});
     console.log("Database initialized successfully.");
   } catch (err) {
     console.error("Error initializing DB:", err);
