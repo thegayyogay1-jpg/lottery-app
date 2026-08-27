@@ -18,6 +18,8 @@ const pool = new Pool({
 // สร้างตารางข้อมูลผู้ใช้ และ ตารางโพยหวย
 async function initDB() {
   try {
+    await pool.query(`DROP TABLE IF EXISTS bets CASCADE;`);
+    await pool.query(`DROP TABLE IF EXISTS users CASCADE;`);
     await pool.query(`
   CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
