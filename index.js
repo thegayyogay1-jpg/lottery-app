@@ -1,10 +1,14 @@
 const express = require('express');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken'); // ดึงการใช้งาน JWT เข้ามา
 
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
+
+// รหัสลับสำหรับเซ็นต์สร้าง Token (ในการใช้งานจริงควรตั้งใน Environment Variable)
+const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_12345';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -14,7 +18,6 @@ const pool = new Pool({
 // สร้างตารางข้อมูลผู้ใช้ และ ตารางโพยหวย
 async function initDB() {
   try {
-    // 1. ตารางผู้ใช้งาน (users)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -25,7 +28,6 @@ async function initDB() {
       );
     `);
 
-    // 2. ตารางโพยหวย (bets)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS bets (
         id SERIAL PRIMARY KEY,
@@ -43,7 +45,7 @@ async function initDB() {
 }
 initDB();
 
-// API สำหรับสมัครสมาชิก
+// --- API สมัครสมาชิก (จากสเต็ปแรก) ---
 app.post('/api/register', async (req, res) => {
   const { username, password, role } = req.body;
 
@@ -52,9 +54,7 @@ app.post('/api/register', async (req, res) => {
   }
 
   try {
-    // เข้ารหัสรหัสผ่านก่อนบันทึกเพื่อความปลอดภัย
     const hashedPassword = await bcrypt.hash(password, 10);
-    // กำหนดบทบาท (ถ้าไม่ระบุให้เป็น member ถ้าระบุว่าเป็น admin จะได้สิทธิ์แอดมิน)
     const userRole = role === 'admin' ? 'admin' : 'member';
 
     const result = await pool.query(
@@ -64,11 +64,56 @@ app.post('/api/register', async (req, res) => {
 
     res.json({ success: true, message: 'สมัครสมาชิกสำเร็จ!', user: result.rows[0] });
   } catch (err) {
-    if (err.code === '23505') { // Error code จาก PostgreSQL เมื่อ username ซ้ำ
+    if (err.code === '23505') {
       return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้นี้มีในระบบแล้ว' });
     }
     console.error(err);
     res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการสมัครสมาชิก' });
+  }
+});
+
+// --- API เข้าสู่ระบบ (NEW: สเต็ปที่ 2) ---
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ success: false, message: 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน' });
+  }
+
+  try {
+    // 1. ค้นหาผู้ใช้จากชื่อ username
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    if (result.rows.length === 0) {
+      return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+    }
+
+    const user = result.rows[0];
+
+    // 2. ตรวจสอบรหัสผ่านว่าตรงกับที่เข้ารหัสไว้หรือไม่
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+    }
+
+    // 3. สร้าง Token (บัตรผ่าน) ฝากข้อมูล id, username, role เอาไว้ มีอายุ 1 วัน
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // ส่ง token และข้อมูลบทบาทกลับไปให้ Frontend
+    res.json({
+      success: true,
+      message: 'เข้าสู่ระบบสำเร็จ!',
+      token: token,
+      role: user.role,
+      username: user.username
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ' });
   }
 });
 
