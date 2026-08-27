@@ -1,7 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken'); // ดึงการใช้งาน JWT เข้ามา
+const jwt = require('jsonwebtoken');
 
 const app = express();
 app.use(express.json());
@@ -45,7 +45,37 @@ async function initDB() {
 }
 initDB();
 
-// --- API สมัครสมาชิก (จากสเต็ปแรก) ---
+// ==========================================
+// ระบบยามเฝ้าประตู (Middleware)
+// ==========================================
+
+// ฟังก์ชันตรวจสอบ Token
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; 
+  
+  if (!token) return res.status(401).json({ success: false, message: 'ไม่พบ Token กรุณาล็อกอิน' });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ success: false, message: 'Token ไม่ถูกต้องหรือหมดอายุ' });
+    req.user = user; // เก็บข้อมูลผู้ใช้ไว้ใน req.user
+    next();
+  });
+};
+
+// ฟังก์ชันเช็คสิทธิ์แอดมิน
+const isAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'ไม่มีสิทธิ์เข้าถึง เฉพาะแอดมินเท่านั้น' });
+  }
+  next();
+};
+
+// ==========================================
+// API สำหรับผู้ใช้งาน (Auth & Post Bet)
+// ==========================================
+
+// 1. API สมัครสมาชิก
 app.post('/api/register', async (req, res) => {
   const { username, password, role } = req.body;
 
@@ -72,7 +102,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// --- API เข้าสู่ระบบ (NEW: สเต็ปที่ 2) ---
+// 2. API เข้าสู่ระบบ
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -81,28 +111,23 @@ app.post('/api/login', async (req, res) => {
   }
 
   try {
-    // 1. ค้นหาผู้ใช้จากชื่อ username
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     if (result.rows.length === 0) {
       return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
     }
 
     const user = result.rows[0];
-
-    // 2. ตรวจสอบรหัสผ่านว่าตรงกับที่เข้ารหัสไว้หรือไม่
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
     }
 
-    // 3. สร้าง Token (บัตรผ่าน) ฝากข้อมูล id, username, role เอาไว้ มีอายุ 1 วัน
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    // ส่ง token และข้อมูลบทบาทกลับไปให้ Frontend
     res.json({
       success: true,
       message: 'เข้าสู่ระบบสำเร็จ!',
@@ -117,34 +142,32 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// ==========================================
-// ส่วนที่ 3: ระบบป้องกัน (Middleware) & Dashboard
-// ==========================================
+// 3. API สำหรับบันทึกโพยหวย (เพิ่มส่วนนี้ที่ขาดไป)
+app.post('/api/bet', authenticateToken, async (req, res) => {
+  const { number, betType, amount } = req.body;
+  const playerName = req.user.username; // ดึงชื่อผู้ใช้จาก Token อัตโนมัติ
 
-// ฟังก์ชัน "ยามเฝ้าประตู" ตรวจสอบ Token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  // ดึง token ออกมาจากรูปแบบ "Bearer <token>"
-  const token = authHeader && authHeader.split(' ')[1]; 
-  
-  if (!token) return res.status(401).json({ success: false, message: 'ไม่พบ Token กรุณาล็อกอิน' });
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ success: false, message: 'Token ไม่ถูกต้องหรือหมดอายุ' });
-    req.user = user; // เอาข้อมูลผู้ใช้ (id, username, role) แปะไว้ใช้ต่อ
-    next(); // ปล่อยให้ผ่านไปทำงานต่อได้
-  });
-};
-
-// ฟังก์ชันเช็คสิทธิ์ว่าเป็น "แอดมิน" หรือไม่
-const isAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ success: false, message: 'ไม่มีสิทธิ์เข้าถึง เฉพาะแอดมินเท่านั้น' });
+  if (!number || !betType || !amount) {
+    return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
   }
-  next();
-};
 
-// API สำหรับดึงข้อมูลโพยหวยทั้งหมด (ต้องล็อกอิน + เป็นแอดมิน ถึงจะดึงได้)
+  try {
+    const result = await pool.query(
+      'INSERT INTO bets (player_name, number, bet_type, amount) VALUES ($1, $2, $3, $4) RETURNING *',
+      [playerName, number, betType, parseFloat(amount)]
+    );
+    res.json({ success: true, bet: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+  }
+});
+
+// ==========================================
+// API สำหรับแอดมิน (Admin)
+// ==========================================
+
+// API สำหรับดึงข้อมูลโพยหวยทั้งหมด
 app.get('/api/admin/bets', authenticateToken, isAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM bets ORDER BY created_at DESC');
