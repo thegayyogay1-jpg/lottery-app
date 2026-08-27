@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบหลังบ้าน - Admin</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+    .btn-logout { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+    .btn-logout:hover { background-color: #c82333; }
+    .summary { background-color: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 18px; font-weight: bold; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background-color: #007bff; color: white; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>📊 หน้าจัดการโพยหวย (Admin)</h2>
+    <div>
+      <span id="adminName" style="margin-right: 15px; font-weight: bold;"></span>
+      <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="summary">
+    ยอดแทงรวมทั้งหมด: <span id="totalAmount" style="color: #28a745;">0</span> บาท
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>เวลาที่แทง</th>
+        <th>ชื่อผู้แทง</th>
+        <th>ตัวเลข</th>
+        <th>ประเภท</th>
+        <th>จำนวนเงิน (บาท)</th>
+      </tr>
+    </thead>
+    <tbody id="betsTableBody">
+      <tr><td colspan="5" style="text-align: center;">กำลังโหลดข้อมูล...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    // 1. ตรวจสอบสิทธิ์ตั้งแต่เปิดหน้าเว็บ
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    const username = localStorage.getItem('username');
+
+    if (!token || role !== 'admin') {
+      alert('คุณไม่มีสิทธิ์เข้าหน้านี้ กรุณาล็อกอินด้วยบัญชีแอดมิน');
+      window.location.href = '/login.html';
+    } else {
+      document.getElementById('adminName').innerText = 'สวัสดีคุณ: ' + username;
+      fetchBets(); // ถ้าเป็นแอดมิน ให้โหลดข้อมูลเลย
+    }
+
+    // 2. ฟังก์ชันดึงข้อมูลโพยหวยจาก API
+    async function fetchBets() {
+      try {
+        const res = await fetch('/api/admin/bets', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token // แนบบัตรผ่าน (Token) ไปด้วย
+          }
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          renderTable(result.bets);
+        } else {
+          alert('เกิดข้อผิดพลาด: ' + result.message);
+          if(res.status === 401 || res.status === 403) logout(); // ถ้า Token หมดอายุให้เด้งออก
+        }
+      } catch (err) {
+        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+      }
+    }
+
+    // 3. ฟังก์ชันนำข้อมูลมาวาดลงตาราง
+    function renderTable(bets) {
+      const tbody = document.getElementById('betsTableBody');
+      const totalAmountSpan = document.getElementById('totalAmount');
+      
+      tbody.innerHTML = ''; // ล้างค่าเดิม
+      let total = 0;
+
+      if (bets.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">ยังไม่มีโพยหวยในระบบ</td></tr>';
+        return;
+      }
+
+      bets.forEach(bet => {
+        total += parseFloat(bet.amount);
+        const tr = document.createElement('tr');
+        
+        // แปลงเวลาให้ดูง่ายขึ้น
+        const dateObj = new Date(bet.created_at);
+        const timeString = dateObj.toLocaleString('th-TH');
+
+        tr.innerHTML = `
+          <td>${timeString}</td>
+          <td>${bet.player_name}</td>
+          <td style="font-weight: bold; color: #d9534f;">${bet.number}</td>
+          <td>${bet.bet_type}</td>
+          <td>${parseFloat(bet.amount).toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // อัปเดตยอดรวม
+      totalAmountSpan.innerText = total.toLocaleString();
+    }
+
+    // 4. ฟังก์ชันออกจากระบบ
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('username');
+      window.location.href = '/login.html';
+    }
+  </script>
+</body>
+</html>
