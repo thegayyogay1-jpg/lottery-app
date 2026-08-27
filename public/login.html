@@ -54,7 +54,11 @@
 
         if (result.success) {
           statusDiv.style.color = 'green';
-          statusDiv.innerText = 'เข้าสู่ระบบสำเร็จ! กำลังนำคุณไปหน้าถัดไป...';
+          statusDiv.innerText = 'เข้าสู่ระบบสำเร็จ';
+
+          // รองรับโครงสร้างข้อมูลผู้ใช้ทั้ง 2 รูปแบบ (แบบ result.user.role หรือ result.role)
+          const userRole = result.user ? result.user.role : result.role;
+          const username = result.user ? result.user.username : result.username;
 
           // เซฟ Token และข้อมูลผู้ใช้ลงใน LocalStorage ของเบราว์เซอร์
           localStorage.setItem('token', result.token);
@@ -63,7 +67,7 @@
 
           // แยกทางไปตามสิทธิ์การใช้งาน
           setTimeout(() => {
-            if (result.role === 'admin') {
+            if (userRole === 'admin' || userRole === 'superadmin') {
               window.location.href = '/admin.html'; // ถ้าเป็นแอดมิน ไปหน้าแอดมิน
             } else {
               window.location.href = '/index.html'; // ถ้าเป็นสมาชิกทั่วไป ไปหน้าส่งโพย
