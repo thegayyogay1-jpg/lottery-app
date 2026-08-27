@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สมัครสมาชิก</title>
+  <style>
+    body { font-family: sans-serif; max-width: 350px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input, select { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    #status { margin-top: 15px; text-align: center; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>สมัครสมาชิก</h2>
+  <form id="registerForm">
+    <div class="form-group">
+      <label>ชื่อผู้ใช้งาน (Username):</label>
+      <input type="text" id="username" required>
+    </div>
+    <div class="form-group">
+      <label>รหัสผ่าน (Password):</label>
+      <input type="password" id="password" required>
+    </div>
+    <div class="form-group">
+      <label>ประเภทบัญชี:</label>
+      <select id="role">
+        <option value="member">สมาชิกทั่วไป (ผู้แทง)</option>
+        <option value="admin">แอดมิน (เจ้ามือ)</option>
+      </select>
+    </div>
+    <button type="submit">ลงทะเบียน</button>
+  </form>
+  <div id="status"></div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerText = 'กำลังส่งข้อมูล...';
+
+      const data = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+        role: document.getElementById('role').value
+      };
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          statusDiv.style.color = 'green';
+          statusDiv.innerText = result.message + ' สามารถไปหน้าล็อกอินได้เลย';
+          document.getElementById('registerForm').reset();
+        } else {
+          statusDiv.style.color = 'red';
+          statusDiv.innerText = result.message;
+        }
+      } catch (err) {
+        statusDiv.style.color = 'red';
+        statusDiv.innerText = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
+      }
+    });
+  </script>
+</body>
+</html>
