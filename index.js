@@ -214,43 +214,44 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// 2. API เข้าสู่ระบบ
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ success: false, message: 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน' });
-  }
 
   try {
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     if (result.rows.length === 0) {
-      return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+      return res.status(400).json({ success: false, message: 'ไม่พบชื่อใช้งานนี้' });
     }
 
     const user = result.rows[0];
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'รหัสผ่านไม่ถูกต้อง' });
     }
 
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    // 🔒 เก็บข้อมูลลงใน Session
+    req.session.user = {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      fullName: user.full_name
+    };
 
+    // 📤 ส่ง role กลับไปให้ฝั่ง Frontend ใช้เช็คเพื่อพาไปหน้าตามสิทธิ์
     res.json({
       success: true,
-      message: 'เข้าสู่ระบบสำเร็จ!',
-      token: token,
-      role: user.role,
-      username: user.username
+      message: 'ล็อกอินสำเร็จ!',
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role
+      }
     });
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ' });
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการล็อกอิน' });
   }
 });
 
