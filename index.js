@@ -117,5 +117,43 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// ==========================================
+// ส่วนที่ 3: ระบบป้องกัน (Middleware) & Dashboard
+// ==========================================
+
+// ฟังก์ชัน "ยามเฝ้าประตู" ตรวจสอบ Token
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  // ดึง token ออกมาจากรูปแบบ "Bearer <token>"
+  const token = authHeader && authHeader.split(' ')[1]; 
+  
+  if (!token) return res.status(401).json({ success: false, message: 'ไม่พบ Token กรุณาล็อกอิน' });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ success: false, message: 'Token ไม่ถูกต้องหรือหมดอายุ' });
+    req.user = user; // เอาข้อมูลผู้ใช้ (id, username, role) แปะไว้ใช้ต่อ
+    next(); // ปล่อยให้ผ่านไปทำงานต่อได้
+  });
+};
+
+// ฟังก์ชันเช็คสิทธิ์ว่าเป็น "แอดมิน" หรือไม่
+const isAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'ไม่มีสิทธิ์เข้าถึง เฉพาะแอดมินเท่านั้น' });
+  }
+  next();
+};
+
+// API สำหรับดึงข้อมูลโพยหวยทั้งหมด (ต้องล็อกอิน + เป็นแอดมิน ถึงจะดึงได้)
+app.get('/api/admin/bets', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM bets ORDER BY created_at DESC');
+    res.json({ success: true, bets: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'ไม่สามารถดึงข้อมูลโพยได้' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
