@@ -51,7 +51,7 @@
     const role = localStorage.getItem('role');
     const username = localStorage.getItem('username');
 
-    if (!token || role !== 'admin') {
+    if (!token || role !== 'admin' && role !== 'superadmin') {
       alert('คุณไม่มีสิทธิ์เข้าหน้านี้ กรุณาล็อกอินด้วยบัญชีแอดมิน');
       window.location.href = '/login.html';
     } else {
