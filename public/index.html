@@ -3,24 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบส่งโพยหวย</title>
+  <title>บันทึกโพยหวย</title>
   <style>
-    body { font-family: sans-serif; max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+    body { font-family: sans-serif; max-width: 400px; margin: 30px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .btn-logout { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: bold; }
     input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
-    button:hover { background-color: #218838; }
+    button.btn-submit { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    button.btn-submit:hover { background-color: #218838; }
     #status { margin-top: 15px; font-weight: bold; text-align: center; }
   </style>
 </head>
 <body>
+  <div class="header">
+    <span id="userInfo" style="font-weight: bold; color: #007bff;"></span>
+    <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
+  </div>
+
   <h2>บันทึกโพยหวย</h2>
   <form id="betForm">
-    <div class="form-group">
-      <label>ชื่อผู้แทง:</label>
-      <input type="text" id="playerName" required placeholder="เช่น ตัวอย่าง A">
-    </div>
     <div class="form-group">
       <label>ตัวเลข:</label>
       <input type="text" id="number" required placeholder="เช่น 123 หรือ 45">
@@ -38,18 +41,29 @@
       <label>จำนวนเงิน (บาท):</label>
       <input type="number" id="amount" min="1" required placeholder="เช่น 100">
     </div>
-    <button type="submit">ส่งโพย</button>
+    <button type="submit" class="btn-submit">ส่งโพย</button>
   </form>
   <div id="status"></div>
 
   <script>
+    // 1. เช็คว่าล็อกอินหรือยัง ตั้งแต่เปิดหน้าเว็บ
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+
+    if (!token) {
+      alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
+      window.location.href = '/login.html';
+    } else {
+      document.getElementById('userInfo').innerText = '👤 ผู้ใช้งาน: ' + username;
+    }
+
+    // 2. ฟังก์ชันส่งข้อมูลโพย
     document.getElementById('betForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const statusDiv = document.getElementById('status');
       statusDiv.innerText = 'กำลังบันทึก...';
 
       const data = {
-        playerName: document.getElementById('playerName').value,
         number: document.getElementById('number').value,
         betType: document.getElementById('betType').value,
         amount: document.getElementById('amount').value
@@ -58,7 +72,10 @@
       try {
         const response = await fetch('/api/bet', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token // แนบบัตรผ่าน (Token) เพื่อยืนยันตัวตน
+          },
           body: JSON.stringify(data)
         });
         const result = await response.json();
@@ -71,12 +88,21 @@
         } else {
           statusDiv.style.color = 'red';
           statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + result.message;
+          if(response.status === 401 || response.status === 403) logout();
         }
       } catch (err) {
         statusDiv.style.color = 'red';
         statusDiv.innerText = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
       }
     });
+
+    // 3. ฟังก์ชันออกจากระบบ
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('username');
+      window.location.href = '/login.html';
+    }
   </script>
 </body>
 </html>
