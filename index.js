@@ -19,15 +19,19 @@ const pool = new Pool({
 async function initDB() {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        role VARCHAR(20) DEFAULT 'member',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    bank_name VARCHAR(50) NOT NULL,
+    account_number VARCHAR(30) NOT NULL,
+    ref_code VARCHAR(50),
+    role VARCHAR(20) DEFAULT 'member',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
     await pool.query(`
       CREATE TABLE IF NOT EXISTS bets (
         id SERIAL PRIMARY KEY,
@@ -71,34 +75,64 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
-// ==========================================
-// API สำหรับผู้ใช้งาน (Auth & Post Bet)
-// ==========================================
+// เก็บ OTP จำลองไว้ใน Memory (เพื่อการทดสอบ)
+const otpStore = {};
 
-// 1. API สมัครสมาชิก
+// 1. API ขอ OTP (จำลอง)
+app.post('/api/request-otp', (req, res) => {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ success: false, message: 'กรุณากรอกเบอร์โทรศัพท์' });
+
+  // สุ่มเลข OTP 6 หลัก
+  const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  otpStore[phone] = generatedOtp; // บันทึกไว้เทียบตอนสมัคร
+
+  console.log(`[OTP Mock] Phone: ${phone} | OTP: ${generatedOtp}`);
+
+  res.json({
+    success: true,
+    message: 'ส่งรหัส OTP เรียบร้อยแล้ว (สำหรับทดสอบ OTP คือ: ' + generatedOtp + ')'
+  });
+});
+
+// 2. API สมัครสมาชิกแบบข้อมูลครบถ้วน
 app.post('/api/register', async (req, res) => {
-  const { username, password, role } = req.body;
+  const { username, password, confirmPassword, phone, otp, fullName, bankName, accountNumber, refCode } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ success: false, message: 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน' });
+  // ตรวจสอบความครบถ้วนของข้อมูล
+  if (!username || !password || !phone || !otp || !fullName || !bankName || !accountNumber) {
+    return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ success: false, message: 'รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน' });
+  }
+
+  // ตรวจสอบ OTP
+  if (otpStore[phone] !== otp) {
+    return res.status(400).json({ success: false, message: 'รหัส OTP ไม่ถูกต้อง' });
   }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userRole = role === 'admin' ? 'admin' : 'member';
 
     const result = await pool.query(
-      'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING id, username, role',
-      [username, hashedPassword, userRole]
+      `INSERT INTO users (username, password, phone, full_name, bank_name, account_number, ref_code, role) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'member') 
+       RETURNING id, username, phone, full_name`,
+      [username, hashedPassword, phone, fullName, bankName, accountNumber, refCode || null]
     );
+
+    // สมัครเสร็จแล้ว ลบ OTP ออกจาก memory
+    delete otpStore[phone];
 
     res.json({ success: true, message: 'สมัครสมาชิกสำเร็จ!', user: result.rows[0] });
   } catch (err) {
-    if (err.code === '23505') {
-      return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้นี้มีในระบบแล้ว' });
+    if (err.code === '23505') { // Username หรือ Phone ซ้ำ
+      return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้หรือเบอร์โทรศัพท์นี้มีในระบบแล้ว' });
     }
     console.error(err);
-    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการสมัครสมาชิก' });
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการลงทะเบียน' });
   }
 });
 
