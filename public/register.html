@@ -5,68 +5,140 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>สมัครสมาชิก</title>
   <style>
-    body { font-family: sans-serif; max-width: 350px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
-    button:hover { background-color: #0056b3; }
+    body { font-family: sans-serif; max-width: 450px; margin: 30px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 14px; }
+    input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    .otp-group { display: flex; gap: 8px; }
+    .btn-otp { width: 40%; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-submit { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; }
     #status { margin-top: 15px; text-align: center; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h2>สมัครสมาชิก</h2>
+  <h2>สมัครสมาชิกใหม่</h2>
   <form id="registerForm">
     <div class="form-group">
-      <label>ชื่อผู้ใช้งาน (Username):</label>
+      <label>ยูสเซอร์เนม (Username):</label>
       <input type="text" id="username" required>
     </div>
+
     <div class="form-group">
       <label>รหัสผ่าน (Password):</label>
       <input type="password" id="password" required>
     </div>
+
     <div class="form-group">
-      <label>ประเภทบัญชี:</label>
-      <select id="role">
-        <option value="member">สมาชิกทั่วไป (ผู้แทง)</option>
-        <option value="admin">แอดมิน (เจ้ามือ)</option>
+      <label>ยืนยันรหัสผ่าน:</label>
+      <input type="password" id="confirmPassword" required>
+    </div>
+
+    <div class="form-group">
+      <label>เบอร์โทรศัพท์:</label>
+      <div class="otp-group">
+        <input type="tel" id="phone" placeholder="08XXXXXXXX" required>
+        <button type="button" class="btn-otp" onclick="requestOTP()">ขอรหัส OTP</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>รหัส OTP:</label>
+      <input type="text" id="otp" placeholder="กรอกรหัส 6 หลัก" required>
+    </div>
+
+    <div class="form-group">
+      <label>ชื่อ-นามสกุล (ตรงกับบัญชีธนาคาร):</label>
+      <input type="text" id="fullName" required>
+    </div>
+
+    <div class="form-group">
+      <label>ธนาคาร:</label>
+      <select id="bankName" required>
+        <option value="">-- เลือกธนาคาร --</option>
+        <option value="กสิกรไทย">ธนาคารกสิกรไทย (KBANK)</option>
+        <option value="ไทยพาณิชย์">ธนาคารไทยพาณิชย์ (SCB)</option>
+        <option value="กรุงเทพ">ธนาคารกรุงเทพ (BBL)</option>
+        <option value="กรุงไทย">ธนาคารกรุงไทย (KTB)</option>
+        <option value="กรุงศรี">ธนาคารกรุงศรีอยุธยา (BAY)</option>
+        <option value="ออมสิน">ธนาคารออมสิน (GSB)</option>
+        <option value="ทรูวอลเล็ท">TrueMoney Wallet</option>
       </select>
     </div>
-    <button type="submit">ลงทะเบียน</button>
+
+    <div class="form-group">
+      <label>เลขบัญชีธนาคาร:</label>
+      <input type="text" id="accountNumber" required>
+    </div>
+
+    <div class="form-group">
+      <label>รหัสแนะนำ (ถ้ามี):</label>
+      <input type="text" id="refCode" placeholder="ระบุหรือไม่ระดูก็ได้">
+    </div>
+
+    <button type="submit" class="btn-submit">ยืนยันการสมัครสมาชิก</button>
   </form>
   <div id="status"></div>
 
   <script>
+    // ฟังก์ชันกดขอ OTP
+    async function requestOTP() {
+      const phone = document.getElementById('phone').value;
+      const statusDiv = document.getElementById('status');
+      if (!phone) {
+        alert('กรุณากรอกเบอร์โทรศัพท์ก่อนกดขอ OTP');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/request-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone })
+        });
+        const data = await res.json();
+        alert(data.message);
+      } catch (err) {
+        alert('ไม่สามารถส่ง OTP ได้');
+      }
+    }
+
+    // ฟังก์ชันกดสมัครสมาชิก
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const statusDiv = document.getElementById('status');
       statusDiv.innerText = 'กำลังส่งข้อมูล...';
 
-      const data = {
+      const formData = {
         username: document.getElementById('username').value,
         password: document.getElementById('password').value,
-        role: document.getElementById('role').value
+        confirmPassword: document.getElementById('confirmPassword').value,
+        phone: document.getElementById('phone').value,
+        otp: document.getElementById('otp').value,
+        fullName: document.getElementById('fullName').value,
+        bankName: document.getElementById('bankName').value,
+        accountNumber: document.getElementById('accountNumber').value,
+        refCode: document.getElementById('refCode').value
       };
 
       try {
         const res = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: JSON.stringify(formData)
         });
         const result = await res.json();
 
         if (result.success) {
           statusDiv.style.color = 'green';
-          statusDiv.innerText = result.message + ' สามารถไปหน้าล็อกอินได้เลย';
-          document.getElementById('registerForm').reset();
+          statusDiv.innerText = 'สมัครสมาชิกสำเร็จ! กำลังไปหน้าล็อกอิน...';
+          setTimeout(() => window.location.href = '/login.html', 1500);
         } else {
           statusDiv.style.color = 'red';
           statusDiv.innerText = result.message;
         }
       } catch (err) {
         statusDiv.style.color = 'red';
-        statusDiv.innerText = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
+        statusDiv.innerText = 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
       }
     });
   </script>
