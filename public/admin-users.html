@@ -62,22 +62,35 @@
 
   // 1. ตรวจสอบสิทธิ์การเข้าถึงเมื่อโหลดหน้า
   async function checkAuthAndLoadUsers() {
-    try {
-      const meRes = await fetch('/api/me');
-      const meData = await meRes.json();
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
 
-      if (!meData.success || meData.user.role !== 'superadmin') {
-        alert('สิทธิ์ไม่ถูกต้อง! หน้านี้เฉพาะ Super Admin เท่านั้น');
-        window.location.href = '/login.html';
-        return;
-      }
-
-      loadUsers();
-    } catch (err) {
-      alert('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
-    }
+  // ตรวจสอบจาก LocalStorage เบื้องต้นก่อน
+  if (!token || role !== 'superadmin') {
+    alert('สิทธิ์ไม่ถูกต้อง! หน้านี้เฉพาะ Super Admin เท่านั้น');
+    window.location.href = '/login.html';
+    return;
   }
 
+  try {
+    // แนบ Authorization Header (JWT Token) ไปยืนยันกับ Backend
+    const meRes = await fetch('/api/me', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const meData = await meRes.json();
+
+    if (!meData.success || meData.user.role !== 'superadmin') {
+      alert('สิทธิ์ไม่ถูกต้อง! หน้านี้เฉพาะ Super Admin เท่านั้น');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    loadUsers(); // ถ้าสิทธิ์ถูกต้อง ค่อยดึงข้อมูลผู้ใช้
+  } catch (err) {
+    alert('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
+    window.location.href = '/login.html';
+  }
+}
   // 2. ดึงรายชื่อผู้ใช้ทั้งหมด
   async function loadUsers() {
     try {
