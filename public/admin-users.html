@@ -62,39 +62,43 @@
 
   // 1. ตรวจสอบสิทธิ์การเข้าถึงเมื่อโหลดหน้า
   async function checkAuthAndLoadUsers() {
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
 
-  // ตรวจสอบจาก LocalStorage เบื้องต้นก่อน
-  if (!token || role !== 'superadmin') {
-    alert('สิทธิ์ไม่ถูกต้อง! หน้านี้เฉพาะ Super Admin เท่านั้น');
-    window.location.href = '/login.html';
-    return;
-  }
-
-  try {
-    // แนบ Authorization Header (JWT Token) ไปยืนยันกับ Backend
-    const meRes = await fetch('/api/me', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const meData = await meRes.json();
-
-    if (!meData.success || meData.user.role !== 'superadmin') {
+    if (!token || role !== 'superadmin') {
       alert('สิทธิ์ไม่ถูกต้อง! หน้านี้เฉพาะ Super Admin เท่านั้น');
       window.location.href = '/login.html';
       return;
     }
 
-    loadUsers(); // ถ้าสิทธิ์ถูกต้อง ค่อยดึงข้อมูลผู้ใช้
-  } catch (err) {
-    alert('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
-    window.location.href = '/login.html';
-  }
-}
-  // 2. ดึงรายชื่อผู้ใช้ทั้งหมด
-  async function loadUsers() {
     try {
-      const res = await fetch('/api/admin/users');
+      const meRes = await fetch('/api/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const meData = await meRes.json();
+
+      if (!meData.success || meData.user.role !== 'superadmin') {
+        alert('สิทธิ์ไม่ถูกต้อง! หน้านี้เฉพาะ Super Admin เท่านั้น');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      loadUsers(); // สิทธิ์ถูกต้อง โหลดข้อมูลผู้ใช้
+    } catch (err) {
+      alert('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
+      window.location.href = '/login.html';
+    }
+  }
+
+  // 2. ดึงรายชื่อผู้ใช้ทั้งหมด (แก้ไข: ใส่ Authorization Header)
+  async function loadUsers() {
+    const token = localStorage.getItem('token'); // ดึง Token
+    try {
+      const res = await fetch('/api/admin/users', {
+        headers: { 
+          'Authorization': 'Bearer ' + token // 👈 เพิ่มจุดนี้
+        }
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -146,21 +150,25 @@
     });
   }
 
-  // 4. บันทึกการเปลี่ยน Role
+  // 4. บันทึกการเปลี่ยน Role (แก้ไข: ใส่ Authorization Header)
   async function updateRole(userId) {
     const selectedRole = document.getElementById(`role-${userId}`).value;
+    const token = localStorage.getItem('token'); // ดึง Token
 
     try {
       const res = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token // 👈 เพิ่มจุดนี้
+        },
         body: JSON.stringify({ role: selectedRole })
       });
       const data = await res.json();
 
       if (data.success) {
         showMessage(data.message, true);
-        loadUsers(); // โหลดข้อมูลใหม่
+        loadUsers(); 
       } else {
         showMessage(data.message, false);
       }
