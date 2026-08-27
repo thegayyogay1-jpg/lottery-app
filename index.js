@@ -49,8 +49,6 @@ async function initDB() {
     console.error("Error initializing DB:", err);
   }
 }
-initDB();
-
 // เพิ่มท้ายฟังก์ชัน initDB() ใน index.js
 const adminCheck = await pool.query("SELECT * FROM users WHERE role = 'admin' OR role = 'superadmin'");
 if (adminCheck.rows.length === 0) {
@@ -62,6 +60,7 @@ if (adminCheck.rows.length === 0) {
   );
   console.log("สร้างบัญชี Super Admin เรียบร้อย (User: admin_master / Pass: admin1234)");
 }
+initDB();
 
 // ==========================================
 // ระบบยามเฝ้าประตู (Middleware)
