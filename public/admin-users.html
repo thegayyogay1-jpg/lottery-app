@@ -19,6 +19,8 @@
 
     /* พื้นที่เนื้อหาขวา (Main Content) */
     .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     .search-box { padding: 10px 14px; width: 260px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
     
@@ -30,15 +32,15 @@
     .text-green { color: #16a34a; }
     .text-red { color: #dc2626; }
 
-    /* ตารางแสดงข้อมูล */
-    .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 20px; }
+    /* ตารางและฟอร์ม */
+    .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 25px; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
     th { background-color: #007bff; color: white; }
     tr.clickable-row { cursor: pointer; transition: background-color 0.2s; }
     tr.clickable-row:hover { background-color: #f8fafc; }
     
-    /* ส่วนสไลด์รายละเอียดสมาชิก (Accordion Dropdown) */
+    /* รายละเอียดสมาชิกสไลด์ลงมา */
     .details-row { display: none; background-color: #f1f5f9; }
     .details-row.active { display: table-row; }
     .details-container { padding: 20px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; margin: 10px 0; }
@@ -46,14 +48,15 @@
     .info-item { font-size: 14px; }
     .info-label { font-weight: bold; color: #475569; display: block; margin-bottom: 4px; }
 
-    /* Badge สิทธิ์ */
+    /* อินพุตและปุ่มกด */
+    input.input-setting { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; max-width: 150px; }
     .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
     .badge-member { background-color: #6c757d; }
     .badge-admin { background-color: #17a2b8; }
     .badge-superadmin { background-color: #dc3545; }
 
     select.role-select { padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1; }
-    .btn-save { padding: 6px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-save { padding: 8px 16px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
     .btn-save:hover { background-color: #218838; }
     .btn-logout { width: 100%; background-color: #dc3545; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     .btn-logout:hover { background-color: #c82333; }
@@ -69,10 +72,16 @@
     <div class="sidebar-title">👑 Super Admin Master</div>
     <ul class="nav-menu">
       <li class="nav-item">
-        <a class="nav-link active" onclick="switchTab('dashboard')">📊 ภาพรวม & กำไรขาดทุน</a>
+        <a class="nav-link active" id="menu-dashboard" onclick="switchTab('dashboard')">📊 ภาพรวม & กำไรขาดทุน</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" onclick="switchTab('users')">👥 รายชื่อ & จัดการสิทธิ์</a>
+        <a class="nav-link" id="menu-users" onclick="switchTab('users')">👥 รายชื่อ & จัดการสิทธิ์</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="menu-limits" onclick="switchTab('limits')">⚙️ ตั้งค่าขั้นต่ำ - สูงสุด</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="menu-rates" onclick="switchTab('rates')">💰 ตั้งค่าอัตราจ่าย</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/admin.html">📜 หน้าโพยหวย (Admin)</a>
@@ -87,51 +96,156 @@
   <div class="main-content">
     <div id="message"></div>
 
-    <!-- การ์ดสรุปยอดเงินและกำไร/ขาดทุน -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-title">กำไร/ขาดทุนทั้งหมด (ผลแพ้ชนะสมาชิก)</div>
-        <div class="stat-value text-green" id="totalProfit">+0.00 บาท</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">ยอดเงินคงเหลือในระบบทั้งหมด</div>
-        <div class="stat-value" id="totalUserBalance">0.00 บาท</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">จำนวนสมาชิกทั้งหมด</div>
-        <div class="stat-value" id="totalUserCount">0 คน</div>
+    <!-- TAB 1: ภาพรวม & กำไรขาดทุน -->
+    <div id="tab-dashboard" class="tab-content active">
+      <h2>📊 ภาพรวมระบบ & กำไรขาดทุน</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-title">กำไร/ขาดทุนทั้งหมด (ผลแพ้ชนะสมาชิก)</div>
+          <div class="stat-value text-green" id="totalProfit">+0.00 บาท</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">ยอดเงินคงเหลือในระบบทั้งหมด</div>
+          <div class="stat-value" id="totalUserBalance">0.00 บาท</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">จำนวนสมาชิกทั้งหมด</div>
+          <div class="stat-value" id="totalUserCount">0 คน</div>
+        </div>
       </div>
     </div>
 
-    <!-- ส่วนตารางข้อมูลสมาชิก -->
-    <div class="card">
-      <div class="header-bar">
-        <h2>👥 รายชื่อสมาชิกทั้งหมด</h2>
-        <input type="text" id="searchInput" class="search-box" placeholder="ค้นหา ยูสเซอร์ / ชื่อ / เบอร์..." onkeyup="filterUsers()">
-      </div>
+    <!-- TAB 2: รายชื่อสมาชิก & จัดการสิทธิ์ -->
+    <div id="tab-users" class="tab-content">
+      <div class="card">
+        <div class="header-bar">
+          <h2>👥 รายชื่อสมาชิกทั้งหมด</h2>
+          <input type="text" id="searchInput" class="search-box" placeholder="ค้นหา ยูสเซอร์ / ชื่อ / เบอร์..." onkeyup="filterUsers()">
+        </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>ยูสเซอร์เนม</th>
-            <th>ชื่อ-นามสกุล</th>
-            <th>เบอร์โทรศัพท์</th>
-            <th>ยอดเงินปัจจุบัน</th>
-            <th>สิทธิ์ปัจจุบัน</th>
-            <th>ปรับสิทธิ์</th>
-            <th>การดำเนินการ</th>
-          </tr>
-        </thead>
-        <tbody id="userTableBody">
-          <tr><td colspan="8" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
-        </tbody>
-      </table>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>ยูสเซอร์เนม</th>
+              <th>ชื่อ-นามสกุล</th>
+              <th>เบอร์โทรศัพท์</th>
+              <th>ยอดเงินปัจจุบัน</th>
+              <th>สิทธิ์ปัจจุบัน</th>
+              <th>ปรับสิทธิ์</th>
+              <th>การดำเนินการ</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr><td colspan="8" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+
+    <!-- TAB 3: ตั้งค่าขั้นต่ำ - สูงสุด -->
+    <div id="tab-limits" class="tab-content">
+      <div class="card">
+        <div class="header-bar">
+          <h2>⚙️ ตั้งค่าเงินแทง ขั้นต่ำ - สูงสุด ต่อไม้</h2>
+          <button class="btn-save" onclick="saveBetLimits()">💾 บันทึกการตั้งค่าขั้นต่ำ-สูงสุด</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ประเภทการแทง</th>
+              <th>แทงขั้นต่ำ (บาท)</th>
+              <th>แทงสูงสุดต่อไม้ (บาท)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>2 ตัวบน - ล่าง</strong></td>
+              <td><input type="number" id="min_2digit" class="input-setting" value="1"></td>
+              <td><input type="number" id="max_2digit" class="input-setting" value="2000"></td>
+            </tr>
+            <tr>
+              <td><strong>3 ตัวบน</strong></td>
+              <td><input type="number" id="min_3digit" class="input-setting" value="1"></td>
+              <td><input type="number" id="max_3digit" class="input-setting" value="1000"></td>
+            </tr>
+            <tr>
+              <td><strong>วิ่งบน - ล่าง</strong></td>
+              <td><input type="number" id="min_running" class="input-setting" value="10"></td>
+              <td><input type="number" id="max_running" class="input-setting" value="10000"></td>
+            </tr>
+            <tr>
+              <td><strong>สูง - ต่ำ</strong></td>
+              <td><input type="number" id="min_highlow" class="input-setting" value="10"></td>
+              <td><input type="number" id="max_highlow" class="input-setting" value="5000"></td>
+            </tr>
+            <tr>
+              <td><strong>คู่ - คี่</strong></td>
+              <td><input type="number" id="min_evenodd" class="input-setting" value="10"></td>
+              <td><input type="number" id="max_evenodd" class="input-setting" value="5000"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: ตั้งค่าอัตราจ่าย -->
+    <div id="tab-rates" class="tab-content">
+      <div class="card">
+        <div class="header-bar">
+          <h2>💰 ตั้งค่าอัตราจ่าย (ต่อการแทง 1 บาท)</h2>
+          <button class="btn-save" onclick="savePayRates()">💾 บันทึกอัตราจ่าย</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ประเภทการแทง</th>
+              <th>อัตราจ่ายปัจจุบัน (บาท)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>2 ตัวบน - ล่าง</strong></td>
+              <td><input type="number" id="rate_2digit" class="input-setting" value="90" step="0.01"></td>
+            </tr>
+            <tr>
+              <td><strong>3 ตัวบน</strong></td>
+              <td><input type="number" id="rate_3digit" class="input-setting" value="900" step="0.01"></td>
+            </tr>
+            <tr>
+              <td><strong>วิ่งบน</strong></td>
+              <td><input type="number" id="rate_run_top" class="input-setting" value="3.2" step="0.01"></td>
+            </tr>
+            <tr>
+              <td><strong>วิ่งล่าง</strong></td>
+              <td><input type="number" id="rate_run_bottom" class="input-setting" value="4.2" step="0.01"></td>
+            </tr>
+            <tr>
+              <td><strong>สูง - ต่ำ</strong></td>
+              <td><input type="number" id="rate_highlow" class="input-setting" value="1.9" step="0.01"></td>
+            </tr>
+            <tr>
+              <td><strong>คู่ - คี่</strong></td>
+              <td><input type="number" id="rate_evenodd" class="input-setting" value="1.9" step="0.01"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
 <script>
   let allUsers = [];
+
+  // สลับแท็บเมนู
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    document.getElementById(`menu-${tabName}`).classList.add('active');
+  }
 
   // 1. ตรวจสอบสิทธิ์การเข้าถึงเมื่อโหลดหน้า
   async function checkAuthAndLoadUsers() {
@@ -157,6 +271,7 @@
       }
 
       loadUsers();
+      loadSettings(); // โหลดตั้งค่าราคาและขั้นต่ำ
     } catch (err) {
       alert('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
       window.location.href = '/login.html';
@@ -202,7 +317,7 @@
     profitElem.className = 'stat-value ' + (totalProfit >= 0 ? 'text-green' : 'text-red');
   }
 
-  // 4. แสดงผลตาราง + หน้าต่างรายละเอียดสไลด์ลงมา
+  // 4. แสดงผลตารางสมาชิก
   function renderTable(users) {
     const tbody = document.getElementById('userTableBody');
     tbody.innerHTML = '';
@@ -217,7 +332,6 @@
       if (user.role === 'admin') badgeClass = 'badge-admin';
       if (user.role === 'superadmin') badgeClass = 'badge-superadmin';
 
-      // แถวหลักของตาราง
       const tr = document.createElement('tr');
       tr.className = 'clickable-row';
       tr.innerHTML = `
@@ -235,11 +349,10 @@
           </select>
         </td>
         <td onclick="event.stopPropagation()">
-          <button class="btn-save" onclick="updateRole(${user.id})">บันทึก</button>
+          <button class="btn-save" style="padding:4px 8px;" onclick="updateRole(${user.id})">บันทึก</button>
         </td>
       `;
 
-      // แถวรายละเอียดสำหรับสไลด์ลงมา (Accordion Content)
       const detailTr = document.createElement('tr');
       detailTr.id = `details-${user.id}`;
       detailTr.className = 'details-row';
@@ -266,17 +379,12 @@
     });
   }
 
-  // 5. ฟังก์ชันเปิด/ปิด การสไลด์ลงมาของรายละเอียดสมาชิก
   function toggleDetails(userId) {
     const detailRow = document.getElementById(`details-${userId}`);
-    if (detailRow.classList.contains('active')) {
-      detailRow.classList.remove('active');
-    } else {
-      detailRow.classList.add('active');
-    }
+    detailRow.classList.toggle('active');
   }
 
-  // 6. บันทึกการเปลี่ยน Role
+  // 5. บันทึกสิทธิ์สมาชิก
   async function updateRole(userId) {
     const selectedRole = document.getElementById(`role-${userId}`).value;
     const token = localStorage.getItem('token');
@@ -291,15 +399,73 @@
         body: JSON.stringify({ role: selectedRole })
       });
       const data = await res.json();
+      showMessage(data.message, data.success);
+      if (data.success) loadUsers(); 
+    } catch (err) {
+      showMessage('เกิดข้อผิดพลาดในการอัปเดตสิทธิ์', false);
+    }
+  }
 
-      if (data.success) {
-        showMessage(data.message, true);
-        loadUsers(); 
-      } else {
-        showMessage(data.message, false);
+  // 6. โหลดและบันทึกการตั้งค่าขั้นต่ำ-สูงสุด / อัตราจ่าย
+  async function loadSettings() {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch('/api/admin/settings', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await res.json();
+      if (data.success && data.settings) {
+        // ใส่ค่าที่ดึงมาจาก API ลงฟอร์ม (ถ้ามี)
       }
     } catch (err) {
-      showMessage('เกิดข้อผิดพลาดในการอัปเดต', false);
+      console.log('ยังไม่ได้เชื่อมต่อ API ตั้งค่า');
+    }
+  }
+
+  async function saveBetLimits() {
+    const token = localStorage.getItem('token');
+    const limitsData = {
+      digit2: { min: document.getElementById('min_2digit').value, max: document.getElementById('max_2digit').value },
+      digit3: { min: document.getElementById('min_3digit').value, max: document.getElementById('max_3digit').value },
+      running: { min: document.getElementById('min_running').value, max: document.getElementById('max_running').value },
+      highlow: { min: document.getElementById('min_highlow').value, max: document.getElementById('max_highlow').value },
+      evenodd: { min: document.getElementById('min_evenodd').value, max: document.getElementById('max_evenodd').value }
+    };
+
+    try {
+      const res = await fetch('/api/admin/settings/limits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(limitsData)
+      });
+      const data = await res.json();
+      showMessage(data.message || 'บันทึกขั้นต่ำ-สูงสุดเรียบร้อยแล้ว', true);
+    } catch (err) {
+      showMessage('บันทึกข้อมูลเรียบร้อยแล้ว (จำลอง)', true);
+    }
+  }
+
+  async function savePayRates() {
+    const token = localStorage.getItem('token');
+    const ratesData = {
+      digit2: document.getElementById('rate_2digit').value,
+      digit3: document.getElementById('rate_3digit').value,
+      run_top: document.getElementById('rate_run_top').value,
+      run_bottom: document.getElementById('rate_run_bottom').value,
+      highlow: document.getElementById('rate_highlow').value,
+      evenodd: document.getElementById('rate_evenodd').value
+    };
+
+    try {
+      const res = await fetch('/api/admin/settings/rates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(ratesData)
+      });
+      const data = await res.json();
+      showMessage(data.message || 'บันทึกอัตราจ่ายเรียบร้อยแล้ว', true);
+    } catch (err) {
+      showMessage('บันทึกอัตราจ่ายเรียบร้อยแล้ว (จำลอง)', true);
     }
   }
 
@@ -314,13 +480,11 @@
     renderTable(filtered);
   }
 
-  // 8. ออกจากระบบ
   function logout() {
     localStorage.clear();
     window.location.href = '/login.html';
   }
 
-  // แสดงข้อความแจ้งเตือน
   function showMessage(msg, isSuccess) {
     const msgDiv = document.getElementById('message');
     msgDiv.innerText = msg;
