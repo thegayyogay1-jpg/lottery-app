@@ -24,23 +24,31 @@
     .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     
     .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 25px; margin-bottom: 20px; }
-    .summary { background-color: #e0f2fe; border-left: 5px solid #0284c7; padding: 15px; border-radius: 4px; font-size: 18px; font-weight: bold; color: #0369a1; margin-bottom: 20px; }
     
+    /* Card Dashboard Real-time */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
+    .dash-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 5px solid #0284c7; }
+    .dash-card.green { border-left-color: #16a34a; }
+    .dash-card.orange { border-left-color: #d97706; }
+    .dash-title { font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 8px; }
+    .dash-value { font-size: 28px; font-weight: bold; color: #1e293b; }
+    .realtime-badge { font-size: 12px; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-top: 5px; }
+
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
     th { background-color: #0284c7; color: white; }
     tr:nth-child(even) { background-color: #f8fafc; }
     
-    tr.clickable-row { cursor: pointer; transition: background-color 0.2s; }
-    tr.clickable-row:hover { background-color: #f1f5f9; }
+    .user-click { color: #0284c7; font-weight: bold; cursor: pointer; text-decoration: underline; }
+    .user-click:hover { color: #0369a1; }
 
-    /* Accordion รายการรอบสไลด์ลงมา */
+    /* Accordion รายการรอบ */
     .history-dropdown { display: none; background-color: #f8fafc; }
     .history-dropdown.active { display: table-row; }
     .dropdown-container { padding: 15px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; margin: 10px 0; }
     
-    /* ปุ่มและ Badge */
-    .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    /* ปุ่มและ Action */
+    .btn { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 2px; }
     .btn-superadmin { display: none; background-color: #0d9488; color: white; padding: 10px; text-align: center; border-radius: 6px; text-decoration: none; font-weight: bold; margin-bottom: 10px; }
     .btn-superadmin:hover { background-color: #0f766e; }
     .btn-approve { background-color: #16a34a; color: white; }
@@ -50,7 +58,8 @@
     .btn-view { background-color: #0284c7; color: white; }
     .btn-view:hover { background-color: #0369a1; }
     .btn-reset { background-color: #d97706; color: white; }
-    .btn-reset:hover { background-color: #b45309; }
+    .btn-credit { background-color: #0d9488; color: white; }
+    .btn-credit:hover { background-color: #0f766e; }
     .btn-logout { width: 100%; background-color: #dc2626; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     
     /* Pagination */
@@ -60,12 +69,12 @@
 
     /* Modal ป๊อปอัพ */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: white; padding: 25px; border-radius: 8px; width: 600px; max-width: 95%; max-height: 90vh; overflow-y: auto; }
+    .modal-content { background: white; padding: 25px; border-radius: 8px; width: 550px; max-width: 95%; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px; }
     
-    /* Badge สถานะถูกหวย */
-    .badge-win { background-color: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
-    .badge-lose { background-color: #94a3b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+    .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -75,10 +84,10 @@
     <div class="sidebar-title">🛡️ Admin Management</div>
     <ul class="nav-menu">
       <li class="nav-item">
-        <a class="nav-link active" id="menu-bets" onclick="switchTab('bets')">📊 โพยหวยปัจจุบัน</a>
+        <a class="nav-link active" id="menu-dashboard" onclick="switchTab('dashboard')">📈 ภาพรวมระบบ (Real-time)</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="menu-users" onclick="switchTab('users')">👥 รายชื่อสมาชิก & รหัสผ่าน</a>
+        <a class="nav-link" id="menu-users" onclick="switchTab('users')">👥 รายชื่อสมาชิก & จัดการเครดิต</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="menu-deposit" onclick="switchTab('deposit')">📥 รายการแจ้งฝาก</a>
@@ -100,34 +109,62 @@
   <!-- 2. พื้นที่เนื้อหาหลัก -->
   <div class="main-content">
     
-    <!-- TAB 1: โพยหวยปัจจุบัน -->
-    <div id="tab-bets" class="tab-content active">
+    <!-- TAB 1: ภาพรวมระบบ (Dashboard Real-time) -->
+    <div id="tab-dashboard" class="tab-content active">
       <div class="header-bar">
-        <h2>📊 หน้าจัดการโพยหวย (ปัจจุบัน)</h2>
+        <h2>📈 ข้อมูลภาพรวมระบบ (Real-time Dashboard)</h2>
         <span id="adminName" style="font-weight: bold; color: #475569;"></span>
       </div>
-      <div class="summary">
-        ยอดแทงรวมทั้งหมด: <span id="totalAmount" style="color: #16a34a;">0</span> บาท
+
+      <!-- Card สรุปสถานะเรียลไทม์ -->
+      <div class="dashboard-grid">
+        <div class="dash-card green">
+          <div class="dash-title">🟢 สมาชิกกำลังออนไลน์ในระบบ</div>
+          <div class="dash-value" id="onlineUsersCount">12 คน</div>
+          <span class="realtime-badge">● อัปเดตแบบ Real-time</span>
+        </div>
+        <div class="dash-card">
+          <div class="dash-title">📥 รายการรอยืนยันฝากเงิน</div>
+          <div class="dash-value" style="color:#0284c7;" id="pendingDepositCount">3 รายการ</div>
+          <span class="realtime-badge">● อัปเดตแบบ Real-time</span>
+        </div>
+        <div class="dash-card orange">
+          <div class="dash-title">📤 รายการรอยืนยันถอนเงิน</div>
+          <div class="dash-value" style="color:#d97706;" id="pendingWithdrawCount">1 รายการ</div>
+          <span class="realtime-badge">● อัปเดตแบบ Real-time</span>
+        </div>
       </div>
+
       <div class="card">
+        <h3>⚡ รายการเคลื่อนไหวล่าสุดในระบบ</h3>
         <table>
           <thead>
             <tr>
-              <th>เวลาที่แทง</th>
-              <th>ชื่อผู้แทง</th>
-              <th>ตัวเลข</th>
-              <th>ประเภท</th>
-              <th>จำนวนเงิน (บาท)</th>
+              <th>เวลา</th>
+              <th>ประเภทกิจกรรม</th>
+              <th>สมาชิก</th>
+              <th>รายละเอียด</th>
             </tr>
           </thead>
-          <tbody id="betsTableBody">
-            <tr><td colspan="5" style="text-align: center;">กำลังโหลดข้อมูล...</td></tr>
+          <tbody id="realtimeActivityBody">
+            <tr>
+              <td>15:32:10</td>
+              <td><span style="color:#16a34a; font-weight:bold;">[เข้าใช้งาน]</span></td>
+              <td>user01</td>
+              <td>เข้าสู่หน้าแทงหวย</td>
+            </tr>
+            <tr>
+              <td>15:30:45</td>
+              <td><span style="color:#0284c7; font-weight:bold;">[แจ้งฝาก]</span></td>
+              <td>user03</td>
+              <td>แจ้งฝากเงิน 500 บาท</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- TAB 2: รายชื่อสมาชิก & รหัสผ่าน -->
+    <!-- TAB 2: รายชื่อสมาชิก & เครดิต (มีปุ่มเติม/ลบ เครดิต & ยอดเทิร์น) -->
     <div id="tab-users" class="tab-content">
       <h2>👥 รายชื่อสมาชิกทั้งหมด</h2>
       <div class="card">
@@ -135,22 +172,27 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>ยูสเซอร์เนม</th>
+              <th>ยูสเซอร์เนม (กดดูข้อมูล)</th>
               <th>ชื่อ-นามสกุล</th>
-              <th>ยอดเทิร์นคงเหลือ</th>
-              <th>รหัสผ่านปัจจุบัน</th>
-              <th>การจัดการ</th>
+              <th>เครดิตคงเหลือ</th>
+              <th>ยอดเทิร์นสะสม</th>
+              <th>จัดการเครดิต/เทิร์น</th>
+              <th>การจัดการรหัสผ่าน</th>
             </tr>
           </thead>
           <tbody id="usersTableBody">
             <tr>
               <td>101</td>
-              <td>user01</td>
+              <td><span class="user-click" onclick="openUserProfileModal('user01')">user01</span></td>
               <td>สมชาย สายลม</td>
+              <td><strong style="color:#16a34a;">1,500.00</strong></td>
               <td><span style="color: #d97706; font-weight: bold;">500 บาท</span></td>
-              <td><input type="password" value="123456" readonly style="border:none; background:transparent;"></td>
               <td>
-                <button class="btn btn-reset" onclick="resetPassword(101, 'user01')">🔑 รีเซ็ตรหัสผ่าน</button>
+                <button class="btn btn-credit" onclick="openCreditModal('user01', 'เครดิต')">➕/➖ เครดิต</button>
+                <button class="btn btn-view" onclick="openCreditModal('user01', 'ยอดเทิร์น')">🔄 ยอดเทิร์น</button>
+              </td>
+              <td>
+                <button class="btn btn-reset" onclick="resetPassword(101, 'user01')">🔑 รีเซ็ต Pass</button>
               </td>
             </tr>
           </tbody>
@@ -222,7 +264,7 @@
       </div>
     </div>
 
-    <!-- TAB 5: ประวัติโพยย้อนหลัง (ปรับปรุงใหม่เป็น 2 ขั้นตอน) -->
+    <!-- TAB 5: ประวัติโพยย้อนหลัง -->
     <div id="tab-history" class="tab-content">
       <h2>📜 ประวัติโพยย้อนหลังสมาชิก (ยืนยันผลแล้ว)</h2>
       <div class="card">
@@ -245,18 +287,57 @@
 
   </div>
 
-  <!-- Modal ป๊อปอัพแสดงรายละเอียดโพยของรอบที่เลือก -->
+  <!-- Modal 1: ดูโปรไฟล์สมาชิกสไตล์ Super Admin -->
+  <div id="userProfileModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="margin:0; color:#0284c7;">👤 ข้อมูลสมาชิกอย่างละเอียด</h3>
+        <button class="btn btn-cancel" onclick="closeModal('userProfileModal')">✕ ปิด</button>
+      </div>
+      <div id="userProfileDetails">
+        <!-- Render ข้อมูล Super Admin Style -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: ปรับเพิ่ม/ลบ เครดิต และยอดเทิร์น -->
+  <div id="creditModal" class="modal">
+    <div class="modal-content" style="width:400px;">
+      <div class="modal-header">
+        <h3 id="creditModalTitle" style="margin:0; color:#0d9488;">➕/➖ ปรับแต่งข้อมูล</h3>
+        <button class="btn btn-cancel" onclick="closeModal('creditModal')">✕</button>
+      </div>
+      <form onsubmit="handleCreditSubmit(event)">
+        <input type="hidden" id="creditTargetUser">
+        <input type="hidden" id="creditType">
+        <div class="form-group">
+          <label>ประเภทการปรับรายการ:</label>
+          <select id="actionType">
+            <option value="add">➕ เพิ่ม (Add / Bonus)</option>
+            <option value="sub">➖ ลบ (Deduct / Fix)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>จำนวนเงิน / ยอดเทิร์น (บาท):</label>
+          <input type="number" id="creditAmount" required min="1" placeholder="เช่น 100">
+        </div>
+        <div class="form-group">
+          <label>หมายเหตุ / เหตุผล:</label>
+          <input type="text" id="creditRemark" placeholder="เช่น เติมโบนัสกิจกรรม, ปรับแก้เคส">
+        </div>
+        <button type="submit" class="btn btn-approve" style="width:100%; padding:10px;">บันทึกรายการ</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: ดูรายละเอียดโพยหวยประจำรอบ -->
   <div id="betDetailModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h3 id="modalTitle" style="margin:0; color:#0284c7;">📄 รายละเอียดโพยหวย</h3>
         <button class="btn btn-cancel" onclick="closeModal('betDetailModal')">✕ ปิด</button>
       </div>
-      
-      <div id="modalSummary" style="background:#f1f5f9; padding:12px; border-radius:6px; margin-bottom:15px; font-size:14px;">
-        <!-- สรุปผลรางวัลประจำรอบ -->
-      </div>
-
+      <div id="modalSummary" style="background:#f1f5f9; padding:12px; border-radius:6px; margin-bottom:15px; font-size:14px;"></div>
       <h4>📋 รายการตัวเลขที่แทง</h4>
       <table>
         <thead>
@@ -269,19 +350,12 @@
             <th>ได้รับเงิน (บาท)</th>
           </tr>
         </thead>
-        <tbody id="modalBetsBody">
-          <!-- Render โพยตัวเลข -->
-        </tbody>
+        <tbody id="modalBetsBody"></tbody>
       </table>
-
-      <div style="margin-top:15px; text-align:right; font-size:16px;">
-        <strong>รวมยอดแทง: <span id="modalTotalBet">0</span> บาท</strong> | 
-        <strong>ผลได้/เสียสุทธิ: <span id="modalWinLoss" style="color:#16a34a;">+0</span> บาท</strong>
-      </div>
     </div>
   </div>
 
-  <!-- Modal สำหรับดูรูปสลิป -->
+  <!-- Modal 4: สลิปโอนเงิน -->
   <div id="slipModal" class="modal">
     <div class="modal-content" style="text-align: center;">
       <h3>🖼️ หลักฐานการโอนเงิน (สลิป)</h3>
@@ -292,7 +366,6 @@
   </div>
 
 <script>
-  // 1. ตรวจสอบสิทธิ์เมื่อเข้าหน้าเว็บ
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
   const username = localStorage.getItem('username');
@@ -305,10 +378,27 @@
     if (role === 'superadmin') {
       document.getElementById('superAdminBtn').style.display = 'block';
     }
-    fetchBets();
+    startRealtimeDashboard();
   }
 
-  // 2. สลับเมนู Sidebar
+  // 1. ระบบ Real-time Dashboard (อัปเดตอัตโนมัติทุก 5 วินาที)
+  function startRealtimeDashboard() {
+    updateDashboardData();
+    setInterval(updateDashboardData, 5000); // 5000 ms = 5 วินาที
+  }
+
+  function updateDashboardData() {
+    // จำลองการเรียก API ดึงข้อมูล Realtime
+    const onlineUsers = Math.floor(Math.random() * 5) + 10;
+    const pendingDeposit = 3;
+    const pendingWithdraw = 1;
+
+    document.getElementById('onlineUsersCount').innerText = `${onlineUsers} คน`;
+    document.getElementById('pendingDepositCount').innerText = `${pendingDeposit} รายการ`;
+    document.getElementById('pendingWithdrawCount').innerText = `${pendingWithdraw} รายการ`;
+  }
+
+  // 2. สลับ Tab เมนู
   function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
@@ -319,46 +409,48 @@
     if (tabName === 'history') renderUserHistoryList();
   }
 
-  // 3. ดึงโพยปัจจุบัน
-  async function fetchBets() {
-    try {
-      const res = await fetch('/api/admin/bets', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      const result = await res.json();
-      if (result.success) renderBetsTable(result.bets);
-    } catch (err) {
-      console.log('Error loading bets');
-    }
+  // 3. ป๊อปอัพแสดงโปรไฟล์สมาชิกรูปแบบ Super Admin
+  function openUserProfileModal(username) {
+    const detailDiv = document.getElementById('userProfileDetails');
+    detailDiv.innerHTML = `
+      <div style="line-height: 1.8; font-size:15px;">
+        <p><strong>ยูสเซอร์เนม:</strong> <span style="color:#0284c7;">${username}</span></p>
+        <p><strong>ชื่อ-นามสกุล:</strong> สมชาย สายลม</p>
+        <p><strong>เบอร์โทรศัพท์:</strong> 081-234-5678</p>
+        <p><strong>ธนาคาร:</strong> กสิกรไทย (KBANK)</p>
+        <p><strong>เลขบัญชี:</strong> 012-3-45678-9</p>
+        <p><strong>วันที่สมัครสมาชิก:</strong> 15/01/2026 10:20 น.</p>
+        <hr style="border:0; border-top:1px dashed #cbd5e1; margin:15px 0;">
+        <p><strong>เครดิตคงเหลือ:</strong> <span style="color:#16a34a; font-weight:bold;">1,500.00 บาท</span></p>
+        <p><strong>ยอดเทิร์นคงเหลือ:</strong> 500.00 บาท</p>
+        <p><strong>ยอดแทงสะสมรวม:</strong> 45,000.00 บาท</p>
+        <p><strong>สถานะบัญชี:</strong> <span style="background:#22c55e; color:white; padding:2px 8px; border-radius:4px; font-size:12px;">ปกติ (Active)</span></p>
+      </div>
+    `;
+    document.getElementById('userProfileModal').style.display = 'flex';
   }
 
-  function renderBetsTable(bets) {
-    const tbody = document.getElementById('betsTableBody');
-    const totalAmountSpan = document.getElementById('totalAmount');
-    tbody.innerHTML = '';
-    let total = 0;
-
-    if (!bets || bets.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">ยังไม่มีโพยหวยในระบบ</td></tr>';
-      return;
-    }
-
-    bets.forEach(bet => {
-      total += parseFloat(bet.amount);
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${new Date(bet.created_at).toLocaleString('th-TH')}</td>
-        <td>${bet.player_name}</td>
-        <td style="font-weight: bold; color: #d9534f;">${bet.number}</td>
-        <td>${bet.bet_type}</td>
-        <td>${parseFloat(bet.amount).toLocaleString()}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-    totalAmountSpan.innerText = total.toLocaleString();
+  // 4. ระบบจัดการ เติม/ลบ เครดิต และยอดเทิร์น
+  function openCreditModal(user, type) {
+    document.getElementById('creditTargetUser').value = user;
+    document.getElementById('creditType').value = type;
+    document.getElementById('creditModalTitle').innerText = `⚙️ ปรับแต่ง [${type}] ของ ${user}`;
+    document.getElementById('creditModal').style.display = 'flex';
   }
 
-  // 4. ข้อมูลจำลองประวัติโพยย้อนหลัง (จัดกลุ่มตามสมาชิก และรอบ)
+  function handleCreditSubmit(e) {
+    e.preventDefault();
+    const user = document.getElementById('creditTargetUser').value;
+    const type = document.getElementById('creditType').value;
+    const action = document.getElementById('actionType').value === 'add' ? 'เพิ่ม' : 'ลบ';
+    const amount = document.getElementById('creditAmount').value;
+    const remark = document.getElementById('creditRemark').value;
+
+    alert(`ทำรายการสำเร็จ!\n\n${action} ${type} จำนวน ${amount} บาท ให้แก่ ${user}\nเหตุผล: ${remark || '-'}`);
+    closeModal('creditModal');
+  }
+
+  // 5. ประวัติโพยย้อนหลังสมาชิก (เหมือนฉบับก่อนหน้า)
   const userHistoryData = [
     {
       userId: 'user01',
@@ -366,208 +458,37 @@
       totalWinLoss: +89800,
       rounds: [
         { roundId: 1, roundName: 'รอบที่ 1 (28/08/2026 15:30)', resultTop: '456', resultBottom: '89', totalBet: 200, winLoss: +89800,
-          items: [
-            { type: '3ตัวบน', number: '456', amount: 100, rate: 900, status: 'WIN', payout: 90000 },
-            { type: '2ตัวล่าง', number: '12', amount: 100, rate: 90, status: 'LOSE', payout: 0 }
-          ] 
-        },
-        { roundId: 5, roundName: 'รอบที่ 5 (27/08/2026 15:30)', resultTop: '123', resultBottom: '45', totalBet: 100, winLoss: -100, items: [] },
-        { roundId: 6, roundName: 'รอบที่ 6 (26/08/2026 15:30)', resultTop: '789', resultBottom: '01', totalBet: 500, winLoss: +4500, items: [] },
-        { roundId: 8, roundName: 'รอบที่ 8 (25/08/2026 15:30)', resultTop: '000', resultBottom: '99', totalBet: 200, winLoss: -200, items: [] },
-        { roundId: 9, roundName: 'รอบที่ 9 (24/08/2026 15:30)', resultTop: '111', resultBottom: '22', totalBet: 100, winLoss: -100, items: [] },
-        { roundId: 10, roundName: 'รอบที่ 10 (23/08/2026 15:30)', resultTop: '555', resultBottom: '66', totalBet: 300, winLoss: -300, items: [] },
-        { roundId: 11, roundName: 'รอบที่ 11 (22/08/2026 15:30)', resultTop: '777', resultBottom: '88', totalBet: 100, winLoss: -100, items: [] },
-        { roundId: 12, roundName: 'รอบที่ 12 (21/08/2026 15:30)', resultTop: '999', resultBottom: '00', totalBet: 200, winLoss: -200, items: [] },
-        { roundId: 13, roundName: 'รอบที่ 13 (20/08/2026 15:30)', resultTop: '333', resultBottom: '44', totalBet: 100, winLoss: -100, items: [] },
-        { roundId: 14, roundName: 'รอบที่ 14 (19/08/2026 15:30)', resultTop: '222', resultBottom: '33', totalBet: 100, winLoss: -100, items: [] },
-        { roundId: 15, roundName: 'รอบที่ 15 (18/08/2026 15:30)', resultTop: '888', resultBottom: '11', totalBet: 200, winLoss: -200, items: [] }
-      ]
-    },
-    {
-      userId: 'user02',
-      fullName: 'สมหญิง มีสุข',
-      totalWinLoss: -500,
-      rounds: [
-        { roundId: 1, roundName: 'รอบที่ 1 (28/08/2026 15:30)', resultTop: '456', resultBottom: '89', totalBet: 500, winLoss: -500,
-          items: [
-            { type: '2ตัวล่าง', number: '89', amount: 500, rate: 90, status: 'LOSE', payout: 0 }
-          ] 
+          items: [{ type: '3ตัวบน', number: '456', amount: 100, rate: 900, status: 'WIN', payout: 90000 }] 
         }
       ]
     }
   ];
 
-  // 5. แสดงรายชื่อสมาชิกในหน้าประวัติโพย
   function renderUserHistoryList() {
     const tbody = document.getElementById('userHistoryBody');
     tbody.innerHTML = '';
-
     userHistoryData.forEach(user => {
       const tr = document.createElement('tr');
-      tr.className = 'clickable-row';
       const color = user.totalWinLoss >= 0 ? '#16a34a' : '#dc2626';
-
       tr.innerHTML = `
-        <td><strong style="color:#0284c7;" onclick="toggleUserRounds('${user.userId}')">${user.userId}</strong></td>
+        <td><strong class="user-click" onclick="toggleUserRounds('${user.userId}')">${user.userId}</strong></td>
         <td>${user.fullName}</td>
         <td>มีทั้งหมด ${user.rounds.length} รอบ</td>
         <td style="color:${color}; font-weight:bold;">${user.totalWinLoss > 0 ? '+' : ''}${user.totalWinLoss.toLocaleString()}</td>
         <td><button class="btn btn-view" onclick="toggleUserRounds('${user.userId}')">🔻 แสดงรอบที่แทง</button></td>
       `;
-
-      // แถวสไลด์ลงมา (Accordion) แสดงรายการรอบ (จำกัด 10 รายการต่อหน้า)
-      const detailTr = document.createElement('tr');
-      detailTr.id = `user-rounds-${user.userId}`;
-      detailTr.className = 'history-dropdown';
-
-      detailTr.innerHTML = `
-        <td colspan="5">
-          <div class="dropdown-container">
-            <h4 style="margin-top:0;">📅 รายการรอบหวยที่ ${user.userId} แทงย้อนหลัง</h4>
-            <table style="background:#fff;">
-              <thead>
-                <tr>
-                  <th>ชื่อรอบ / วันเวลา</th>
-                  <th>ยอดแทงรวม</th>
-                  <th>ผลได้/เสีย</th>
-                  <th>การดำเนินการ</th>
-                </tr>
-              </thead>
-              <tbody id="rounds-body-${user.userId}">
-                <!-- Render รอบหวยที่นี่ -->
-              </tbody>
-            </table>
-            <!-- Pagination จำกัด 10 บรรทัด -->
-            <div class="pagination" id="pagination-${user.userId}"></div>
-          </div>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-      tbody.appendChild(detailTr);
-
-      renderRoundsPage(user.userId, 1);
-    });
-  }
-
-  // 6. เปลี่ยนหน้า Pagination รายการรอบ (10 แถวต่อหน้า)
-  function renderRoundsPage(userId, page) {
-    const user = userHistoryData.find(u => u.userId === userId);
-    if (!user) return;
-
-    const pageSize = 10;
-    const totalPages = Math.ceil(user.rounds.length / pageSize);
-    const start = (page - 1) * pageSize;
-    const pageRounds = user.rounds.slice(start, start + pageSize);
-
-    const tbody = document.getElementById(`rounds-body-${userId}`);
-    tbody.innerHTML = '';
-
-    pageRounds.forEach(r => {
-      const tr = document.createElement('tr');
-      const color = r.winLoss >= 0 ? '#16a34a' : '#dc2626';
-      tr.innerHTML = `
-        <td><strong>${r.roundName}</strong></td>
-        <td>${r.totalBet.toLocaleString()} บาท</td>
-        <td style="color:${color}; font-weight:bold;">${r.winLoss > 0 ? '+' : ''}${r.winLoss.toLocaleString()} บาท</td>
-        <td>
-          <button class="btn btn-approve" onclick="openBetDetailModal('${userId}', ${r.roundId})">🔍 ดูใบโพยฉบับเต็ม</button>
-        </td>
-      `;
       tbody.appendChild(tr);
     });
-
-    // ปุ่มเปลี่ยนหน้า
-    const pagDiv = document.getElementById(`pagination-${userId}`);
-    pagDiv.innerHTML = '';
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement('button');
-      btn.className = `page-btn ${i === page ? 'active' : ''}`;
-      btn.innerText = i;
-      btn.onclick = () => renderRoundsPage(userId, i);
-      pagDiv.appendChild(btn);
-    }
   }
 
-  function toggleUserRounds(userId) {
-    const row = document.getElementById(`user-rounds-${userId}`);
-    row.classList.toggle('active');
-  }
-
-  // 7. เปิด ป๊อปอัพ (Modal) แสดงรายละเอียดโพยประจำรอบ
-  function openBetDetailModal(userId, roundId) {
-    const user = userHistoryData.find(u => u.userId === userId);
-    const round = user ? user.rounds.find(r => r.roundId === roundId) : null;
-
-    if (!round) {
-      alert('ไม่พบข้อมูลโพยของรอบนี้');
-      return;
-    }
-
-    document.getElementById('modalTitle').innerText = `📄 โพยหวย: ${user.userId} (${round.roundName})`;
-    document.getElementById('modalSummary').innerHTML = `
-      <strong>ผลรางวัลประจำรอบ:</strong> 3 ตัวบน = <span style="color:#dc2626; font-weight:bold;">${round.resultTop}</span> | 
-      2 ตัวล่าง = <span style="color:#dc2626; font-weight:bold;">${round.resultBottom}</span>
-    `;
-
-    const tbody = document.getElementById('modalBetsBody');
-    tbody.innerHTML = '';
-
-    // ถ้าไม่มีข้อมูลโพยย่อย ให้แสดงข้อมูลตัวอย่าง
-    const items = round.items.length > 0 ? round.items : [
-      { type: '3ตัวบน', number: '123', amount: 50, rate: 900, status: 'LOSE', payout: 0 },
-      { type: '2ตัวล่าง', number: '45', amount: 50, rate: 90, status: 'LOSE', payout: 0 }
-    ];
-
-    items.forEach(item => {
-      const tr = document.createElement('tr');
-      const isWin = item.status === 'WIN';
-      tr.innerHTML = `
-        <td>${item.type}</td>
-        <td><strong style="color:#0284c7;">${item.number}</strong></td>
-        <td>${item.amount.toLocaleString()}</td>
-        <td>1 : ${item.rate}</td>
-        <td><span class="${isWin ? 'badge-win' : 'badge-lose'}">${isWin ? 'ถูกรางวัล' : 'ไม่ถูกรางวัล'}</span></td>
-        <td style="font-weight:bold; color:${isWin ? '#16a34a' : '#64748b'};">${item.payout.toLocaleString()}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById('modalTotalBet').innerText = round.totalBet.toLocaleString();
-    const winLossElem = document.getElementById('modalWinLoss');
-    winLossElem.innerText = (round.winLoss > 0 ? '+' : '') + round.winLoss.toLocaleString();
-    winLossElem.style.color = round.winLoss >= 0 ? '#16a34a' : '#dc2626';
-
-    document.getElementById('betDetailModal').style.display = 'flex';
-  }
-
-  // ปิด Modal
-  function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-  }
-
-  // รีเซ็ตรหัสผ่านและฝาก-ถอน
-  function resetPassword(userId, username) {
-    const tempPassword = Math.random().toString(36).slice(-8);
-    if (confirm(`คุณต้องการรีเซ็ตรหัสผ่านของ ${username} หรือไม่?\n\nรหัสผ่านชั่วคราวใหม่คือ: ${tempPassword}`)) {
-      alert(`ทำรายการสำเร็จ!\nส่งรหัสผ่านชั่วคราว: [ ${tempPassword} ] ให้สมาชิกเข้าใช้งาน`);
-    }
-  }
-
-  function viewSlip(imgUrl) {
-    document.getElementById('slipImage').src = imgUrl;
-    document.getElementById('slipModal').style.display = 'flex';
-  }
-
-  function approveDeposit(id) { if(confirm('อนุมัติยอดฝากไอดี ' + id)) alert('อนุมัติเรียบร้อย'); }
-  function cancelDeposit(id) { if(confirm('ยกเลิกรายการฝากไอดี ' + id)) alert('ยกเลิกเรียบร้อย'); }
-  function approveWithdraw(id) { if(confirm('อนุมัติยอดถอนไอดี ' + id)) alert('อนุมัติเรียบร้อย'); }
-  function cancelWithdraw(id) { if(confirm('ยกเลิกรายการถอนไอดี ' + id)) alert('ยกเลิกเรียบร้อย'); }
-
-  function logout() {
-    localStorage.clear();
-    window.location.href = '/login.html';
-  }
+  function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+  function viewSlip(imgUrl) { document.getElementById('slipImage').src = imgUrl; document.getElementById('slipModal').style.display = 'flex'; }
+  function resetPassword(id, name) { alert(`รีเซ็ตรหัสผ่านชั่วคราวให้ ${name} เรียบร้อยแล้ว`); }
+  function approveDeposit(id) { alert('อนุมัติยอดฝาก ' + id); }
+  function cancelDeposit(id) { alert('ยกเลิกรายการฝาก ' + id); }
+  function approveWithdraw(id) { alert('อนุมัติถอน ' + id); }
+  function cancelWithdraw(id) { alert('ยกเลิกรายการถอน ' + id); }
+  function logout() { localStorage.clear(); window.location.href = '/login.html'; }
 </script>
 
 </body>
