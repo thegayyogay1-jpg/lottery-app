@@ -42,10 +42,10 @@
     .user-click { color: #0284c7; font-weight: bold; cursor: pointer; text-decoration: underline; }
     .user-click:hover { color: #0369a1; }
 
-    /* Accordion รายการรอบ */
-    .history-dropdown { display: none; background-color: #f8fafc; }
+    /* Accordion รายการรอบ (สไลด์ลงมา) */
+    .history-dropdown { display: none; background-color: #f1f5f9; }
     .history-dropdown.active { display: table-row; }
-    .dropdown-container { padding: 15px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; margin: 10px 0; }
+    .dropdown-container { padding: 15px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; margin: 5px 0; }
     
     /* ปุ่มและ Action */
     .btn { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 2px; }
@@ -64,17 +64,20 @@
     
     /* Pagination */
     .pagination { display: flex; gap: 5px; margin-top: 15px; justify-content: flex-end; }
-    .page-btn { padding: 6px 12px; border: 1px solid #cbd5e1; background: white; cursor: pointer; border-radius: 4px; }
+    .page-btn { padding: 5px 10px; border: 1px solid #cbd5e1; background: white; cursor: pointer; border-radius: 4px; font-size: 13px; }
     .page-btn.active { background: #0284c7; color: white; border-color: #0284c7; }
 
     /* Modal ป๊อปอัพ */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: white; padding: 25px; border-radius: 8px; width: 550px; max-width: 95%; max-height: 90vh; overflow-y: auto; }
+    .modal-content { background: white; padding: 25px; border-radius: 8px; width: 600px; max-width: 95%; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px; }
     
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
     .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; }
+    
+    .badge-win { background-color: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .badge-lose { background-color: #94a3b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -116,7 +119,6 @@
         <span id="adminName" style="font-weight: bold; color: #475569;"></span>
       </div>
 
-      <!-- Card สรุปสถานะเรียลไทม์ -->
       <div class="dashboard-grid">
         <div class="dash-card green">
           <div class="dash-title">🟢 สมาชิกกำลังออนไลน์ในระบบ</div>
@@ -164,7 +166,7 @@
       </div>
     </div>
 
-    <!-- TAB 2: รายชื่อสมาชิก & เครดิต (มีปุ่มเติม/ลบ เครดิต & ยอดเทิร์น) -->
+    <!-- TAB 2: รายชื่อสมาชิก & เครดิต -->
     <div id="tab-users" class="tab-content">
       <h2>👥 รายชื่อสมาชิกทั้งหมด</h2>
       <div class="card">
@@ -264,7 +266,7 @@
       </div>
     </div>
 
-    <!-- TAB 5: ประวัติโพยย้อนหลัง -->
+    <!-- TAB 5: ประวัติโพยย้อนหลังสมาชิก (เปิดสไลด์ + ดูป๊อปอัพใบโพยได้) -->
     <div id="tab-history" class="tab-content">
       <h2>📜 ประวัติโพยย้อนหลังสมาชิก (ยืนยันผลแล้ว)</h2>
       <div class="card">
@@ -279,7 +281,7 @@
             </tr>
           </thead>
           <tbody id="userHistoryBody">
-            <!-- Render รายชื่อสมาชิก -->
+            <!-- Render สมาชิกและแถว Dropdown รายการรอบ -->
           </tbody>
         </table>
       </div>
@@ -287,20 +289,18 @@
 
   </div>
 
-  <!-- Modal 1: ดูโปรไฟล์สมาชิกสไตล์ Super Admin -->
+  <!-- Modal 1: โปรไฟล์สมาชิก Super Admin Style -->
   <div id="userProfileModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h3 style="margin:0; color:#0284c7;">👤 ข้อมูลสมาชิกอย่างละเอียด</h3>
         <button class="btn btn-cancel" onclick="closeModal('userProfileModal')">✕ ปิด</button>
       </div>
-      <div id="userProfileDetails">
-        <!-- Render ข้อมูล Super Admin Style -->
-      </div>
+      <div id="userProfileDetails"></div>
     </div>
   </div>
 
-  <!-- Modal 2: ปรับเพิ่ม/ลบ เครดิต และยอดเทิร์น -->
+  <!-- Modal 2: เติม/ลบ เครดิต และยอดเทิร์น -->
   <div id="creditModal" class="modal">
     <div class="modal-content" style="width:400px;">
       <div class="modal-header">
@@ -330,7 +330,7 @@
     </div>
   </div>
 
-  <!-- Modal 3: ดูรายละเอียดโพยหวยประจำรอบ -->
+  <!-- Modal 3: ป๊อปอัพแสดงใบโพยรายละเอียดประจำรอบ -->
   <div id="betDetailModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -352,6 +352,10 @@
         </thead>
         <tbody id="modalBetsBody"></tbody>
       </table>
+      <div style="margin-top:15px; text-align:right; font-size:16px;">
+        <strong>รวมยอดแทง: <span id="modalTotalBet">0</span> บาท</strong> | 
+        <strong>ผลได้/เสียสุทธิ: <span id="modalWinLoss" style="color:#16a34a;">+0</span> บาท</strong>
+      </div>
     </div>
   </div>
 
@@ -381,24 +385,20 @@
     startRealtimeDashboard();
   }
 
-  // 1. ระบบ Real-time Dashboard (อัปเดตอัตโนมัติทุก 5 วินาที)
+  // 1. Real-time Dashboard
   function startRealtimeDashboard() {
     updateDashboardData();
-    setInterval(updateDashboardData, 5000); // 5000 ms = 5 วินาที
+    setInterval(updateDashboardData, 5000);
   }
 
   function updateDashboardData() {
-    // จำลองการเรียก API ดึงข้อมูล Realtime
     const onlineUsers = Math.floor(Math.random() * 5) + 10;
-    const pendingDeposit = 3;
-    const pendingWithdraw = 1;
-
     document.getElementById('onlineUsersCount').innerText = `${onlineUsers} คน`;
-    document.getElementById('pendingDepositCount').innerText = `${pendingDeposit} รายการ`;
-    document.getElementById('pendingWithdrawCount').innerText = `${pendingWithdraw} รายการ`;
+    document.getElementById('pendingDepositCount').innerText = `3 รายการ`;
+    document.getElementById('pendingWithdrawCount').innerText = `1 รายการ`;
   }
 
-  // 2. สลับ Tab เมนู
+  // 2. สลับ Tab
   function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
@@ -409,7 +409,189 @@
     if (tabName === 'history') renderUserHistoryList();
   }
 
-  // 3. ป๊อปอัพแสดงโปรไฟล์สมาชิกรูปแบบ Super Admin
+  // 3. ข้อมูลจำลองประวัติโพยย้อนหลัง (มี 11 รอบเพื่อทดสอบระบบ Pagination หน้าละ 10 บรรทัด)
+  const userHistoryData = [
+    {
+      userId: 'user01',
+      fullName: 'สมชาย สายลม',
+      totalWinLoss: +89800,
+      rounds: [
+        { roundId: 1, roundName: 'รอบที่ 1 (28/08/2026 15:30)', resultTop: '456', resultBottom: '89', totalBet: 200, winLoss: +89800,
+          items: [
+            { type: '3ตัวบน', number: '456', amount: 100, rate: 900, status: 'WIN', payout: 90000 },
+            { type: '2ตัวล่าง', number: '12', amount: 100, rate: 90, status: 'LOSE', payout: 0 }
+          ] 
+        },
+        { roundId: 5, roundName: 'รอบที่ 5 (27/08/2026 15:30)', resultTop: '123', resultBottom: '45', totalBet: 100, winLoss: -100, items: [] },
+        { roundId: 6, roundName: 'รอบที่ 6 (26/08/2026 15:30)', resultTop: '789', resultBottom: '01', totalBet: 500, winLoss: +4500, items: [] },
+        { roundId: 8, roundName: 'รอบที่ 8 (25/08/2026 15:30)', resultTop: '000', resultBottom: '99', totalBet: 200, winLoss: -200, items: [] },
+        { roundId: 9, roundName: 'รอบที่ 9 (24/08/2026 15:30)', resultTop: '111', resultBottom: '22', totalBet: 100, winLoss: -100, items: [] },
+        { roundId: 10, roundName: 'รอบที่ 10 (23/08/2026 15:30)', resultTop: '555', resultBottom: '66', totalBet: 300, winLoss: -300, items: [] },
+        { roundId: 11, roundName: 'รอบที่ 11 (22/08/2026 15:30)', resultTop: '777', resultBottom: '88', totalBet: 100, winLoss: -100, items: [] },
+        { roundId: 12, roundName: 'รอบที่ 12 (21/08/2026 15:30)', resultTop: '999', resultBottom: '00', totalBet: 200, winLoss: -200, items: [] },
+        { roundId: 13, roundName: 'รอบที่ 13 (20/08/2026 15:30)', resultTop: '333', resultBottom: '44', totalBet: 100, winLoss: -100, items: [] },
+        { roundId: 14, roundName: 'รอบที่ 14 (19/08/2026 15:30)', resultTop: '222', resultBottom: '33', totalBet: 100, winLoss: -100, items: [] },
+        { roundId: 15, roundName: 'รอบที่ 15 (18/08/2026 15:30)', resultTop: '888', resultBottom: '11', totalBet: 200, winLoss: -200, items: [] }
+      ]
+    },
+    {
+      userId: 'user02',
+      fullName: 'สมหญิง มีสุข',
+      totalWinLoss: -500,
+      rounds: [
+        { roundId: 1, roundName: 'รอบที่ 1 (28/08/2026 15:30)', resultTop: '456', resultBottom: '89', totalBet: 500, winLoss: -500,
+          items: [
+            { type: '2ตัวล่าง', number: '89', amount: 500, rate: 90, status: 'LOSE', payout: 0 }
+          ] 
+        }
+      ]
+    }
+  ];
+
+  // 4. แสดงรายชื่อสมาชิกในประวัติโพยย้อนหลัง + สร้าง Dropdown Tr สไลด์ลงมา
+  function renderUserHistoryList() {
+    const tbody = document.getElementById('userHistoryBody');
+    tbody.innerHTML = '';
+
+    userHistoryData.forEach(user => {
+      // แถวสมาชิกหลัก
+      const tr = document.createElement('tr');
+      const color = user.totalWinLoss >= 0 ? '#16a34a' : '#dc2626';
+
+      tr.innerHTML = `
+        <td><strong class="user-click" onclick="toggleUserRounds('${user.userId}')">${user.userId}</strong></td>
+        <td>${user.fullName}</td>
+        <td>มีทั้งหมด ${user.rounds.length} รอบ</td>
+        <td style="color:${color}; font-weight:bold;">${user.totalWinLoss > 0 ? '+' : ''}${user.totalWinLoss.toLocaleString()}</td>
+        <td><button class="btn btn-view" onclick="toggleUserRounds('${user.userId}')">🔻 แสดงรอบที่แทง</button></td>
+      `;
+
+      // แถวสไลด์ลงมา (Accordion Dropdown)
+      const detailTr = document.createElement('tr');
+      detailTr.id = `user-rounds-${user.userId}`;
+      detailTr.className = 'history-dropdown';
+
+      detailTr.innerHTML = `
+        <td colspan="5">
+          <div class="dropdown-container">
+            <h4 style="margin-top:0; color:#0284c7;">📅 รายการรอบหวยที่ ${user.userId} แทงย้อนหลัง</h4>
+            <table style="background:#fff;">
+              <thead>
+                <tr>
+                  <th>ชื่อรอบ / วันเวลา</th>
+                  <th>ยอดแทงรวม</th>
+                  <th>ผลได้/เสีย</th>
+                  <th>การดำเนินการ</th>
+                </tr>
+              </thead>
+              <tbody id="rounds-body-${user.userId}"></tbody>
+            </table>
+            <!-- Pagination จำกัด 10 บรรทัดต่อหน้า -->
+            <div class="pagination" id="pagination-${user.userId}"></div>
+          </div>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+      tbody.appendChild(detailTr);
+
+      // Render รายการรอบหน้า 1
+      renderRoundsPage(user.userId, 1);
+    });
+  }
+
+  // 5. ระบบแบ่งหน้า (Pagination) รายการรอบ 10 บรรทัดต่อหน้า
+  function renderRoundsPage(userId, page) {
+    const user = userHistoryData.find(u => u.userId === userId);
+    if (!user) return;
+
+    const pageSize = 10;
+    const totalPages = Math.ceil(user.rounds.length / pageSize);
+    const start = (page - 1) * pageSize;
+    const pageRounds = user.rounds.slice(start, start + pageSize);
+
+    const tbody = document.getElementById(`rounds-body-${userId}`);
+    tbody.innerHTML = '';
+
+    pageRounds.forEach(r => {
+      const tr = document.createElement('tr');
+      const color = r.winLoss >= 0 ? '#16a34a' : '#dc2626';
+      tr.innerHTML = `
+        <td><strong>${r.roundName}</strong></td>
+        <td>${r.totalBet.toLocaleString()} บาท</td>
+        <td style="color:${color}; font-weight:bold;">${r.winLoss > 0 ? '+' : ''}${r.winLoss.toLocaleString()} บาท</td>
+        <td>
+          <button class="btn btn-approve" onclick="openBetDetailModal('${userId}', ${r.roundId})">🔍 ดูใบโพยฉบับเต็ม</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // ปุ่มเปลี่ยนหน้า 1, 2, 3...
+    const pagDiv = document.getElementById(`pagination-${userId}`);
+    pagDiv.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.className = `page-btn ${i === page ? 'active' : ''}`;
+      btn.innerText = i;
+      btn.onclick = () => renderRoundsPage(userId, i);
+      pagDiv.appendChild(btn);
+    }
+  }
+
+  // 6. สลับเปิด/ปิด แถวสไลด์ลงมา
+  function toggleUserRounds(userId) {
+    const row = document.getElementById(`user-rounds-${userId}`);
+    row.classList.toggle('active');
+  }
+
+  // 7. เปิด ป๊อปอัพ (Modal) แสดงรายละเอียดใบโพยฉบับเต็ม
+  function openBetDetailModal(userId, roundId) {
+    const user = userHistoryData.find(u => u.userId === userId);
+    const round = user ? user.rounds.find(r => r.roundId === roundId) : null;
+
+    if (!round) {
+      alert('ไม่พบข้อมูลโพยของรอบนี้');
+      return;
+    }
+
+    document.getElementById('modalTitle').innerText = `📄 ใบโพย: ${user.userId} (${round.roundName})`;
+    document.getElementById('modalSummary').innerHTML = `
+      <strong>ผลรางวัลประจำรอบ:</strong> 3 ตัวบน = <span style="color:#dc2626; font-weight:bold;">${round.resultTop}</span> | 
+      2 ตัวล่าง = <span style="color:#dc2626; font-weight:bold;">${round.resultBottom}</span>
+    `;
+
+    const tbody = document.getElementById('modalBetsBody');
+    tbody.innerHTML = '';
+
+    const items = round.items.length > 0 ? round.items : [
+      { type: '3ตัวบน', number: '123', amount: 50, rate: 900, status: 'LOSE', payout: 0 },
+      { type: '2ตัวล่าง', number: '45', amount: 50, rate: 90, status: 'LOSE', payout: 0 }
+    ];
+
+    items.forEach(item => {
+      const tr = document.createElement('tr');
+      const isWin = item.status === 'WIN';
+      tr.innerHTML = `
+        <td>${item.type}</td>
+        <td><strong style="color:#0284c7;">${item.number}</strong></td>
+        <td>${item.amount.toLocaleString()}</td>
+        <td>1 : ${item.rate}</td>
+        <td><span class="${isWin ? 'badge-win' : 'badge-lose'}">${isWin ? 'ถูกรางวัล' : 'ไม่ถูกรางวัล'}</span></td>
+        <td style="font-weight:bold; color:${isWin ? '#16a34a' : '#64748b'};">${item.payout.toLocaleString()}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('modalTotalBet').innerText = round.totalBet.toLocaleString();
+    const winLossElem = document.getElementById('modalWinLoss');
+    winLossElem.innerText = (round.winLoss > 0 ? '+' : '') + round.winLoss.toLocaleString();
+    winLossElem.style.color = round.winLoss >= 0 ? '#16a34a' : '#dc2626';
+
+    document.getElementById('betDetailModal').style.display = 'flex';
+  }
+
+  // โปรไฟล์สมาชิก
   function openUserProfileModal(username) {
     const detailDiv = document.getElementById('userProfileDetails');
     detailDiv.innerHTML = `
@@ -430,7 +612,7 @@
     document.getElementById('userProfileModal').style.display = 'flex';
   }
 
-  // 4. ระบบจัดการ เติม/ลบ เครดิต และยอดเทิร์น
+  // จัดการเครดิต/เทิร์น
   function openCreditModal(user, type) {
     document.getElementById('creditTargetUser').value = user;
     document.getElementById('creditType').value = type;
@@ -448,37 +630,6 @@
 
     alert(`ทำรายการสำเร็จ!\n\n${action} ${type} จำนวน ${amount} บาท ให้แก่ ${user}\nเหตุผล: ${remark || '-'}`);
     closeModal('creditModal');
-  }
-
-  // 5. ประวัติโพยย้อนหลังสมาชิก (เหมือนฉบับก่อนหน้า)
-  const userHistoryData = [
-    {
-      userId: 'user01',
-      fullName: 'สมชาย สายลม',
-      totalWinLoss: +89800,
-      rounds: [
-        { roundId: 1, roundName: 'รอบที่ 1 (28/08/2026 15:30)', resultTop: '456', resultBottom: '89', totalBet: 200, winLoss: +89800,
-          items: [{ type: '3ตัวบน', number: '456', amount: 100, rate: 900, status: 'WIN', payout: 90000 }] 
-        }
-      ]
-    }
-  ];
-
-  function renderUserHistoryList() {
-    const tbody = document.getElementById('userHistoryBody');
-    tbody.innerHTML = '';
-    userHistoryData.forEach(user => {
-      const tr = document.createElement('tr');
-      const color = user.totalWinLoss >= 0 ? '#16a34a' : '#dc2626';
-      tr.innerHTML = `
-        <td><strong class="user-click" onclick="toggleUserRounds('${user.userId}')">${user.userId}</strong></td>
-        <td>${user.fullName}</td>
-        <td>มีทั้งหมด ${user.rounds.length} รอบ</td>
-        <td style="color:${color}; font-weight:bold;">${user.totalWinLoss > 0 ? '+' : ''}${user.totalWinLoss.toLocaleString()}</td>
-        <td><button class="btn btn-view" onclick="toggleUserRounds('${user.userId}')">🔻 แสดงรอบที่แทง</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
   }
 
   function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
