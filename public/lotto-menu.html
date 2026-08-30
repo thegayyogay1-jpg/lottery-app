@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUCKY GO - รายการหวย</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body { background-color: #0b0f19; color: #fff; margin: 0; padding: 15px; }
+    .container { max-width: 500px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+    .back-btn { background: #1e293b; border: none; color: #fff; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+    /* Grid 2 Columns */
+    .lotto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .lotto-card { background: linear-gradient(135deg, #b45309 0%, #78350f 100%); border: 1px solid #f59e0b; border-radius: 14px; padding: 15px; cursor: pointer; transition: 0.2s; }
+    .lotto-card:hover { transform: translateY(-3px); }
+    .lotto-card.gov { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-color: #38bdf8; }
+    .lotto-card.laos { background: linear-gradient(135deg, #4338ca 0%, #312e81 100%); border-color: #818cf8; }
+
+    .lotto-name { font-size: 15px; font-weight: bold; margin-bottom: 8px; }
+    .timer-badge { background: rgba(0, 0, 0, 0.4); border-radius: 20px; padding: 4px 10px; font-size: 12px; display: inline-block; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" onclick="location.href='/games.html'">← กลับ</button>
+      <h2 style="margin:0; font-size: 20px;">รายการหวยทั้งหมด</h2>
+    </div>
+
+    <div class="lotto-grid">
+      <!-- แถวที่ 1: ยี่กี 1 นาที & 5 นาที -->
+      <div class="lotto-card" onclick="location.href='/yikee-rounds.html?type=1m'">
+        <div class="lotto-name">⚡ ยี่กี (1 นาที)</div>
+        <div class="timer-badge">⏳ <span id="t-yikee1m">00:45</span></div>
+      </div>
+
+      <div class="lotto-card" style="background: linear-gradient(135deg, #d97706 0%, #92400e 100%);" onclick="location.href='/yikee-rounds.html?type=5m'">
+        <div class="lotto-name">⏱️ ยี่กี (5 นาที)</div>
+        <div class="timer-badge">⏳ <span id="t-yikee5m">03:20</span></div>
+      </div>
+
+      <!-- แถวที่ 2: หวยรัฐบาลไทย & หวยลาว -->
+      <div class="lotto-card gov" onclick="alert('เข้าสู่หน้าแทงหวยรัฐบาลไทย')">
+        <div class="lotto-name">🇹🇭 หวยรัฐบาลไทย</div>
+        <div style="font-size:11px; margin-bottom:5px; color:#e0f2fe;">งวด 1 ก.ย. 2026</div>
+        <div class="timer-badge">⏳ 47:15:46</div>
+      </div>
+
+      <div class="lotto-card laos" onclick="alert('เข้าสู่หน้าแทงหวยลาวพัฒนา')">
+        <div class="lotto-name">🇱🇦 หวยลาวพัฒนา</div>
+        <div style="font-size:11px; margin-bottom:5px; color:#e0e7ff;">งวดวันนี้</div>
+        <div class="timer-badge">⏳ 28:15:46</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let sec1m = 45;
+  setInterval(() => {
+    sec1m = sec1m > 0 ? sec1m - 1 : 59;
+    document.getElementById('t-yikee1m').innerText = `00:${sec1m < 10 ? '0' + sec1m : sec1m}`;
+  }, 1000);
+</script>
+</body>
+</html>
