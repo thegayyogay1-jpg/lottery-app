@@ -3,69 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>หน้าหลักสมาชิก - HUAYOK Style</title>
+  <title>LUCKY GO - หน้าหลักสมาชิก</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Thonburi, Tahoma, sans-serif; }
-    body { background-color: #0b0f19; color: #ffffff; margin: 0; padding: 0; padding-bottom: 90px; }
-    
+    body { background-color: #0b0f19; color: #ffffff; margin: 0; padding: 0; padding-bottom: 80px; }
     .container { max-width: 500px; margin: 0 auto; padding: 15px; }
 
-    /* Top Bar Header */
+    /* Top Header */
     .top-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
-    .logo { font-size: 24px; font-weight: bold; color: #38bdf8; display: flex; align-items: center; gap: 6px; }
-    .user-profile { display: flex; align-items: center; gap: 10px; background: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; }
-    .avatar { width: 26px; height: 26px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
+    .logo { font-size: 24px; font-weight: 900; color: #fbbf24; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+    .user-profile { display: flex; align-items: center; gap: 10px; background: #1e293b; padding: 6px 14px; border-radius: 20px; font-size: 13px; }
+    .avatar { width: 24px; height: 24px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
 
-    /* Credit Card Section */
+    /* Credit Card */
     .credit-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid #334155; border-radius: 16px; padding: 20px; margin-top: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-    .credit-header { display: flex; justify-content: space-between; color: #94a3b8; font-size: 14px; align-items: center; }
+    .credit-header { display: flex; justify-content: space-between; color: #94a3b8; font-size: 14px; }
     .credit-balance { font-size: 32px; font-weight: bold; margin: 12px 0 20px 0; color: #ffffff; }
-    .credit-balance span { font-size: 18px; color: #94a3b8; margin-left: 5px; }
-    
     .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn-deposit { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-deposit:hover { background: #0369a1; }
-    .btn-withdraw { background: #1e293b; color: white; border: 1px solid #334155; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-deposit { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; }
+    .btn-withdraw { background: #1e293b; color: white; border: 1px solid #334155; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; }
 
-    /* Grid Shortcuts */
-    .shortcut-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 25px 0; text-align: center; }
-    .shortcut-item { background: #1e293b; border-radius: 14px; padding: 12px 5px; cursor: pointer; transition: 0.2s; }
-    .shortcut-item:hover { transform: translateY(-3px); background: #334155; }
-    .shortcut-icon { font-size: 22px; margin-bottom: 6px; }
-    .shortcut-label { font-size: 11px; color: #cbd5e1; }
+    /* Shortcut Grid (ตัดแคมเปญออก) */
+    .shortcut-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 25px 0; text-align: center; }
+    .shortcut-item { background: #1e293b; border-radius: 14px; padding: 14px 5px; cursor: pointer; transition: 0.2s; border: 1px solid #334155; }
+    .shortcut-item:hover { transform: translateY(-3px); background: #334155; border-color: #fbbf24; }
+    .shortcut-icon { font-size: 24px; margin-bottom: 6px; }
+    .shortcut-label { font-size: 12px; color: #cbd5e1; font-weight: 500; }
 
-    /* Lottery Section Slider / Cards */
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .section-title { font-size: 16px; font-weight: bold; }
-    .btn-all { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 5px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
+    /* News & Promotions Section */
+    .promo-banner { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid #60a5fa; }
+    .promo-title { font-size: 18px; font-weight: bold; margin-bottom: 8px; color: #ffffff; }
+    .promo-desc { font-size: 13px; color: #dbeafe; line-height: 1.5; }
 
-    .lottery-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
-    .lottery-scroll::-webkit-scrollbar { display: none; }
-    
-    .lotto-card { min-width: 210px; background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%); border-radius: 14px; padding: 15px; border: 1px solid #4338ca; position: relative; flex-shrink: 0; }
-    .lotto-card.thai { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-color: #38bdf8; }
-    .lotto-card.yikee { background: linear-gradient(135deg, #b45309 0%, #78350f 100%); border-color: #f59e0b; }
-    
-    .lotto-name { font-weight: bold; font-size: 15px; margin-bottom: 10px; }
-    .timer-badge { background: rgba(0, 0, 0, 0.4); border-radius: 20px; padding: 4px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+    .news-card { background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 10px; border: 1px solid #334155; }
+    .news-tag { background: #fbbf24; color: #000; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 6px; }
 
-    /* Bottom Navigation Bar */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
-    .nav-tab { display: flex; flex-direction: column; align-items: center; color: #64748b; text-decoration: none; font-size: 10px; gap: 3px; cursor: pointer; }
-    .nav-tab.active { color: #38bdf8; }
-    .nav-tab-icon { font-size: 20px; }
-
-    /* Advance Bet Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: #1e293b; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; }
+    /* Bottom Navigation */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+    .nav-tab { display: flex; flex-direction: column; align-items: center; color: #64748b; text-decoration: none; font-size: 11px; gap: 4px; cursor: pointer; }
+    .nav-tab.active { color: #fbbf24; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- Top Header -->
     <div class="top-header">
-      <div class="logo">⚽ HUAYOK</div>
+      <div class="logo">🍀 LUCKY GO</div>
       <div class="user-profile">
         <div class="avatar">U</div>
         <span id="displayUsername">user01</span>
@@ -75,25 +58,21 @@
     <!-- Credit Card -->
     <div class="credit-card">
       <div class="credit-header">
-        <span>💼 กระเป๋าเครดิต</span>
-        <span style="cursor: pointer;" onclick="refreshCredit()">🔄 รีเฟรช</span>
+        <span>กระเป๋าเครดิต</span>
+        <span style="cursor: pointer;" onclick="location.reload()">🔄 รีเฟรช</span>
       </div>
-      <div class="credit-balance" id="userCredit">0.00 <span>THB</span></div>
+      <div class="credit-balance">1,500.00 <span style="font-size: 16px; color: #94a3b8;">THB</span></div>
       <div class="action-btns">
         <button class="btn-deposit" onclick="location.href='/deposit.html'">📥 ฝากเงิน</button>
         <button class="btn-withdraw" onclick="location.href='/withdraw.html'">📤 ถอนเงิน</button>
       </div>
     </div>
 
-    <!-- Shortcut Menu -->
+    <!-- Shortcuts Menu -->
     <div class="shortcut-grid">
-      <div class="shortcut-item">
+      <div class="shortcut-item" onclick="location.href='/games.html'">
         <div class="shortcut-icon">🎮</div>
-        <div class="shortcut-label">เกม</div>
-      </div>
-      <div class="shortcut-item">
-        <div class="shortcut-icon">🚀</div>
-        <div class="shortcut-label">แคมเปญ</div>
+        <div class="shortcut-label">เกม / เดิมพัน</div>
       </div>
       <div class="shortcut-item" onclick="location.href='/history.html'">
         <div class="shortcut-icon">📄</div>
@@ -109,107 +88,40 @@
       </div>
     </div>
 
-    <!-- Lottery Live Section -->
-    <div class="section-header">
-      <div class="section-title">🔥 หวยเปิดรับแทงวันนี้</div>
-      <button class="btn-all">รอบหวยทั้งหมด</button>
+    <!-- News & Promotion Area -->
+    <h3 style="font-size: 16px; color: #cbd5e1; margin-bottom: 12px;">ข่าวสาร & โปรโมชันพิเศษ</h3>
+    
+    <div class="promo-banner">
+      <div class="promo-title">🎁 คืนยอดเสีย 5% ทุกสัปดาห์!</div>
+      <div class="promo-desc">สมาชิก LUCKY GO รับคืนยอดเสียสูงสุด 10,000 บาท ตัดวิกทุกวันอาทิตย์ เติมเข้าเครดิตให้อัตโนมัติ</div>
     </div>
 
-    <div class="lottery-scroll">
-      <!-- หวยรัฐบาลไทย -->
-      <div class="lotto-card thai" onclick="openBetPage('thai')">
-        <div class="lotto-name">🇹🇭 หวยรัฐบาลไทย</div>
-        <div class="timer-badge">⏳ <span id="timer-thai">--:--:--</span></div>
-      </div>
-
-      <!-- หวยลาวพัฒนา -->
-      <div class="lotto-card" onclick="openBetPage('laos')">
-        <div class="lotto-name">🇱🇦 หวยลาวพัฒนา</div>
-        <div class="timer-badge">⏳ <span id="timer-laos">--:--:--</span></div>
-      </div>
-
-      <!-- หวยออมสิน -->
-      <div class="lotto-card" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); border-color: #f472b6;" onclick="openBetPage('gsb')">
-        <div class="lotto-name">🏦 หวยออมสิน</div>
-        <div class="timer-badge">⏳ <span id="timer-gsb">--:--:--</span></div>
-      </div>
-
-      <!-- หวยยี่กี 1 นาที (ยอดนิยม) -->
-      <div class="lotto-card yikee" onclick="openBetPage('yikee1m')">
-        <div style="font-size:11px; color:#fde047; font-weight:bold;">⚡ แทงได้ล่วงหน้า 24 ชม.</div>
-        <div class="lotto-name">⚡ ยี่กีรอบปัจจุบัน (1 นาที)</div>
-        <div class="timer-badge">⏳ <span id="timer-yikee1m">00:45</span></div>
-      </div>
-
-      <!-- หวยยี่กี 5 นาที -->
-      <div class="lotto-card yikee" style="background: linear-gradient(135deg, #d97706 0%, #92400e 100%);" onclick="openBetPage('yikee5m')">
-        <div class="lotto-name">⏱️ ยี่กี (5 นาที)</div>
-        <div class="timer-badge">⏳ <span id="timer-yikee5m">03:20</span></div>
-      </div>
+    <div class="news-card">
+      <span class="news-tag">ประกาศ</span>
+      <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">ปรับเวลาการออกผลยี่กี 1 นาที</div>
+      <div style="font-size: 12px; color: #94a3b8;">ระบบเปิดรับแทงตั้งแต่ 06:00 - 05:00 น. แทงล่วงหน้าได้ตลอด 24 ชั่วโมง</div>
     </div>
   </div>
 
-  <!-- Bottom Navigation -->
+  <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
     <div class="nav-tab active">
-      <div class="nav-tab-icon">🏠</div>
+      <div style="font-size: 20px;">🏠</div>
       <div>หน้าหลัก</div>
     </div>
+    <div class="nav-tab" onclick="location.href='/games.html'">
+      <div style="font-size: 20px;">🎮</div>
+      <div>เล่นเกม</div>
+    </div>
     <div class="nav-tab" onclick="location.href='/deposit.html'">
-      <div class="nav-tab-icon">📥</div>
+      <div style="font-size: 20px;">📥</div>
       <div>ฝากเงิน</div>
     </div>
-    <div class="nav-tab" onclick="location.href='/bet.html'">
-      <div class="nav-tab-icon">🎯</div>
-      <div>แทงหวย</div>
-    </div>
     <div class="nav-tab">
-      <div class="nav-tab-icon">🎁</div>
-      <div>โปรโมชัน</div>
-    </div>
-    <div class="nav-tab">
-      <div class="nav-tab-icon">💬</div>
+      <div style="font-size: 20px;">💬</div>
       <div>ช่วยเหลือ</div>
     </div>
   </div>
 
-<script>
-  // โหลดข้อมูลเครดิตสมาชิก
-  const token = localStorage.getItem('token');
-  const username = localStorage.getItem('username') || 'user01';
-  document.getElementById('displayUsername').innerText = username;
-
-  // จำลองยอดเงิน
-  document.getElementById('userCredit').innerText = '1,500.00';
-
-  // ตัวนับถอยหลังยี่กี 1 นาที Real-time
-  let yikee1mTime = 45;
-  setInterval(() => {
-    yikee1mTime--;
-    if (yikee1mTime < 0) yikee1mTime = 59; // จบรอบ รีเซ็ตใหม่ทุก 60 วินาที
-    const sec = yikee1mTime < 10 ? '0' + yikee1mTime : yikee1mTime;
-    document.getElementById('timer-yikee1m').innerText = `00:${sec}`;
-  }, 1000);
-
-  // ตัวนับถอยหลังยี่กี 5 นาที Real-time
-  let yikee5mTime = 200;
-  setInterval(() => {
-    yikee5mTime--;
-    if (yikee5mTime < 0) yikee5mTime = 299;
-    const m = Math.floor(yikee5mTime / 60);
-    const s = yikee5mTime % 60;
-    const minStr = m < 10 ? '0' + m : m;
-    const secStr = s < 10 ? '0' + s : s;
-    document.getElementById('timer-yikee5m').innerText = `${minStr}:${secStr}`;
-  }, 1000);
-
-  function openBetPage(type) {
-    alert(`กำลังเข้าสู่ห้องแทง: ${type.toUpperCase()} (รองรับการเลือกแทงรอบล่วงหน้า)`);
-  }
-
-  function refreshCredit() {
-    alert('อัปเดตยอดเงินล่าสุดเรียบร้อยแล้ว');
-  }
-</script>
 </body>
 </html>
