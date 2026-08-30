@@ -3,36 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>จัดการสิทธิ์ผู้ใช้งาน (Admin Management)</title>
+  <title>ระบบ Super Admin Master</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f6f9; }
-    .container { max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    h2 { margin: 0; color: #333; }
-    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-    .actions-group { display: flex; align-items: center; gap: 10px; }
-    .search-box { padding: 8px 12px; width: 220px; border: 1px solid #ccc; border-radius: 4px; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; display: flex; min-height: 100vh; }
     
-    /* สไตล์ปุ่มกด */
-    .btn-nav { text-decoration: none; padding: 8px 14px; border-radius: 4px; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; cursor: pointer; border: none; }
-    .btn-back { background-color: #6c757d; color: white; }
-    .btn-back:hover { background-color: #5a6268; }
-    .btn-logout { background-color: #dc3545; color: white; }
-    .btn-logout:hover { background-color: #c82333; }
+    /* เมนูด้านซ้าย (Sidebar) */
+    .sidebar { width: 260px; background-color: #1e293b; color: #fff; padding: 20px 0; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-title { font-size: 18px; font-weight: bold; padding: 0 20px 20px 20px; border-bottom: 1px solid #334155; color: #f8fafc; }
+    .nav-menu { list-style: none; padding: 0; margin: 20px 0; flex-grow: 1; }
+    .nav-item { margin-bottom: 5px; }
+    .nav-link { display: flex; align-items: center; padding: 12px 20px; color: #94a3b8; text-decoration: none; font-size: 15px; cursor: pointer; transition: 0.2s; }
+    .nav-link:hover, .nav-link.active { background-color: #334155; color: #fff; border-left: 4px solid #3b82f6; }
+    .sidebar-footer { padding: 20px; border-top: 1px solid #334155; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background-color: #007bff; color: white; }
-    tr:hover { background-color: #f1f1f1; }
+    /* พื้นที่เนื้อหาขวา (Main Content) */
+    .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .search-box { padding: 10px 14px; width: 260px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
     
+    /* สถิติ Dashboard */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+    .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .stat-title { font-size: 14px; color: #64748b; margin-bottom: 8px; }
+    .stat-value { font-size: 24px; font-weight: bold; color: #0f172a; }
+    .text-green { color: #16a34a; }
+    .text-red { color: #dc2626; }
+
+    /* ตารางแสดงข้อมูล */
+    .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background-color: #007bff; color: white; }
+    tr.clickable-row { cursor: pointer; transition: background-color 0.2s; }
+    tr.clickable-row:hover { background-color: #f8fafc; }
+    
+    /* ส่วนสไลด์รายละเอียดสมาชิก (Accordion Dropdown) */
+    .details-row { display: none; background-color: #f1f5f9; }
+    .details-row.active { display: table-row; }
+    .details-container { padding: 20px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; margin: 10px 0; }
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .info-item { font-size: 14px; }
+    .info-label { font-weight: bold; color: #475569; display: block; margin-bottom: 4px; }
+
+    /* Badge สิทธิ์ */
     .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
     .badge-member { background-color: #6c757d; }
     .badge-admin { background-color: #17a2b8; }
     .badge-superadmin { background-color: #dc3545; }
 
-    select.role-select { padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
-    .btn-save { padding: 5px 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    select.role-select { padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1; }
+    .btn-save { padding: 6px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
     .btn-save:hover { background-color: #218838; }
+    .btn-logout { width: 100%; background-color: #dc3545; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .btn-logout:hover { background-color: #c82333; }
     #message { margin-bottom: 15px; padding: 10px; border-radius: 4px; display: none; }
     .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
@@ -40,37 +64,71 @@
 </head>
 <body>
 
-<div class="container">
-  <div class="header-bar">
-    <h2>👑 ระบบจัดการสิทธิ์ผู้ใช้งาน (Admin Management)</h2>
-    
-    <!-- ปุ่มกดกลับ และ ออกจากระบบ -->
-    <div class="actions-group">
-      <input type="text" id="searchInput" class="search-box" placeholder="ค้นหา ยูสเซอร์ / ชื่อ / เบอร์..." onkeyup="filterUsers()">
-      <a href="/admin.html" class="btn-nav btn-back">📊 หน้าโพยหวย</a>
-      <button onclick="logout()" class="btn-nav btn-logout">ออกจากระบบ</button>
+  <!-- 1. เมนูด้านซ้าย (Sidebar Menu) -->
+  <div class="sidebar">
+    <div class="sidebar-title">👑 Super Admin Master</div>
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a class="nav-link active" onclick="switchTab('dashboard')">📊 ภาพรวม & กำไรขาดทุน</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" onclick="switchTab('users')">👥 รายชื่อ & จัดการสิทธิ์</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/admin.html">📜 หน้าโพยหวย (Admin)</a>
+      </li>
+    </ul>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
     </div>
   </div>
 
-  <div id="message"></div>
+  <!-- 2. พื้นที่เนื้อหาหลัก (Main Content) -->
+  <div class="main-content">
+    <div id="message"></div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>ยูสเซอร์เนม</th>
-        <th>ชื่อ-นามสกุล</th>
-        <th>เบอร์โทรศัพท์</th>
-        <th>สิทธิ์ปัจจุบัน</th>
-        <th>ปรับสิทธิ์</th>
-        <th>การดำเนินการ</th>
-      </tr>
-    </thead>
-    <tbody id="userTableBody">
-      <tr><td colspan="7" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
-    </tbody>
-  </table>
-</div>
+    <!-- การ์ดสรุปยอดเงินและกำไร/ขาดทุน -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">กำไร/ขาดทุนทั้งหมด (ผลแพ้ชนะสมาชิก)</div>
+        <div class="stat-value text-green" id="totalProfit">+0.00 บาท</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">ยอดเงินคงเหลือในระบบทั้งหมด</div>
+        <div class="stat-value" id="totalUserBalance">0.00 บาท</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">จำนวนสมาชิกทั้งหมด</div>
+        <div class="stat-value" id="totalUserCount">0 คน</div>
+      </div>
+    </div>
+
+    <!-- ส่วนตารางข้อมูลสมาชิก -->
+    <div class="card">
+      <div class="header-bar">
+        <h2>👥 รายชื่อสมาชิกทั้งหมด</h2>
+        <input type="text" id="searchInput" class="search-box" placeholder="ค้นหา ยูสเซอร์ / ชื่อ / เบอร์..." onkeyup="filterUsers()">
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>ยูสเซอร์เนม</th>
+            <th>ชื่อ-นามสกุล</th>
+            <th>เบอร์โทรศัพท์</th>
+            <th>ยอดเงินปัจจุบัน</th>
+            <th>สิทธิ์ปัจจุบัน</th>
+            <th>ปรับสิทธิ์</th>
+            <th>การดำเนินการ</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody">
+          <tr><td colspan="8" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
 <script>
   let allUsers = [];
@@ -116,6 +174,7 @@
 
       if (data.success) {
         allUsers = data.users;
+        calculateStats(allUsers);
         renderTable(allUsers);
       } else {
         showMessage(data.message, false);
@@ -125,45 +184,99 @@
     }
   }
 
-  // 3. แสดงผลตาราง
+  // 3. คำนวณยอดเงินและสถิติภาพรวม
+  function calculateStats(users) {
+    let totalBalance = 0;
+    let totalProfit = 0;
+
+    users.forEach(u => {
+      totalBalance += parseFloat(u.balance || 0);
+      totalProfit += parseFloat(u.win_loss_amount || 0);
+    });
+
+    document.getElementById('totalUserBalance').innerText = totalBalance.toLocaleString() + ' บาท';
+    document.getElementById('totalUserCount').innerText = users.length + ' คน';
+
+    const profitElem = document.getElementById('totalProfit');
+    profitElem.innerText = (totalProfit >= 0 ? '+' : '') + totalProfit.toLocaleString() + ' บาท';
+    profitElem.className = 'stat-value ' + (totalProfit >= 0 ? 'text-green' : 'text-red');
+  }
+
+  // 4. แสดงผลตาราง + หน้าต่างรายละเอียดสไลด์ลงมา
   function renderTable(users) {
     const tbody = document.getElementById('userTableBody');
     tbody.innerHTML = '';
 
     if (users.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">ไม่พบข้อมูลผู้ใช้งาน</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">ไม่พบข้อมูลผู้ใช้งาน</td></tr>';
       return;
     }
 
     users.forEach(user => {
-      const tr = document.createElement('tr');
-      
       let badgeClass = 'badge-member';
       if (user.role === 'admin') badgeClass = 'badge-admin';
       if (user.role === 'superadmin') badgeClass = 'badge-superadmin';
 
+      // แถวหลักของตาราง
+      const tr = document.createElement('tr');
+      tr.className = 'clickable-row';
       tr.innerHTML = `
         <td>${user.id}</td>
-        <td><strong>${user.username}</strong></td>
+        <td><strong style="color: #0284c7; text-decoration: underline;" onclick="toggleDetails(${user.id})">${user.username}</strong></td>
         <td>${user.full_name || '-'}</td>
         <td>${user.phone || '-'}</td>
+        <td><strong>${parseFloat(user.balance || 0).toLocaleString()}</strong></td>
         <td><span class="badge ${badgeClass}">${user.role.toUpperCase()}</span></td>
-        <td>
+        <td onclick="event.stopPropagation()">
           <select id="role-${user.id}" class="role-select">
             <option value="member" ${user.role === 'member' ? 'selected' : ''}>Member (สมาชิก)</option>
             <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin (แอดมิน)</option>
             <option value="superadmin" ${user.role === 'superadmin' ? 'selected' : ''}>Super Admin (ผู้ดูแลสูงสุด)</option>
           </select>
         </td>
-        <td>
+        <td onclick="event.stopPropagation()">
           <button class="btn-save" onclick="updateRole(${user.id})">บันทึก</button>
         </td>
       `;
+
+      // แถวรายละเอียดสำหรับสไลด์ลงมา (Accordion Content)
+      const detailTr = document.createElement('tr');
+      detailTr.id = `details-${user.id}`;
+      detailTr.className = 'details-row';
+      detailTr.innerHTML = `
+        <td colspan="8">
+          <div class="details-container">
+            <h4 style="margin-top:0; color:#1e293b;">📌 ข้อมูลรายละเอียดสมาชิก: ${user.username}</h4>
+            <div class="info-grid">
+              <div class="info-item"><span class="info-label">รหัสสมาชิก (ID):</span> ${user.id}</div>
+              <div class="info-item"><span class="info-label">ชื่อ-นามสกุล:</span> ${user.full_name || '-'}</div>
+              <div class="info-item"><span class="info-label">เบอร์โทรศัพท์:</span> ${user.phone || '-'}</div>
+              <div class="info-item"><span class="info-label">ธนาคาร:</span> ${user.bank_name || '-'}</div>
+              <div class="info-item"><span class="info-label">เลขบัญชีธนาคาร:</span> ${user.bank_account || '-'}</div>
+              <div class="info-item"><span class="info-label">ยอดเงินแนะนำเพื่อน:</span> ${parseFloat(user.affiliate_bonus || 0).toLocaleString()} บาท</div>
+              <div class="info-item"><span class="info-label">ผลกำไร/ขาดทุนสะสม:</span> ${parseFloat(user.win_loss_amount || 0).toLocaleString()} บาท</div>
+              <div class="info-item"><span class="info-label">วันที่สมัครสมาชิก:</span> ${user.created_at ? new Date(user.created_at).toLocaleString('th-TH') : '-'}</div>
+            </div>
+          </div>
+        </td>
+      `;
+
       tbody.appendChild(tr);
+      tbody.appendChild(detailTr);
     });
   }
 
-  // 4. บันทึกการเปลี่ยน Role
+  // 5. ฟังก์ชันเปิด/ปิด การสไลด์ลงมาของรายละเอียดสมาชิก
+  function toggleDetails(userId) {
+    const detailRow = document.getElementById(`details-${userId}`);
+    if (detailRow.classList.contains('active')) {
+      detailRow.classList.remove('active');
+    } else {
+      detailRow.classList.add('active');
+    }
+  }
+
+  // 6. บันทึกการเปลี่ยน Role
   async function updateRole(userId) {
     const selectedRole = document.getElementById(`role-${userId}`).value;
     const token = localStorage.getItem('token');
@@ -190,7 +303,7 @@
     }
   }
 
-  // 5. ค้นหาผู้ใช้
+  // 7. ค้นหาผู้ใช้
   function filterUsers() {
     const query = document.getElementById('searchInput').value.toLowerCase();
     const filtered = allUsers.filter(u => 
@@ -201,7 +314,7 @@
     renderTable(filtered);
   }
 
-  // 6. ฟังก์ชันออกจากระบบ
+  // 8. ออกจากระบบ
   function logout() {
     localStorage.clear();
     window.location.href = '/login.html';
@@ -216,7 +329,6 @@
     setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
   }
 
-  // เริ่มต้นทำงานเมื่อโหลดหน้า
   checkAuthAndLoadUsers();
 </script>
 
