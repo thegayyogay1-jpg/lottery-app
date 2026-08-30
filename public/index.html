@@ -3,133 +3,213 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>บันทึกโพยหวย</title>
+  <title>หน้าหลักสมาชิก - HUAYOK Style</title>
   <style>
-    body { font-family: sans-serif; max-width: 400px; margin: 30px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    .btn-logout { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-    button.btn-submit { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
-    button.btn-submit:hover { background-color: #218838; }
-    #status { margin-top: 15px; font-weight: bold; text-align: center; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Thonburi, Tahoma, sans-serif; }
+    body { background-color: #0b0f19; color: #ffffff; margin: 0; padding: 0; padding-bottom: 90px; }
+    
+    .container { max-width: 500px; margin: 0 auto; padding: 15px; }
+
+    /* Top Bar Header */
+    .top-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+    .logo { font-size: 24px; font-weight: bold; color: #38bdf8; display: flex; align-items: center; gap: 6px; }
+    .user-profile { display: flex; align-items: center; gap: 10px; background: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; }
+    .avatar { width: 26px; height: 26px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
+
+    /* Credit Card Section */
+    .credit-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid #334155; border-radius: 16px; padding: 20px; margin-top: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .credit-header { display: flex; justify-content: space-between; color: #94a3b8; font-size: 14px; align-items: center; }
+    .credit-balance { font-size: 32px; font-weight: bold; margin: 12px 0 20px 0; color: #ffffff; }
+    .credit-balance span { font-size: 18px; color: #94a3b8; margin-left: 5px; }
+    
+    .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn-deposit { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-deposit:hover { background: #0369a1; }
+    .btn-withdraw { background: #1e293b; color: white; border: 1px solid #334155; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    /* Grid Shortcuts */
+    .shortcut-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 25px 0; text-align: center; }
+    .shortcut-item { background: #1e293b; border-radius: 14px; padding: 12px 5px; cursor: pointer; transition: 0.2s; }
+    .shortcut-item:hover { transform: translateY(-3px); background: #334155; }
+    .shortcut-icon { font-size: 22px; margin-bottom: 6px; }
+    .shortcut-label { font-size: 11px; color: #cbd5e1; }
+
+    /* Lottery Section Slider / Cards */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .section-title { font-size: 16px; font-weight: bold; }
+    .btn-all { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 5px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
+
+    .lottery-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+    .lottery-scroll::-webkit-scrollbar { display: none; }
+    
+    .lotto-card { min-width: 210px; background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%); border-radius: 14px; padding: 15px; border: 1px solid #4338ca; position: relative; flex-shrink: 0; }
+    .lotto-card.thai { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-color: #38bdf8; }
+    .lotto-card.yikee { background: linear-gradient(135deg, #b45309 0%, #78350f 100%); border-color: #f59e0b; }
+    
+    .lotto-name { font-weight: bold; font-size: 15px; margin-bottom: 10px; }
+    .timer-badge { background: rgba(0, 0, 0, 0.4); border-radius: 20px; padding: 4px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
+    .nav-tab { display: flex; flex-direction: column; align-items: center; color: #64748b; text-decoration: none; font-size: 10px; gap: 3px; cursor: pointer; }
+    .nav-tab.active { color: #38bdf8; }
+    .nav-tab-icon { font-size: 20px; }
+
+    /* Advance Bet Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: #1e293b; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <span id="userInfo" style="font-weight: bold; color: #007bff;">กำลังโหลด...</span>
-    <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
+
+  <div class="container">
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="logo">⚽ HUAYOK</div>
+      <div class="user-profile">
+        <div class="avatar">U</div>
+        <span id="displayUsername">user01</span>
+      </div>
+    </div>
+
+    <!-- Credit Card -->
+    <div class="credit-card">
+      <div class="credit-header">
+        <span>💼 กระเป๋าเครดิต</span>
+        <span style="cursor: pointer;" onclick="refreshCredit()">🔄 รีเฟรช</span>
+      </div>
+      <div class="credit-balance" id="userCredit">0.00 <span>THB</span></div>
+      <div class="action-btns">
+        <button class="btn-deposit" onclick="location.href='/deposit.html'">📥 ฝากเงิน</button>
+        <button class="btn-withdraw" onclick="location.href='/withdraw.html'">📤 ถอนเงิน</button>
+      </div>
+    </div>
+
+    <!-- Shortcut Menu -->
+    <div class="shortcut-grid">
+      <div class="shortcut-item">
+        <div class="shortcut-icon">🎮</div>
+        <div class="shortcut-label">เกม</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-icon">🚀</div>
+        <div class="shortcut-label">แคมเปญ</div>
+      </div>
+      <div class="shortcut-item" onclick="location.href='/history.html'">
+        <div class="shortcut-icon">📄</div>
+        <div class="shortcut-label">ประวัติเดิมพัน</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-icon">👥</div>
+        <div class="shortcut-label">แนะนำเพื่อน</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-icon">📊</div>
+        <div class="shortcut-label">ผลรางวัล</div>
+      </div>
+    </div>
+
+    <!-- Lottery Live Section -->
+    <div class="section-header">
+      <div class="section-title">🔥 หวยเปิดรับแทงวันนี้</div>
+      <button class="btn-all">รอบหวยทั้งหมด</button>
+    </div>
+
+    <div class="lottery-scroll">
+      <!-- หวยรัฐบาลไทย -->
+      <div class="lotto-card thai" onclick="openBetPage('thai')">
+        <div class="lotto-name">🇹🇭 หวยรัฐบาลไทย</div>
+        <div class="timer-badge">⏳ <span id="timer-thai">--:--:--</span></div>
+      </div>
+
+      <!-- หวยลาวพัฒนา -->
+      <div class="lotto-card" onclick="openBetPage('laos')">
+        <div class="lotto-name">🇱🇦 หวยลาวพัฒนา</div>
+        <div class="timer-badge">⏳ <span id="timer-laos">--:--:--</span></div>
+      </div>
+
+      <!-- หวยออมสิน -->
+      <div class="lotto-card" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); border-color: #f472b6;" onclick="openBetPage('gsb')">
+        <div class="lotto-name">🏦 หวยออมสิน</div>
+        <div class="timer-badge">⏳ <span id="timer-gsb">--:--:--</span></div>
+      </div>
+
+      <!-- หวยยี่กี 1 นาที (ยอดนิยม) -->
+      <div class="lotto-card yikee" onclick="openBetPage('yikee1m')">
+        <div style="font-size:11px; color:#fde047; font-weight:bold;">⚡ แทงได้ล่วงหน้า 24 ชม.</div>
+        <div class="lotto-name">⚡ ยี่กีรอบปัจจุบัน (1 นาที)</div>
+        <div class="timer-badge">⏳ <span id="timer-yikee1m">00:45</span></div>
+      </div>
+
+      <!-- หวยยี่กี 5 นาที -->
+      <div class="lotto-card yikee" style="background: linear-gradient(135deg, #d97706 0%, #92400e 100%);" onclick="openBetPage('yikee5m')">
+        <div class="lotto-name">⏱️ ยี่กี (5 นาที)</div>
+        <div class="timer-badge">⏳ <span id="timer-yikee5m">03:20</span></div>
+      </div>
+    </div>
   </div>
 
-  <h2>บันทึกโพยหวย</h2>
-  <form id="betForm">
-    <div class="form-group">
-      <label>ตัวเลข:</label>
-      <input type="text" id="number" required placeholder="เช่น 123 หรือ 45">
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-tab active">
+      <div class="nav-tab-icon">🏠</div>
+      <div>หน้าหลัก</div>
     </div>
-    <div class="form-group">
-      <label>ประเภท:</label>
-      <select id="betType">
-        <option value="3 บน">3 บน</option>
-        <option value="3 โต๊ด">3 โต๊ด</option>
-        <option value="2 บน">2 บน</option>
-        <option value="2 ล่าง">2 ล่าง</option>
-      </select>
+    <div class="nav-tab" onclick="location.href='/deposit.html'">
+      <div class="nav-tab-icon">📥</div>
+      <div>ฝากเงิน</div>
     </div>
-    <div class="form-group">
-      <label>จำนวนเงิน (บาท):</label>
-      <input type="number" id="amount" min="1" required placeholder="เช่น 100">
+    <div class="nav-tab" onclick="location.href='/bet.html'">
+      <div class="nav-tab-icon">🎯</div>
+      <div>แทงหวย</div>
     </div>
-    <button type="submit" class="btn-submit">ส่งโพย</button>
-  </form>
-  <div id="status"></div>
+    <div class="nav-tab">
+      <div class="nav-tab-icon">🎁</div>
+      <div>โปรโมชัน</div>
+    </div>
+    <div class="nav-tab">
+      <div class="nav-tab-icon">💬</div>
+      <div>ช่วยเหลือ</div>
+    </div>
+  </div>
 
-  <script>
-    const token = localStorage.getItem('token');
+<script>
+  // โหลดข้อมูลเครดิตสมาชิก
+  const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username') || 'user01';
+  document.getElementById('displayUsername').innerText = username;
 
-    // 1. ฟังก์ชันตรวจสอบสิทธิ์และดึงชื่อผู้ใช้จาก API
-    async function checkAuth() {
-      if (!token) {
-        alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
-        window.location.href = '/login.html';
-        return;
-      }
+  // จำลองยอดเงิน
+  document.getElementById('userCredit').innerText = '1,500.00';
 
-      try {
-        // ยืนยัน Token กับ backend (/api/me) เพื่อรับชื่อผู้ใช้ที่ถูกต้อง
-        const res = await fetch('/api/me', {
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        const data = await res.json();
+  // ตัวนับถอยหลังยี่กี 1 นาที Real-time
+  let yikee1mTime = 45;
+  setInterval(() => {
+    yikee1mTime--;
+    if (yikee1mTime < 0) yikee1mTime = 59; // จบรอบ รีเซ็ตใหม่ทุก 60 วินาที
+    const sec = yikee1mTime < 10 ? '0' + yikee1mTime : yikee1mTime;
+    document.getElementById('timer-yikee1m').innerText = `00:${sec}`;
+  }, 1000);
 
-        if (data.success && data.user) {
-          document.getElementById('userInfo').innerText = '👤 ผู้ใช้งาน: ' + data.user.username;
-          // อัปเดต username ใน localStorage ให้ตรงเสมอ
-          localStorage.setItem('username', data.user.username);
-        } else {
-          alert('เซสชั่นหมดอายุ กรุณาล็อกอินใหม่');
-          logout();
-        }
-      } catch (err) {
-        console.error('Error fetching user info:', err);
-        // Fallback กรณีเซิร์ฟเวอร์ตอบช้า ให้ดึงจาก localStorage ก่อน
-        const savedUsername = localStorage.getItem('username');
-        if (savedUsername && savedUsername !== 'undefined') {
-          document.getElementById('userInfo').innerText = '👤 ผู้ใช้งาน: ' + savedUsername;
-        } else {
-          document.getElementById('userInfo').innerText = '👤 ผู้ใช้งาน: ไม่ระบุตัวตน';
-        }
-      }
-    }
+  // ตัวนับถอยหลังยี่กี 5 นาที Real-time
+  let yikee5mTime = 200;
+  setInterval(() => {
+    yikee5mTime--;
+    if (yikee5mTime < 0) yikee5mTime = 299;
+    const m = Math.floor(yikee5mTime / 60);
+    const s = yikee5mTime % 60;
+    const minStr = m < 10 ? '0' + m : m;
+    const secStr = s < 10 ? '0' + s : s;
+    document.getElementById('timer-yikee5m').innerText = `${minStr}:${secStr}`;
+  }, 1000);
 
-    // เรียกทำงานทันทีเมื่อโหลดหน้าเว็บ
-    checkAuth();
+  function openBetPage(type) {
+    alert(`กำลังเข้าสู่ห้องแทง: ${type.toUpperCase()} (รองรับการเลือกแทงรอบล่วงหน้า)`);
+  }
 
-    // 2. ฟังก์ชันส่งข้อมูลโพย
-    document.getElementById('betForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const statusDiv = document.getElementById('status');
-      statusDiv.innerText = 'กำลังบันทึก...';
-
-      const data = {
-        number: document.getElementById('number').value,
-        betType: document.getElementById('betType').value,
-        amount: document.getElementById('amount').value
-      };
-
-      try {
-        const response = await fetch('/api/bet', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.getItem('token')
-          },
-          body: JSON.stringify({ number, betType, amount })
-        });
-        const result = await response.json();
-
-        if (result.success) {
-          statusDiv.style.color = 'green';
-          statusDiv.innerText = 'บันทึกโพยเรียบร้อยแล้ว!';
-          document.getElementById('number').value = '';
-          document.getElementById('amount').value = '';
-        } else {
-          statusDiv.style.color = 'red';
-          statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + result.message;
-          if (response.status === 401 || response.status === 403) logout();
-        }
-      } catch (err) {
-        statusDiv.style.color = 'red';
-        statusDiv.innerText = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
-      }
-    });
-
-    // 3. ฟังก์ชันออกจากระบบ
-    function logout() {
-      localStorage.clear();
-      window.location.href = '/login.html';
-    }
-  </script>
+  function refreshCredit() {
+    alert('อัปเดตยอดเงินล่าสุดเรียบร้อยแล้ว');
+  }
+</script>
 </body>
 </html>
