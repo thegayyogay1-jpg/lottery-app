@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUCKY GO - ศูนย์รวมการเดิมพัน</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body { background-color: #0b0f19; color: #fff; margin: 0; padding: 15px; }
+    .container { max-width: 500px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+    .back-btn { background: #1e293b; border: none; color: #fff; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    
+    .game-category-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #38bdf8; border-radius: 16px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; }
+    .game-category-card:hover { transform: scale(1.02); }
+    .category-title { font-size: 20px; font-weight: bold; color: #38bdf8; }
+    .category-desc { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    
+    .disabled-card { opacity: 0.5; border-color: #334155; cursor: not-allowed; }
+    .disabled-card:hover { transform: none; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" onclick="location.href='/index.html'">← กลับ</button>
+      <h2 style="margin:0; font-size: 20px;">เลือกหมวดหมู่เดิมพัน</h2>
+    </div>
+
+    <!-- ปุ่มเข้าแทงหวย -->
+    <div class="game-category-card" onclick="location.href='/lotto-menu.html'">
+      <div>
+        <div class="category-title">🎯 แทงหวยออนไลน์</div>
+        <div class="category-desc">ยี่กี 1 นาที, 5 นาที, หวยรัฐบาล, หวยลาว</div>
+      </div>
+      <div style="font-size: 32px;">🎲</div>
+    </div>
+
+    <!-- คาสิโน (ปิดล็อกไว้ก่อน) -->
+    <div class="game-category-card disabled-card">
+      <div>
+        <div class="category-title" style="color:#94a3b8;">🎰 คาสิโนสด</div>
+        <div class="category-desc">บาคาร่า, สล็อต (กำลังเปิดให้บริการเร็วๆ นี้)</div>
+      </div>
+      <div style="font-size: 32px;">🔒</div>
+    </div>
+  </div>
+
+</body>
+</html>
