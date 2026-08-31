@@ -11,15 +11,20 @@
 
     /* Top Bar Header */
     .top-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
-    .logo { font-size: 20px; font-weight: 900; color: #fbbf24; }
-    .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid #334155; }
+    .header-left { display: flex; align-items: center; gap: 8px; }
+    .back-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+    .back-btn:hover { background: #334155; }
+    .logo { font-size: 18px; font-weight: 900; color: #fbbf24; cursor: pointer; }
+    .logo:hover { opacity: 0.9; }
+    .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; border: 1px solid #334155; }
     .avatar { width: 22px; height: 22px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 11px; }
     .user-credit { color: #4ade80; font-weight: bold; margin-left: 4px; border-left: 1px solid #475569; padding-left: 8px; }
 
     /* Round Info Banner */
     .round-bar { background: #1e1b4b; border: 1px solid #4338ca; border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .round-title { font-weight: bold; font-size: 14px; color: #93c5fd; }
-    .round-timer { background: #000; color: #fbbf24; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
+    .round-timer { background: #000; color: #fbbf24; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; font-family: monospace; }
+    .round-timer.closed { color: #ef4444; }
 
     /* Main Mode Switcher */
     .mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
@@ -83,23 +88,26 @@
 <body>
 
   <div class="container">
-    <!-- Header with User & Credit Balance -->
+    <!-- Header with Back Button, Logo & User Info -->
     <div class="top-header">
-      <div class="logo">🍀 LUCKY GO</div>
+      <div class="header-left">
+        <button class="back-btn" onclick="goBack()">← กลับ</button>
+        <div class="logo" onclick="goHome()">🍀 LUCKY GO</div>
+      </div>
       <div class="user-profile">
-        <div class="avatar">U</div>
-        <span>user01</span>
-        <span class="user-credit">1,500.00</span>
+        <div class="avatar" id="userAvatar">U</div>
+        <span id="displayUsername">user01</span>
+        <span class="user-credit" id="displayCredit">1,500.00</span>
       </div>
     </div>
 
     <!-- Round Header -->
     <div class="round-bar">
-      <div class="round-title">🔵 ยี่กี 1 นาที - รอบที่ 122</div>
-      <div class="round-timer" id="roundTimer">00:03:25</div>
+      <div class="round-title" id="roundTitleText">🔵 ยี่กี 1 นาที - รอบที่ --</div>
+      <div class="round-timer" id="roundTimer">00:00:00</div>
     </div>
 
-    <!-- Mode Switcher -->
+    <!-- Main Mode Switcher -->
     <div class="mode-switch">
       <div class="btn-mode active" id="modeNumpad" onclick="switchMainMode('numpad')">กดเลข</div>
       <div class="btn-mode" id="modeBoard" onclick="switchMainMode('board')">แผงเลข</div>
@@ -158,13 +166,13 @@
 
     <div class="btn-group-bottom">
       <button class="btn-cart" onclick="viewCart()">🛒 ตะกร้า (<span id="cartCount">0</span>)</button>
-      <button class="btn-submit" onclick="submitBet()">แทงหวย</button>
+      <button class="btn-submit" id="btnSubmitBet" onclick="submitBet()">แทงหวย</button>
     </div>
   </div>
 
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
-    <div class="nav-tab" onclick="location.href='/index.html'">
+    <div class="nav-tab" onclick="goHome()">
       <div style="font-size: 18px;">🏠</div>
       <div>หน้าหลัก</div>
     </div>
@@ -184,26 +192,90 @@
 
 <script>
   let currentMainMode = 'numpad';
-  let currentDigitMode = '2'; // '2', '3', 'runner', 'win'
+  let currentDigitMode = '2';
   let currentInput = "";
   let selectedWinNumbers = new Set();
   let selectedBoardNumbers = new Set();
   let cartItems = [];
   let currentBoardPrefix = "000";
+  let currentRoundNumber = null;
+  let isRoundClosed = false;
 
-  // State Options
   let activeOptions = {
-    // 2 ตัว
     top2: true, bottom2: false, reverse: false, door19: false, swipeFront: false, swipeBack: false,
-    // 3 ตัว
     straight3: true, tod3: false,
-    // เลขวิ่ง
     runTop: true, runBottom: false,
-    // จับวิน
     winType: '2', winDouble: false, winReverse: false
   };
 
-  // Render Layouts based on mode
+  // Navigation Functions
+  function goBack() {
+    window.location.href = '/yikee-rounds.html';
+  }
+
+  function goHome() {
+    window.location.href = '/index.html';
+  }
+
+  // Load User Info & Sync Real-Time Timer
+  function initPageData() {
+    // 1. ดึงข้อมูล User
+    const username = localStorage.getItem('username') || 'user01';
+    const credit = localStorage.getItem('credit') || '1,500.00';
+    document.getElementById('displayUsername').innerText = username;
+    document.getElementById('displayCredit').innerText = Number(credit.toString().replace(/,/g, '')).toLocaleString('en-US', {minimumFractionDigits: 2});
+    document.getElementById('userAvatar').innerText = username.charAt(0).toUpperCase();
+
+    // 2. ดึงข้อมูลรอบจาก URL
+    const urlParams = new URLSearchParams(window.location.search);
+    currentRoundNumber = urlParams.get('round') || '1';
+    const roundType = urlParams.get('type') === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
+    document.getElementById('roundTitleText').innerText = `🔵 ${roundType} - รอบที่ ${currentRoundNumber}`;
+
+    // 3. เริ่มนับถอยหลังซิงค์จาก localStorage หน้าเลือกรอบ
+    startTimerSync();
+  }
+
+  function startTimerSync() {
+    const timerEl = document.getElementById('roundTimer');
+
+    setInterval(() => {
+      const savedStateStr = localStorage.getItem('yikee_rounds_state');
+      let endTime = null;
+
+      if (savedStateStr) {
+        const savedState = JSON.parse(savedStateStr);
+        if (savedState[currentRoundNumber]) {
+          endTime = savedState[currentRoundNumber].endTime;
+        }
+      }
+
+      const now = Math.floor(Date.now() / 1000);
+      let remaining = endTime ? (endTime - now) : 0;
+
+      if (remaining <= 0) {
+        timerEl.innerText = "00:00:00";
+        timerEl.classList.add('closed');
+        
+        if (!isRoundClosed) {
+          isRoundClosed = true;
+          document.getElementById('btnSubmitBet').disabled = true;
+          document.getElementById('btnSubmitBet').style.background = '#64748b';
+          alert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว! ระบบจะนำคุณกลับสู่หน้าเลือกรอบ`);
+          setTimeout(() => {
+            window.location.href = '/yikee-rounds.html';
+          }, 1500);
+        }
+      } else {
+        const h = Math.floor(remaining / 3600).toString().padStart(2, '0');
+        const m = Math.floor((remaining % 3600) / 60).toString().padStart(2, '0');
+        const s = Math.floor(remaining % 60).toString().padStart(2, '0');
+        timerEl.innerText = `${h}:${m}:${s}`;
+      }
+    }, 1000);
+  }
+
+  // UI & Keypad Logic
   function renderModeUI() {
     const optionsArea = document.getElementById('optionsArea');
     const quickArea = document.getElementById('quickArea');
@@ -289,11 +361,13 @@
   }
 
   function toggleOpt(key) {
+    if (isRoundClosed) return;
     activeOptions[key] = !activeOptions[key];
     renderModeUI();
   }
 
   function setWinType(type) {
+    if (isRoundClosed) return;
     activeOptions.winType = type;
     renderModeUI();
   }
@@ -316,8 +390,8 @@
   }
 
   function pressNum(digit) {
+    if (isRoundClosed) return;
     if (currentDigitMode === 'win') {
-      // Toggle Digit Selection for Win Mode
       if (selectedWinNumbers.has(digit)) selectedWinNumbers.delete(digit);
       else selectedWinNumbers.add(digit);
       updateWinNumpadVisual();
@@ -355,7 +429,7 @@
   }
 
   function delNum() {
-    if (currentDigitMode === 'win') return;
+    if (currentDigitMode === 'win' || isRoundClosed) return;
     currentInput = currentInput.slice(0, -1);
     updateDisplay();
   }
@@ -366,13 +440,11 @@
     }
   }
 
-  // Calculation Logic for Numbers
   function processBetInput(inputNum) {
     let generated = [];
 
     if (currentDigitMode === '2') {
       if (activeOptions.door19) {
-        // 19 ประตู
         const d = inputNum;
         let set19 = new Set();
         for (let i = 0; i <= 9; i++) {
@@ -381,10 +453,8 @@
         }
         generated = Array.from(set19);
       } else if (activeOptions.swipeFront) {
-        // รูดหน้า (หลักสิบ)
         for (let i = 0; i <= 9; i++) generated.push(inputNum + i);
       } else if (activeOptions.swipeBack) {
-        // รูดหลัง (หลักหน่วย)
         for (let i = 0; i <= 9; i++) generated.push(i + inputNum);
       } else {
         generated.push(inputNum);
@@ -418,8 +488,8 @@
     return Array.from(new Set(results));
   }
 
-  // Win Mode Processor
   function processWinSelection() {
+    if (isRoundClosed) return;
     const arr = Array.from(selectedWinNumbers).sort();
     if (arr.length < 2) {
       alert('กรุณาเลือกตัวเลขอย่างน้อย 2 ตัวสำหรับจับวิน');
@@ -434,9 +504,7 @@
           if (activeOptions.winReverse) results.push(arr[j] + arr[i]);
         }
       }
-      if (activeOptions.winDouble) {
-        arr.forEach(n => results.push(n + n));
-      }
+      if (activeOptions.winDouble) arr.forEach(n => results.push(n + n));
     } else if (activeOptions.winType === '3') {
       for (let i = 0; i < arr.length; i++) {
         for (let j = i + 1; j < arr.length; j++) {
@@ -450,17 +518,15 @@
           }
         }
       }
-      if (activeOptions.winDouble) {
-        arr.forEach(n => results.push(n + n + n));
-      }
+      if (activeOptions.winDouble) arr.forEach(n => results.push(n + n + n));
     }
 
     addToCartBatch(results);
     clearNum();
   }
 
-  // Quick Add Options (สูง, ต่ำ, คู่, คี่, เบิ้ล)
   function addQuick(type) {
+    if (isRoundClosed) return;
     let list = [];
     if (type === 'high') list = ['สูง (1 ต่อ 1)'];
     else if (type === 'low') list = ['ต่ำ (1 ต่อ 1)'];
@@ -480,7 +546,6 @@
     document.getElementById('cartCount').innerText = cartItems.length;
   }
 
-  // Render Board Grid View
   function renderBoardGrid() {
     const container = document.getElementById('boardGrid');
     const filterContainer = document.getElementById('boardFilterGrid');
@@ -497,7 +562,6 @@
         createBoardBtn(container, '' + i);
       }
     } else if (currentDigitMode === '3') {
-      // Create filter prefixes (000, 100, 200...)
       for (let i = 0; i < 10; i++) {
         const prefix = i + "00";
         const fBtn = document.createElement('div');
@@ -523,6 +587,7 @@
     btn.className = `btn-board-num ${selectedBoardNumbers.has(numStr) ? 'selected' : ''}`;
     btn.innerText = numStr;
     btn.onclick = () => {
+      if (isRoundClosed) return;
       if (selectedBoardNumbers.has(numStr)) {
         selectedBoardNumbers.delete(numStr);
         btn.classList.remove('selected');
@@ -544,30 +609,24 @@
   }
 
   function submitBet() {
+    if (isRoundClosed) {
+      alert('รอบนี้ปิดรับแทงแล้ว');
+      return;
+    }
     if (cartItems.length === 0) {
       alert('กรุณาเลือกตัวเลขก่อนส่งโพย');
       return;
     }
-    alert(`ส่งโพยสำเร็จ! รวมทั้งหมด ${cartItems.length} รายการ`);
+    alert(`ส่งโพยรอบที่ ${currentRoundNumber} สำเร็จ! รวมทั้งหมด ${cartItems.length} รายการ`);
     cartItems = [];
     document.getElementById('cartCount').innerText = '0';
     selectedBoardNumbers.clear();
     if (currentMainMode === 'board') renderBoardGrid();
   }
 
-  // Load URL Parameters
   window.addEventListener('DOMContentLoaded', () => {
+    initPageData();
     renderModeUI();
-    const urlParams = new URLSearchParams(window.location.search);
-    const round = urlParams.get('round');
-    const type = urlParams.get('type');
-    if (round) {
-      const roundTitleEl = document.querySelector('.round-title');
-      if (roundTitleEl) {
-        const typeText = type === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
-        roundTitleEl.innerText = `🔵 ${typeText} - รอบที่ ${round}`;
-      }
-    }
   });
 </script>
 </body>
