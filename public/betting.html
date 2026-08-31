@@ -6,14 +6,15 @@
   <title>LUCKY GO - หน้าแทงหวย</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Thonburi, Tahoma, sans-serif; user-select: none; }
-    body { background-color: #0b0f19; color: #ffffff; margin: 0; padding: 0; padding-bottom: 90px; }
+    body { background-color: #0b0f19; color: #ffffff; margin: 0; padding: 0; padding-bottom: 80px; }
     .container { max-width: 500px; margin: 0 auto; padding: 12px; }
 
     /* Top Bar Header */
     .top-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
     .logo { font-size: 20px; font-weight: 900; color: #fbbf24; }
-    .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 5px 12px; border-radius: 20px; font-size: 12px; }
-    .avatar { width: 22px; height: 22px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
+    .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid #334155; }
+    .avatar { width: 22px; height: 22px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 11px; }
+    .user-credit { color: #4ade80; font-weight: bold; margin-left: 4px; border-left: 1px solid #475569; padding-left: 8px; }
 
     /* Round Info Banner */
     .round-bar { background: #1e1b4b; border: 1px solid #4338ca; border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -30,37 +31,44 @@
     .btn-digit { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 8px 0; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; }
     .btn-digit.active { background: #2563eb; color: #fff; border-color: #60a5fa; }
 
-    /* Form Option Sections (เพิ่ม 2 ตัวสูง / 2 ตัวต่ำ) */
-    .section-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
-    
-    .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+    /* Options Sections */
+    .section-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; margin-top: 10px; }
+    .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
     .opt-card { background: #1e293b; border: 1px solid #334155; padding: 8px 5px; border-radius: 6px; font-size: 12px; text-align: center; cursor: pointer; color: #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 4px; }
     .opt-card.active { border-color: #2563eb; background: rgba(37, 99, 235, 0.2); color: #60a5fa; font-weight: bold; }
 
-    /* Quick Number Addition */
-    .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+    /* Quick Add Section */
+    .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
     .btn-quick { background: #1e293b; border: 1px solid #334155; padding: 8px 5px; border-radius: 6px; font-size: 12px; color: #cbd5e1; text-align: center; cursor: pointer; }
     .btn-quick:active { background: #334155; }
 
-    /* Display Entered Number Screen */
-    .display-screen { background: #0f172a; border: 1px dashed #334155; border-radius: 8px; padding: 12px; text-align: center; font-size: 24px; font-weight: bold; color: #fbbf24; letter-spacing: 4px; margin-bottom: 15px; min-height: 52px; display: flex; align-items: center; justify-content: center; }
+    /* Display Screen */
+    .display-screen { background: #0f172a; border: 1px dashed #334155; border-radius: 8px; padding: 12px; text-align: center; font-size: 24px; font-weight: bold; color: #fbbf24; letter-spacing: 4px; margin-bottom: 12px; min-height: 52px; display: flex; align-items: center; justify-content: center; }
 
-    /* Keypad (Mode: กดเลข) */
+    /* Keypad */
     .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-    .btn-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 20px; font-weight: bold; padding: 14px 0; border-radius: 8px; text-align: center; cursor: pointer; }
+    .btn-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 20px; font-weight: bold; padding: 14px 0; border-radius: 8px; text-align: center; cursor: pointer; position: relative; }
     .btn-num:active { background: #334155; }
+    .btn-num.selected { background: #2563eb; border-color: #60a5fa; box-shadow: 0 0 8px rgba(37, 99, 235, 0.6); }
     .btn-num.clear { color: #f87171; font-size: 15px; }
     .btn-num.del { color: #fbbf24; font-size: 16px; }
 
-    /* Board Grid (Mode: แผงเลข) */
+    /* Win Mode Button */
+    .btn-win-submit { background: #10b981; border: none; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; margin-bottom: 15px; text-align: center; }
+
+    /* Board Grid View */
     .board-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-height: 280px; overflow-y: auto; padding-right: 4px; margin-bottom: 15px; }
-    .btn-board-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 14px; font-weight: bold; padding: 10px 0; border-radius: 6px; text-align: center; cursor: pointer; }
+    .btn-board-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 13px; font-weight: bold; padding: 10px 0; border-radius: 6px; text-align: center; cursor: pointer; }
     .btn-board-num.selected { background: #2563eb; border-color: #60a5fa; color: #fff; }
 
+    /* Quick Filter 3 Digits Board */
+    .board-filter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 8px; }
+    .btn-filter-num { background: #0f172a; border: 1px solid #334155; color: #60a5fa; font-size: 11px; padding: 6px 0; border-radius: 4px; text-align: center; cursor: pointer; }
+    .btn-filter-num.active { background: #2563eb; color: #fff; }
+
     /* Footer Action Area */
-    .action-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e293b; }
-    .credit-info { font-size: 13px; color: #94a3b8; }
-    .credit-info span { color: #4ade80; font-weight: bold; }
+    .action-bar { display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e293b; }
+    .btn-load { background: #1e293b; border: 1px solid #334155; color: #94a3b8; border-radius: 6px; padding: 6px 12px; font-size: 11px; cursor: pointer; }
 
     .btn-group-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
     .btn-cart { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
@@ -75,17 +83,19 @@
 <body>
 
   <div class="container">
+    <!-- Header with User & Credit Balance -->
     <div class="top-header">
       <div class="logo">🍀 LUCKY GO</div>
       <div class="user-profile">
         <div class="avatar">U</div>
         <span>user01</span>
+        <span class="user-credit">1,500.00</span>
       </div>
     </div>
 
     <!-- Round Header -->
     <div class="round-bar">
-      <div class="round-title">🔵 ยี่กี 1 นาที - รอบที่ 137</div>
+      <div class="round-title">🔵 ยี่กี 1 นาที - รอบที่ 122</div>
       <div class="round-timer" id="roundTimer">00:03:25</div>
     </div>
 
@@ -97,41 +107,24 @@
 
     <!-- Digit Switcher -->
     <div class="digit-switch">
-      <div class="btn-digit active" onclick="switchDigit(this, 2)">2 ตัว</div>
-      <div class="btn-digit" onclick="switchDigit(this, 3)">3 ตัว</div>
-      <div class="btn-digit" onclick="switchDigit(this, 1)">เลขวิ่ง</div>
-      <div class="btn-digit" onclick="switchDigit(this, 0)">จับวิน</div>
+      <div class="btn-digit active" onclick="switchDigit(this, '2')">2 ตัว</div>
+      <div class="btn-digit" onclick="switchDigit(this, '3')">3 ตัว</div>
+      <div class="btn-digit" onclick="switchDigit(this, 'runner')">เลขวิ่ง</div>
+      <div class="btn-digit" onclick="switchDigit(this, 'win')">จับวิน</div>
     </div>
 
-    <!-- Betting Options (มี 2 ตัวสูง และ 2 ตัวต่ำ เพิ่มเข้ามา) -->
-    <div class="section-label">เลือกรูปแบบการแทง</div>
-    <div class="options-grid">
-      <div class="opt-card active" onclick="toggleOption(this)">✓ 2 ตัวบน</div>
-      <div class="opt-card" onclick="toggleOption(this)">2 ตัวล่าง</div>
-      <div class="opt-card" onclick="toggleOption(this)">กลับเลข</div>
-      <div class="opt-card" onclick="toggleOption(this)">19 ประตู</div>
-      <div class="opt-card" onclick="toggleOption(this)">รูดหน้า</div>
-      <div class="opt-card" onclick="toggleOption(this)">รูดหลัง</div>
-      <div class="opt-card" onclick="toggleOption(this)">2 ตัวสูง</div>
-      <div class="opt-card" onclick="toggleOption(this)">2 ตัวต่ำ</div>
-    </div>
+    <!-- Dynamic Options Area -->
+    <div id="optionsArea"></div>
 
-    <!-- Quick Add Section -->
-    <div class="section-label">เพิ่มเลขด่วน</div>
-    <div class="quick-grid">
-      <div class="btn-quick" onclick="addQuick('low')">⊕ 2 ตัวต่ำ (00-49)</div>
-      <div class="btn-quick" onclick="addQuick('high')">⊕ 2 ตัวสูง (50-99)</div>
-      <div class="btn-quick" onclick="addQuick('even')">⊕ เลขคู่</div>
-      <div class="btn-quick" onclick="addQuick('odd')">⊕ เลขคี่</div>
-      <div class="btn-quick" onclick="addQuick('double')">⊕ เลขเบิ้ล</div>
-    </div>
+    <!-- Dynamic Quick Add Area -->
+    <div id="quickArea"></div>
 
-    <!-- Display Entered Number -->
+    <!-- Display Entered Number Screen -->
     <div class="display-screen" id="displayScreen">--</div>
 
     <!-- Numpad View -->
     <div id="numpadView">
-      <div class="numpad-grid">
+      <div class="numpad-grid" id="numpadGrid">
         <div class="btn-num" onclick="pressNum('1')">1</div>
         <div class="btn-num" onclick="pressNum('2')">2</div>
         <div class="btn-num" onclick="pressNum('3')">3</div>
@@ -145,18 +138,22 @@
         <div class="btn-num" onclick="pressNum('0')">0</div>
         <div class="btn-num del" onclick="delNum()">⌫</div>
       </div>
+      <button class="btn-win-submit" id="btnWinSubmit" style="display:none;" onclick="processWinSelection()">เพิ่มเลขจับวิน</button>
     </div>
 
     <!-- Board Grid View -->
     <div id="boardView" style="display: none;">
+      <div id="boardFilterSection" style="display: none;">
+        <div class="section-label">เลือกลำดับตัวเลข</div>
+        <div class="board-filter-grid" id="boardFilterGrid"></div>
+      </div>
       <div class="section-label">เลือกเลขที่ต้องการแทง</div>
       <div class="board-grid" id="boardGrid"></div>
     </div>
 
-    <!-- Footer Credit & Action Buttons -->
+    <!-- Action Buttons -->
     <div class="action-bar">
-      <div class="credit-info">เครดิตคงเหลือ: <span id="userCredit">1,500.00</span></div>
-      <button style="background: #1e293b; border: 1px solid #334155; color: #94a3b8; border-radius: 6px; padding: 6px 10px; font-size: 11px; cursor: pointer;">📥 โหลดโพย</button>
+      <button class="btn-load">📥 โหลดโพย</button>
     </div>
 
     <div class="btn-group-bottom">
@@ -186,125 +183,364 @@
   </div>
 
 <script>
+  let currentMainMode = 'numpad';
+  let currentDigitMode = '2'; // '2', '3', 'runner', 'win'
   let currentInput = "";
-  let currentDigitLength = 2;
+  let selectedWinNumbers = new Set();
   let selectedBoardNumbers = new Set();
   let cartItems = [];
+  let currentBoardPrefix = "000";
+
+  // State Options
+  let activeOptions = {
+    // 2 ตัว
+    top2: true, bottom2: false, reverse: false, door19: false, swipeFront: false, swipeBack: false,
+    // 3 ตัว
+    straight3: true, tod3: false,
+    // เลขวิ่ง
+    runTop: true, runBottom: false,
+    // จับวิน
+    winType: '2', winDouble: false, winReverse: false
+  };
+
+  // Render Layouts based on mode
+  function renderModeUI() {
+    const optionsArea = document.getElementById('optionsArea');
+    const quickArea = document.getElementById('quickArea');
+    const btnWinSubmit = document.getElementById('btnWinSubmit');
+    const boardFilterSection = document.getElementById('boardFilterSection');
+
+    optionsArea.innerHTML = "";
+    quickArea.innerHTML = "";
+    btnWinSubmit.style.display = 'none';
+    boardFilterSection.style.display = 'none';
+
+    if (currentDigitMode === '2') {
+      optionsArea.innerHTML = `
+        <div class="section-label">เลือกรูปแบบการแทง</div>
+        <div class="options-grid">
+          <div class="opt-card ${activeOptions.top2 ? 'active' : ''}" onclick="toggleOpt('top2')">${activeOptions.top2 ? '✓ ' : ''}2 ตัวบน</div>
+          <div class="opt-card ${activeOptions.bottom2 ? 'active' : ''}" onclick="toggleOpt('bottom2')">${activeOptions.bottom2 ? '✓ ' : ''}2 ตัวล่าง</div>
+          <div class="opt-card ${activeOptions.reverse ? 'active' : ''}" onclick="toggleOpt('reverse')">${activeOptions.reverse ? '✓ ' : ''}กลับเลข</div>
+          <div class="opt-card ${activeOptions.door19 ? 'active' : ''}" onclick="toggleOpt('door19')">${activeOptions.door19 ? '✓ ' : ''}19 ประตู</div>
+          <div class="opt-card ${activeOptions.swipeFront ? 'active' : ''}" onclick="toggleOpt('swipeFront')">${activeOptions.swipeFront ? '✓ ' : ''}รูดหน้า</div>
+          <div class="opt-card ${activeOptions.swipeBack ? 'active' : ''}" onclick="toggleOpt('swipeBack')">${activeOptions.swipeBack ? '✓ ' : ''}รูดหลัง</div>
+        </div>
+      `;
+      quickArea.innerHTML = `
+        <div class="section-label">เพิ่มเลขด่วน</div>
+        <div class="quick-grid">
+          <div class="btn-quick" onclick="addQuick('high')">⊕ สูง</div>
+          <div class="btn-quick" onclick="addQuick('low')">⊕ ต่ำ</div>
+          <div class="btn-quick" onclick="addQuick('even')">⊕ คู่</div>
+          <div class="btn-quick" onclick="addQuick('odd')">⊕ คี่</div>
+          <div class="btn-quick" onclick="addQuick('double')">⊕ เบิ้ล</div>
+        </div>
+      `;
+    } else if (currentDigitMode === '3') {
+      optionsArea.innerHTML = `
+        <div class="section-label">เลือกรูปแบบการแทง</div>
+        <div class="options-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div class="opt-card ${activeOptions.straight3 ? 'active' : ''}" onclick="toggleOpt('straight3')">${activeOptions.straight3 ? '✓ ' : ''}3 ตัวตรง</div>
+          <div class="opt-card ${activeOptions.tod3 ? 'active' : ''}" onclick="toggleOpt('tod3')">${activeOptions.tod3 ? '✓ ' : ''}3 ตัวโต๊ด</div>
+          <div class="opt-card ${activeOptions.reverse ? 'active' : ''}" onclick="toggleOpt('reverse')">${activeOptions.reverse ? '✓ ' : ''}กลับเลข</div>
+        </div>
+      `;
+      quickArea.innerHTML = `
+        <div class="section-label">เพิ่มเลขด่วน</div>
+        <div class="quick-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="btn-quick" onclick="addQuick('high3')">⊕ 3 ตัวสูง</div>
+          <div class="btn-quick" onclick="addQuick('low3')">⊕ 3 ตัวต่ำ</div>
+          <div class="btn-quick" onclick="addQuick('even3')">⊕ 3 ตัวคู่</div>
+          <div class="btn-quick" onclick="addQuick('odd3')">⊕ 3 ตัวคี่</div>
+        </div>
+      `;
+      if (currentMainMode === 'board') boardFilterSection.style.display = 'block';
+    } else if (currentDigitMode === 'runner') {
+      optionsArea.innerHTML = `
+        <div class="section-label">เลือกรูปแบบการแทง</div>
+        <div class="options-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="opt-card ${activeOptions.runTop ? 'active' : ''}" onclick="toggleOpt('runTop')">${activeOptions.runTop ? '✓ ' : ''}วิ่งบน</div>
+          <div class="opt-card ${activeOptions.runBottom ? 'active' : ''}" onclick="toggleOpt('runBottom')">${activeOptions.runBottom ? '✓ ' : ''}วิ่งล่าง</div>
+        </div>
+      `;
+    } else if (currentDigitMode === 'win') {
+      optionsArea.innerHTML = `
+        <div class="section-label">เลือกประเภทการแทง</div>
+        <div class="options-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 8px;">
+          <div class="opt-card ${activeOptions.winType === '2' ? 'active' : ''}" onclick="setWinType('2')">${activeOptions.winType === '2' ? '✓ ' : ''}2 ตัว</div>
+          <div class="opt-card ${activeOptions.winType === '3' ? 'active' : ''}" onclick="setWinType('3')">${activeOptions.winType === '3' ? '✓ ' : ''}3 ตัวตรง</div>
+        </div>
+        <div class="section-label">เลือกรูปแบบการแทง</div>
+        <div class="options-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="opt-card ${activeOptions.top2 ? 'active' : ''}" onclick="toggleOpt('top2')">${activeOptions.top2 ? '✓ ' : ''}2 ตัวบน</div>
+          <div class="opt-card ${activeOptions.bottom2 ? 'active' : ''}" onclick="toggleOpt('bottom2')">${activeOptions.bottom2 ? '✓ ' : ''}2 ตัวล่าง</div>
+        </div>
+        <div class="section-label">เพิ่มเติม</div>
+        <div class="options-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="opt-card ${activeOptions.winReverse ? 'active' : ''}" onclick="toggleOpt('winReverse')">${activeOptions.winReverse ? '✓ ' : ''}กลับเลข</div>
+          <div class="opt-card ${activeOptions.winDouble ? 'active' : ''}" onclick="toggleOpt('winDouble')">${activeOptions.winDouble ? '✓ ' : ''}${activeOptions.winType === '3' ? 'รวมตอง' : 'รวมเลขเบิ้ล'}</div>
+        </div>
+      `;
+      btnWinSubmit.style.display = 'block';
+    }
+
+    if (currentMainMode === 'board') renderBoardGrid();
+  }
+
+  function toggleOpt(key) {
+    activeOptions[key] = !activeOptions[key];
+    renderModeUI();
+  }
+
+  function setWinType(type) {
+    activeOptions.winType = type;
+    renderModeUI();
+  }
 
   function switchMainMode(mode) {
-    const numpadView = document.getElementById('numpadView');
-    const boardView = document.getElementById('boardView');
-    const btnNumpad = document.getElementById('modeNumpad');
-    const btnBoard = document.getElementById('modeBoard');
-
-    if (mode === 'numpad') {
-      numpadView.style.display = 'block';
-      boardView.style.display = 'none';
-      btnNumpad.classList.add('active');
-      btnBoard.classList.remove('active');
-    } else {
-      numpadView.style.display = 'none';
-      boardView.style.display = 'block';
-      btnBoard.classList.add('active');
-      btnNumpad.classList.remove('active');
-      renderBoardGrid();
-    }
+    currentMainMode = mode;
+    document.getElementById('numpadView').style.display = mode === 'numpad' ? 'block' : 'none';
+    document.getElementById('boardView').style.display = mode === 'board' ? 'block' : 'none';
+    document.getElementById('modeNumpad').classList.toggle('active', mode === 'numpad');
+    document.getElementById('modeBoard').classList.toggle('active', mode === 'board');
+    renderModeUI();
   }
 
-  function switchDigit(element, digit) {
+  function switchDigit(element, mode) {
     document.querySelectorAll('.btn-digit').forEach(el => el.classList.remove('active'));
     element.classList.add('active');
-    currentDigitLength = digit;
+    currentDigitMode = mode;
     clearNum();
-  }
-
-  function toggleOption(element) {
-    element.classList.toggle('active');
-    if (element.classList.contains('active')) {
-      if (!element.innerText.includes('✓')) {
-        element.innerText = '✓ ' + element.innerText;
-      }
-    } else {
-      element.innerText = element.innerText.replace('✓ ', '');
-    }
+    renderModeUI();
   }
 
   function pressNum(digit) {
-    if (currentInput.length < currentDigitLength) {
+    if (currentDigitMode === 'win') {
+      // Toggle Digit Selection for Win Mode
+      if (selectedWinNumbers.has(digit)) selectedWinNumbers.delete(digit);
+      else selectedWinNumbers.add(digit);
+      updateWinNumpadVisual();
+      return;
+    }
+
+    let targetLen = currentDigitMode === '3' ? 3 : (currentDigitMode === 'runner' ? 1 : 2);
+    if (activeOptions.door19 || activeOptions.swipeFront || activeOptions.swipeBack) targetLen = 1;
+
+    if (currentInput.length < targetLen) {
       currentInput += digit;
       updateDisplay();
-      if (currentInput.length === currentDigitLength) {
-        addToCart(currentInput);
-        setTimeout(clearNum, 300);
+      if (currentInput.length === targetLen) {
+        processBetInput(currentInput);
+        setTimeout(clearNum, 250);
       }
     }
+  }
+
+  function updateWinNumpadVisual() {
+    const buttons = document.querySelectorAll('#numpadGrid .btn-num');
+    buttons.forEach(btn => {
+      const val = btn.innerText.trim();
+      if (selectedWinNumbers.has(val)) btn.classList.add('selected');
+      else btn.classList.remove('selected');
+    });
+    document.getElementById('displayScreen').innerText = Array.from(selectedWinNumbers).sort().join(' ') || "--";
   }
 
   function clearNum() {
     currentInput = "";
+    selectedWinNumbers.clear();
+    updateWinNumpadVisual();
     updateDisplay();
   }
 
   function delNum() {
+    if (currentDigitMode === 'win') return;
     currentInput = currentInput.slice(0, -1);
     updateDisplay();
   }
 
   function updateDisplay() {
-    document.getElementById('displayScreen').innerText = currentInput || "--";
+    if (currentDigitMode !== 'win') {
+      document.getElementById('displayScreen').innerText = currentInput || "--";
+    }
   }
 
+  // Calculation Logic for Numbers
+  function processBetInput(inputNum) {
+    let generated = [];
+
+    if (currentDigitMode === '2') {
+      if (activeOptions.door19) {
+        // 19 ประตู
+        const d = inputNum;
+        let set19 = new Set();
+        for (let i = 0; i <= 9; i++) {
+          set19.add(i + d);
+          set19.add(d + i);
+        }
+        generated = Array.from(set19);
+      } else if (activeOptions.swipeFront) {
+        // รูดหน้า (หลักสิบ)
+        for (let i = 0; i <= 9; i++) generated.push(inputNum + i);
+      } else if (activeOptions.swipeBack) {
+        // รูดหลัง (หลักหน่วย)
+        for (let i = 0; i <= 9; i++) generated.push(i + inputNum);
+      } else {
+        generated.push(inputNum);
+        if (activeOptions.reverse && inputNum[0] !== inputNum[1]) {
+          generated.push(inputNum[1] + inputNum[0]);
+        }
+      }
+    } else if (currentDigitMode === '3') {
+      generated.push(inputNum);
+      if (activeOptions.reverse) {
+        let perm = getPermutations(inputNum);
+        perm.forEach(p => { if (!generated.includes(p)) generated.push(p); });
+      }
+    } else if (currentDigitMode === 'runner') {
+      generated.push(inputNum);
+    }
+
+    addToCartBatch(generated);
+  }
+
+  function getPermutations(str) {
+    if (str.length <= 1) return [str];
+    let results = [];
+    for (let i = 0; i < str.length; i++) {
+      let char = str[i];
+      let remainingChars = str.slice(0, i) + str.slice(i + 1);
+      for (let subPerm of getPermutations(remainingChars)) {
+        results.push(char + subPerm);
+      }
+    }
+    return Array.from(new Set(results));
+  }
+
+  // Win Mode Processor
+  function processWinSelection() {
+    const arr = Array.from(selectedWinNumbers).sort();
+    if (arr.length < 2) {
+      alert('กรุณาเลือกตัวเลขอย่างน้อย 2 ตัวสำหรับจับวิน');
+      return;
+    }
+
+    let results = [];
+    if (activeOptions.winType === '2') {
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i + 1; j < arr.length; j++) {
+          results.push(arr[i] + arr[j]);
+          if (activeOptions.winReverse) results.push(arr[j] + arr[i]);
+        }
+      }
+      if (activeOptions.winDouble) {
+        arr.forEach(n => results.push(n + n));
+      }
+    } else if (activeOptions.winType === '3') {
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i + 1; j < arr.length; j++) {
+          for (let k = j + 1; k < arr.length; k++) {
+            let combo = arr[i] + arr[j] + arr[k];
+            if (activeOptions.winReverse) {
+              getPermutations(combo).forEach(p => results.push(p));
+            } else {
+              results.push(combo);
+            }
+          }
+        }
+      }
+      if (activeOptions.winDouble) {
+        arr.forEach(n => results.push(n + n + n));
+      }
+    }
+
+    addToCartBatch(results);
+    clearNum();
+  }
+
+  // Quick Add Options (สูง, ต่ำ, คู่, คี่, เบิ้ล)
+  function addQuick(type) {
+    let list = [];
+    if (type === 'high') list = ['สูง (1 ต่อ 1)'];
+    else if (type === 'low') list = ['ต่ำ (1 ต่อ 1)'];
+    else if (type === 'even') list = ['คู่ (1 ต่อ 1)'];
+    else if (type === 'odd') list = ['คี่ (1 ต่อ 1)'];
+    else if (type === 'double') list = ['00','11','22','33','44','55','66','77','88','99'];
+    else if (type === 'high3') list = ['3 ตัวสูง'];
+    else if (type === 'low3') list = ['3 ตัวต่ำ'];
+    else if (type === 'even3') list = ['3 ตัวคู่'];
+    else if (type === 'odd3') list = ['3 ตัวคี่'];
+
+    addToCartBatch(list);
+  }
+
+  function addToCartBatch(items) {
+    cartItems.push(...items);
+    document.getElementById('cartCount').innerText = cartItems.length;
+  }
+
+  // Render Board Grid View
   function renderBoardGrid() {
     const container = document.getElementById('boardGrid');
+    const filterContainer = document.getElementById('boardFilterGrid');
     container.innerHTML = "";
-    for (let i = 0; i < 100; i++) {
-      const numStr = i < 10 ? '0' + i : '' + i;
-      const btn = document.createElement('div');
-      btn.className = `btn-board-num ${selectedBoardNumbers.has(numStr) ? 'selected' : ''}`;
-      btn.innerText = numStr;
-      btn.onclick = () => toggleBoardNumber(numStr, btn);
-      container.appendChild(btn);
+    filterContainer.innerHTML = "";
+
+    if (currentDigitMode === '2' || currentDigitMode === 'win') {
+      for (let i = 0; i < 100; i++) {
+        const numStr = i < 10 ? '0' + i : '' + i;
+        createBoardBtn(container, numStr);
+      }
+    } else if (currentDigitMode === 'runner') {
+      for (let i = 0; i <= 9; i++) {
+        createBoardBtn(container, '' + i);
+      }
+    } else if (currentDigitMode === '3') {
+      // Create filter prefixes (000, 100, 200...)
+      for (let i = 0; i < 10; i++) {
+        const prefix = i + "00";
+        const fBtn = document.createElement('div');
+        fBtn.className = `btn-filter-num ${currentBoardPrefix === prefix ? 'active' : ''}`;
+        fBtn.innerText = prefix;
+        fBtn.onclick = () => {
+          currentBoardPrefix = prefix;
+          renderBoardGrid();
+        };
+        filterContainer.appendChild(fBtn);
+      }
+      const start = parseInt(currentBoardPrefix);
+      for (let i = start; i < start + 100; i++) {
+        let numStr = '' + i;
+        while (numStr.length < 3) numStr = '0' + numStr;
+        createBoardBtn(container, numStr);
+      }
     }
   }
 
-  function toggleBoardNumber(numStr, element) {
-    if (selectedBoardNumbers.has(numStr)) {
-      selectedBoardNumbers.delete(numStr);
-      element.classList.remove('selected');
-    } else {
-      selectedBoardNumbers.add(numStr);
-      element.classList.add('selected');
-      addToCart(numStr);
-    }
-  }
-
-  function addToCart(number) {
-    cartItems.push(number);
-    document.getElementById('cartCount').innerText = cartItems.length;
-  }
-
-  // ระบบเลือกเลขด่วนแบบอัตโนมัติ (ต่ำ 00-49 / สูง 50-99)
-  function addQuick(type) {
-    let addedNumbers = [];
-    if (type === 'low') {
-      for (let i = 0; i < 50; i++) addedNumbers.push(i < 10 ? '0' + i : '' + i);
-    } else if (type === 'high') {
-      for (let i = 50; i < 100; i++) addedNumbers.push('' + i);
-    } else if (type === 'even') {
-      for (let i = 0; i < 100; i += 2) addedNumbers.push(i < 10 ? '0' + i : '' + i);
-    } else if (type === 'odd') {
-      for (let i = 1; i < 100; i += 2) addedNumbers.push(i < 10 ? '0' + i : '' + i);
-    } else if (type === 'double') {
-      addedNumbers = ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
-    }
-
-    cartItems.push(...addedNumbers);
-    document.getElementById('cartCount').innerText = cartItems.length;
-    alert(`เพิ่มชุดเลขด่วน (${type.toUpperCase()}) รวม ${addedNumbers.length} รายการ เรียบร้อยแล้ว`);
+  function createBoardBtn(container, numStr) {
+    const btn = document.createElement('div');
+    btn.className = `btn-board-num ${selectedBoardNumbers.has(numStr) ? 'selected' : ''}`;
+    btn.innerText = numStr;
+    btn.onclick = () => {
+      if (selectedBoardNumbers.has(numStr)) {
+        selectedBoardNumbers.delete(numStr);
+        btn.classList.remove('selected');
+      } else {
+        selectedBoardNumbers.add(numStr);
+        btn.classList.add('selected');
+        processBetInput(numStr);
+      }
+    };
+    container.appendChild(btn);
   }
 
   function viewCart() {
-    alert(`รายการในตะกร้าทั้งหมด (${cartItems.length} รายการ):\n${cartItems.join(', ')}`);
+    if (cartItems.length === 0) {
+      alert('ยังไม่มีรายการในตะกร้า');
+      return;
+    }
+    alert(`รายการในตะกร้า (${cartItems.length} รายการ):\n${cartItems.join(', ')}`);
   }
 
   function submitBet() {
@@ -312,28 +548,27 @@
       alert('กรุณาเลือกตัวเลขก่อนส่งโพย');
       return;
     }
-    alert(`ส่งโพย LUCKY GO สำเร็จ! รวมทั้งหมด ${cartItems.length} รายการ`);
+    alert(`ส่งโพยสำเร็จ! รวมทั้งหมด ${cartItems.length} รายการ`);
     cartItems = [];
     document.getElementById('cartCount').innerText = '0';
     selectedBoardNumbers.clear();
-    if (document.getElementById('boardView').style.display === 'block') {
-      renderBoardGrid();
-    }
+    if (currentMainMode === 'board') renderBoardGrid();
   }
-  // วางไว้ด้านล่างสุดของ <script> ในหน้า betting.html
-window.addEventListener('DOMContentLoaded', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const round = urlParams.get('round');
-  const type = urlParams.get('type');
 
-  if (round) {
-    const roundTitleEl = document.querySelector('.round-title');
-    if (roundTitleEl) {
-      const typeText = type === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
-      roundTitleEl.innerText = `🔵 ${typeText} - รอบที่ ${round}`;
+  // Load URL Parameters
+  window.addEventListener('DOMContentLoaded', () => {
+    renderModeUI();
+    const urlParams = new URLSearchParams(window.location.search);
+    const round = urlParams.get('round');
+    const type = urlParams.get('type');
+    if (round) {
+      const roundTitleEl = document.querySelector('.round-title');
+      if (roundTitleEl) {
+        const typeText = type === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
+        roundTitleEl.innerText = `🔵 ${typeText} - รอบที่ ${round}`;
+      }
     }
-  }
-});
+  });
 </script>
 </body>
 </html>
