@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUCKY GO - หน้าแทงหวย</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Thonburi, Tahoma, sans-serif; user-select: none; }
+    body { background-color: #0b0f19; color: #ffffff; margin: 0; padding: 0; padding-bottom: 90px; }
+    .container { max-width: 500px; margin: 0 auto; padding: 12px; }
+
+    /* Top Bar Header */
+    .top-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+    .logo { font-size: 20px; font-weight: 900; color: #fbbf24; }
+    .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 5px 12px; border-radius: 20px; font-size: 12px; }
+    .avatar { width: 22px; height: 22px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
+
+    /* Round Info Banner */
+    .round-bar { background: #1e1b4b; border: 1px solid #4338ca; border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .round-title { font-weight: bold; font-size: 14px; color: #93c5fd; }
+    .round-timer { background: #000; color: #fbbf24; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; }
+
+    /* Main Mode Switcher */
+    .mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .btn-mode { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
+    .btn-mode.active { background: #0284c7; color: #fff; border-color: #38bdf8; }
+
+    /* Digit Switcher */
+    .digit-switch { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
+    .btn-digit { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 8px 0; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; }
+    .btn-digit.active { background: #2563eb; color: #fff; border-color: #60a5fa; }
+
+    /* Form Option Sections (เพิ่ม 2 ตัวสูง / 2 ตัวต่ำ) */
+    .section-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+    
+    .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+    .opt-card { background: #1e293b; border: 1px solid #334155; padding: 8px 5px; border-radius: 6px; font-size: 12px; text-align: center; cursor: pointer; color: #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .opt-card.active { border-color: #2563eb; background: rgba(37, 99, 235, 0.2); color: #60a5fa; font-weight: bold; }
+
+    /* Quick Number Addition */
+    .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+    .btn-quick { background: #1e293b; border: 1px solid #334155; padding: 8px 5px; border-radius: 6px; font-size: 12px; color: #cbd5e1; text-align: center; cursor: pointer; }
+    .btn-quick:active { background: #334155; }
+
+    /* Display Entered Number Screen */
+    .display-screen { background: #0f172a; border: 1px dashed #334155; border-radius: 8px; padding: 12px; text-align: center; font-size: 24px; font-weight: bold; color: #fbbf24; letter-spacing: 4px; margin-bottom: 15px; min-height: 52px; display: flex; align-items: center; justify-content: center; }
+
+    /* Keypad (Mode: กดเลข) */
+    .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+    .btn-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 20px; font-weight: bold; padding: 14px 0; border-radius: 8px; text-align: center; cursor: pointer; }
+    .btn-num:active { background: #334155; }
+    .btn-num.clear { color: #f87171; font-size: 15px; }
+    .btn-num.del { color: #fbbf24; font-size: 16px; }
+
+    /* Board Grid (Mode: แผงเลข) */
+    .board-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-height: 280px; overflow-y: auto; padding-right: 4px; margin-bottom: 15px; }
+    .btn-board-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 14px; font-weight: bold; padding: 10px 0; border-radius: 6px; text-align: center; cursor: pointer; }
+    .btn-board-num.selected { background: #2563eb; border-color: #60a5fa; color: #fff; }
+
+    /* Footer Action Area */
+    .action-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e293b; }
+    .credit-info { font-size: 13px; color: #94a3b8; }
+    .credit-info span { color: #4ade80; font-weight: bold; }
+
+    .btn-group-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .btn-cart { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
+    .btn-submit { background: #0284c7; border: none; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
+
+    /* Bottom Nav Bar */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
+    .nav-tab { display: flex; flex-direction: column; align-items: center; color: #64748b; text-decoration: none; font-size: 10px; gap: 3px; cursor: pointer; }
+    .nav-tab.active { color: #fbbf24; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="top-header">
+      <div class="logo">🍀 LUCKY GO</div>
+      <div class="user-profile">
+        <div class="avatar">U</div>
+        <span>user01</span>
+      </div>
+    </div>
+
+    <!-- Round Header -->
+    <div class="round-bar">
+      <div class="round-title">🔵 ยี่กี 1 นาที - รอบที่ 137</div>
+      <div class="round-timer" id="roundTimer">00:03:25</div>
+    </div>
+
+    <!-- Mode Switcher -->
+    <div class="mode-switch">
+      <div class="btn-mode active" id="modeNumpad" onclick="switchMainMode('numpad')">กดเลข</div>
+      <div class="btn-mode" id="modeBoard" onclick="switchMainMode('board')">แผงเลข</div>
+    </div>
+
+    <!-- Digit Switcher -->
+    <div class="digit-switch">
+      <div class="btn-digit active" onclick="switchDigit(this, 2)">2 ตัว</div>
+      <div class="btn-digit" onclick="switchDigit(this, 3)">3 ตัว</div>
+      <div class="btn-digit" onclick="switchDigit(this, 1)">เลขวิ่ง</div>
+      <div class="btn-digit" onclick="switchDigit(this, 0)">จับวิน</div>
+    </div>
+
+    <!-- Betting Options (มี 2 ตัวสูง และ 2 ตัวต่ำ เพิ่มเข้ามา) -->
+    <div class="section-label">เลือกรูปแบบการแทง</div>
+    <div class="options-grid">
+      <div class="opt-card active" onclick="toggleOption(this)">✓ 2 ตัวบน</div>
+      <div class="opt-card" onclick="toggleOption(this)">2 ตัวล่าง</div>
+      <div class="opt-card" onclick="toggleOption(this)">กลับเลข</div>
+      <div class="opt-card" onclick="toggleOption(this)">19 ประตู</div>
+      <div class="opt-card" onclick="toggleOption(this)">รูดหน้า</div>
+      <div class="opt-card" onclick="toggleOption(this)">รูดหลัง</div>
+      <div class="opt-card" onclick="toggleOption(this)">2 ตัวสูง</div>
+      <div class="opt-card" onclick="toggleOption(this)">2 ตัวต่ำ</div>
+    </div>
+
+    <!-- Quick Add Section -->
+    <div class="section-label">เพิ่มเลขด่วน</div>
+    <div class="quick-grid">
+      <div class="btn-quick" onclick="addQuick('low')">⊕ 2 ตัวต่ำ (00-49)</div>
+      <div class="btn-quick" onclick="addQuick('high')">⊕ 2 ตัวสูง (50-99)</div>
+      <div class="btn-quick" onclick="addQuick('even')">⊕ เลขคู่</div>
+      <div class="btn-quick" onclick="addQuick('odd')">⊕ เลขคี่</div>
+      <div class="btn-quick" onclick="addQuick('double')">⊕ เลขเบิ้ล</div>
+    </div>
+
+    <!-- Display Entered Number -->
+    <div class="display-screen" id="displayScreen">--</div>
+
+    <!-- Numpad View -->
+    <div id="numpadView">
+      <div class="numpad-grid">
+        <div class="btn-num" onclick="pressNum('1')">1</div>
+        <div class="btn-num" onclick="pressNum('2')">2</div>
+        <div class="btn-num" onclick="pressNum('3')">3</div>
+        <div class="btn-num" onclick="pressNum('4')">4</div>
+        <div class="btn-num" onclick="pressNum('5')">5</div>
+        <div class="btn-num" onclick="pressNum('6')">6</div>
+        <div class="btn-num" onclick="pressNum('7')">7</div>
+        <div class="btn-num" onclick="pressNum('8')">8</div>
+        <div class="btn-num" onclick="pressNum('9')">9</div>
+        <div class="btn-num clear" onclick="clearNum()">ล้าง</div>
+        <div class="btn-num" onclick="pressNum('0')">0</div>
+        <div class="btn-num del" onclick="delNum()">⌫</div>
+      </div>
+    </div>
+
+    <!-- Board Grid View -->
+    <div id="boardView" style="display: none;">
+      <div class="section-label">เลือกเลขที่ต้องการแทง</div>
+      <div class="board-grid" id="boardGrid"></div>
+    </div>
+
+    <!-- Footer Credit & Action Buttons -->
+    <div class="action-bar">
+      <div class="credit-info">เครดิตคงเหลือ: <span id="userCredit">1,500.00</span></div>
+      <button style="background: #1e293b; border: 1px solid #334155; color: #94a3b8; border-radius: 6px; padding: 6px 10px; font-size: 11px; cursor: pointer;">📥 โหลดโพย</button>
+    </div>
+
+    <div class="btn-group-bottom">
+      <button class="btn-cart" onclick="viewCart()">🛒 ตะกร้า (<span id="cartCount">0</span>)</button>
+      <button class="btn-submit" onclick="submitBet()">แทงหวย</button>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-tab" onclick="location.href='/index.html'">
+      <div style="font-size: 18px;">🏠</div>
+      <div>หน้าหลัก</div>
+    </div>
+    <div class="nav-tab" onclick="location.href='/deposit.html'">
+      <div style="font-size: 18px;">📥</div>
+      <div>ฝากเงิน</div>
+    </div>
+    <div class="nav-tab active">
+      <div style="font-size: 18px;">🎯</div>
+      <div>เล่นเกม</div>
+    </div>
+    <div class="nav-tab">
+      <div style="font-size: 18px;">💬</div>
+      <div>ช่วยเหลือ</div>
+    </div>
+  </div>
+
+<script>
+  let currentInput = "";
+  let currentDigitLength = 2;
+  let selectedBoardNumbers = new Set();
+  let cartItems = [];
+
+  function switchMainMode(mode) {
+    const numpadView = document.getElementById('numpadView');
+    const boardView = document.getElementById('boardView');
+    const btnNumpad = document.getElementById('modeNumpad');
+    const btnBoard = document.getElementById('modeBoard');
+
+    if (mode === 'numpad') {
+      numpadView.style.display = 'block';
+      boardView.style.display = 'none';
+      btnNumpad.classList.add('active');
+      btnBoard.classList.remove('active');
+    } else {
+      numpadView.style.display = 'none';
+      boardView.style.display = 'block';
+      btnBoard.classList.add('active');
+      btnNumpad.classList.remove('active');
+      renderBoardGrid();
+    }
+  }
+
+  function switchDigit(element, digit) {
+    document.querySelectorAll('.btn-digit').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    currentDigitLength = digit;
+    clearNum();
+  }
+
+  function toggleOption(element) {
+    element.classList.toggle('active');
+    if (element.classList.contains('active')) {
+      if (!element.innerText.includes('✓')) {
+        element.innerText = '✓ ' + element.innerText;
+      }
+    } else {
+      element.innerText = element.innerText.replace('✓ ', '');
+    }
+  }
+
+  function pressNum(digit) {
+    if (currentInput.length < currentDigitLength) {
+      currentInput += digit;
+      updateDisplay();
+      if (currentInput.length === currentDigitLength) {
+        addToCart(currentInput);
+        setTimeout(clearNum, 300);
+      }
+    }
+  }
+
+  function clearNum() {
+    currentInput = "";
+    updateDisplay();
+  }
+
+  function delNum() {
+    currentInput = currentInput.slice(0, -1);
+    updateDisplay();
+  }
+
+  function updateDisplay() {
+    document.getElementById('displayScreen').innerText = currentInput || "--";
+  }
+
+  function renderBoardGrid() {
+    const container = document.getElementById('boardGrid');
+    container.innerHTML = "";
+    for (let i = 0; i < 100; i++) {
+      const numStr = i < 10 ? '0' + i : '' + i;
+      const btn = document.createElement('div');
+      btn.className = `btn-board-num ${selectedBoardNumbers.has(numStr) ? 'selected' : ''}`;
+      btn.innerText = numStr;
+      btn.onclick = () => toggleBoardNumber(numStr, btn);
+      container.appendChild(btn);
+    }
+  }
+
+  function toggleBoardNumber(numStr, element) {
+    if (selectedBoardNumbers.has(numStr)) {
+      selectedBoardNumbers.delete(numStr);
+      element.classList.remove('selected');
+    } else {
+      selectedBoardNumbers.add(numStr);
+      element.classList.add('selected');
+      addToCart(numStr);
+    }
+  }
+
+  function addToCart(number) {
+    cartItems.push(number);
+    document.getElementById('cartCount').innerText = cartItems.length;
+  }
+
+  // ระบบเลือกเลขด่วนแบบอัตโนมัติ (ต่ำ 00-49 / สูง 50-99)
+  function addQuick(type) {
+    let addedNumbers = [];
+    if (type === 'low') {
+      for (let i = 0; i < 50; i++) addedNumbers.push(i < 10 ? '0' + i : '' + i);
+    } else if (type === 'high') {
+      for (let i = 50; i < 100; i++) addedNumbers.push('' + i);
+    } else if (type === 'even') {
+      for (let i = 0; i < 100; i += 2) addedNumbers.push(i < 10 ? '0' + i : '' + i);
+    } else if (type === 'odd') {
+      for (let i = 1; i < 100; i += 2) addedNumbers.push(i < 10 ? '0' + i : '' + i);
+    } else if (type === 'double') {
+      addedNumbers = ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
+    }
+
+    cartItems.push(...addedNumbers);
+    document.getElementById('cartCount').innerText = cartItems.length;
+    alert(`เพิ่มชุดเลขด่วน (${type.toUpperCase()}) รวม ${addedNumbers.length} รายการ เรียบร้อยแล้ว`);
+  }
+
+  function viewCart() {
+    alert(`รายการในตะกร้าทั้งหมด (${cartItems.length} รายการ):\n${cartItems.join(', ')}`);
+  }
+
+  function submitBet() {
+    if (cartItems.length === 0) {
+      alert('กรุณาเลือกตัวเลขก่อนส่งโพย');
+      return;
+    }
+    alert(`ส่งโพย LUCKY GO สำเร็จ! รวมทั้งหมด ${cartItems.length} รายการ`);
+    cartItems = [];
+    document.getElementById('cartCount').innerText = '0';
+    selectedBoardNumbers.clear();
+    if (document.getElementById('boardView').style.display === 'block') {
+      renderBoardGrid();
+    }
+  }
+</script>
+</body>
+</html>
