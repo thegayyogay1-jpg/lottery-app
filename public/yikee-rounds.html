@@ -49,7 +49,10 @@
   roundsData.forEach(r => {
     const card = document.createElement('div');
     card.className = 'round-card';
-    card.onclick = () => alert(`เข้าสู่หน้าป้อนตัวเลขแทง: ยี่กี รอบที่ ${r.round}`);
+    card.onclick = () => function selectRound(roundNumber, type) {
+  // นำทางไปยังหน้า betting.html พร้อมส่งค่ารอบและประเภทหวยไปทาง URL
+  window.location.href = `/betting.html?type=${encodeURIComponent(type || '1m')}&round=${roundNumber}`;
+}
     card.innerHTML = `
       <div class="status-badge">เปิดรับแทง</div>
       <div class="round-title">🔵 ยี่กี รอบที่ ${r.round}</div>
