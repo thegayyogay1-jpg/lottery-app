@@ -15,31 +15,71 @@
     .back-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
     .back-btn:hover { background: #334155; }
     
-    /* โลโก้ฟุ้งฟริ้งเรืองแสงขยับได้ */
-    .logo { 
-      font-size: 19px; 
-      font-weight: 900; 
-      color: #fbbf24; 
+    /* --------------------------------------------------
+       ปรับแก้ที่ 1: โลโก้ LUCKY GO + ตัว O ชิปหมุน 3D
+       -------------------------------------------------- */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      font-size: 19px;
+      font-weight: 900;
+      color: #fbbf24;
       cursor: pointer;
-      position: relative;
-      display: inline-block;
-      text-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4);
-      animation: logoAura 3s infinite alternate ease-in-out;
+      text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
     }
 
-    @keyframes logoAura {
-      0% {
-        text-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24, 0 0 15px #f59e0b;
-        transform: scale(1);
-      }
-      50% {
-        text-shadow: 0 0 12px #fbbf24, 0 0 25px #f59e0b, 0 0 35px #d97706, 0 0 45px #b45309;
-        transform: scale(1.03);
-      }
-      100% {
-        text-shadow: 0 0 8px #fbbf24, 0 0 18px #fbbf24, 0 0 28px #f59e0b;
-        transform: scale(1);
-      }
+    .chip-container {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      perspective: 1000px;
+      margin: 0 2px;
+      vertical-align: middle;
+    }
+
+    .chip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+      animation: flipCoin 3s infinite linear;
+    }
+
+    .chip-front, .chip-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      box-shadow: 0 0 6px rgba(251, 191, 36, 0.8);
+    }
+
+    .chip-front {
+      background: radial-gradient(circle, #fef08a, #eab308);
+      color: #000;
+      border: 1.5px dashed #854d0e;
+    }
+
+    .chip-back {
+      background: radial-gradient(circle, #f43f5e, #be123c);
+      color: #fff;
+      border: 1.5px dashed #eee;
+      transform: rotateY(180deg);
+    }
+
+    @keyframes flipCoin {
+      0% { transform: rotateY(0deg); }
+      40% { transform: rotateY(180deg); }
+      50% { transform: rotateY(180deg); }
+      90% { transform: rotateY(360deg); }
+      100% { transform: rotateY(360deg); }
     }
 
     .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; border: 1px solid #334155; }
@@ -70,7 +110,7 @@
 
     /* Quick Add Section */
     .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
-    .btn-quick { background: #1e293b; border: 1px solid #334155; padding: 8px 5px; border-radius: 6px; font-size: 12px; color: #cbd5e1; text-align: center; cursor: pointer; }
+    .btn-quick-add { background: #1e293b; border: 1px solid #334155; padding: 8px 5px; border-radius: 6px; font-size: 12px; color: #cbd5e1; text-align: center; cursor: pointer; }
 
     /* Display Screen */
     .display-screen { background: #0f172a; border: 1px dashed #334155; border-radius: 8px; padding: 12px; text-align: center; font-size: 24px; font-weight: bold; color: #fbbf24; letter-spacing: 4px; margin-bottom: 12px; min-height: 52px; display: flex; align-items: center; justify-content: center; }
@@ -104,7 +144,7 @@
     .btn-submit { background: #0284c7; border: none; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
 
     /* Bottom Nav Bar */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-around; padding: 8px 0; z-index: 100; }
     .nav-tab { display: flex; flex-direction: column; align-items: center; color: #64748b; text-decoration: none; font-size: 10px; gap: 3px; cursor: pointer; }
     .nav-tab.active { color: #fbbf24; }
 
@@ -114,13 +154,12 @@
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: 0.2s ease; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
-    /* ALERT MODAL (อยู่ชั้นบนสุด z-index: 2000 เสมอ เพื่อไม่ให้โดนทับ) */
     #alertModalOverlay { z-index: 2000 !important; }
 
     .modal-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; width: 92%; max-width: 480px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); overflow: hidden; transform: scale(0.95); transition: 0.2s ease; }
     .modal-overlay.active .modal-card { transform: scale(1); }
 
-    .modal-header { background: #0f172a; padding: 12px 16px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header { background: #0f172a; padding: 12px 16px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .modal-title { font-weight: bold; font-size: 15px; color: #fbbf24; margin: 0; }
     .modal-close { background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; }
 
@@ -135,19 +174,57 @@
     .text-win { color: #fbbf24; font-weight: bold; }
     .btn-del-item { background: none; border: none; color: #f87171; cursor: pointer; font-size: 14px; }
 
-    /* Quick Fill Bar & Clear Price Button */
+    /* --------------------------------------------------
+       ปรับแก้ที่ 2: ปุ่มเพิ่มราคาด่วนเรืองแสง + ดาวกระพริบ
+       -------------------------------------------------- */
     .quick-fill-bar { display: flex; align-items: center; gap: 4px; margin-top: 12px; background: #0f172a; padding: 8px; border-radius: 8px; border: 1px solid #334155; flex-wrap: wrap; }
     .quick-fill-title { font-size: 11px; color: #94a3b8; white-space: nowrap; margin-right: 2px; }
-    .btn-fill { flex: 1; min-width: 36px; background: #3b82f6; border: none; color: #fff; padding: 6px 0; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
-    .btn-fill:hover { background: #2563eb; }
+    
+    .btn-fill { 
+      flex: 1; 
+      min-width: 38px; 
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6); 
+      border: 1px solid #60a5fa; 
+      color: #fff; 
+      padding: 6px 0; 
+      border-radius: 4px; 
+      font-size: 11px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+      transition: all 0.2s ease;
+    }
+    .btn-fill:hover { 
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.9); 
+      transform: translateY(-1px); 
+    }
+
+    .star-twinkle {
+      display: inline-block;
+      color: #facc15;
+      animation: twinkle 1.2s infinite ease-in-out alternate;
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
     .btn-fill-clear { flex: 1.2; background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; color: #f87171; padding: 6px 0; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; }
     .btn-fill-clear:hover { background: #ef4444; color: #fff; }
 
-    /* Summary Bar inside Modal */
-    .modal-summary { background: #0f172a; padding: 12px 18px; border-top: 1px solid #334155; }
+    /* --------------------------------------------------
+       ปรับแก้ที่ 3: ตรึงแถบสรุปยอดไว้ด้านล่าง (Sticky Footer)
+       -------------------------------------------------- */
+    .modal-sticky-bottom {
+      flex-shrink: 0;
+      background: #0f172a;
+      border-top: 1px solid #334155;
+    }
+
+    .modal-summary { padding: 12px 18px 4px 18px; }
     .summary-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
 
-    .modal-footer { padding: 12px 18px; background: #0f172a; border-top: 1px solid #334155; display: flex; gap: 10px; }
+    .modal-footer { padding: 10px 18px 14px 18px; display: flex; gap: 10px; }
     .btn-modal-cancel { flex: 1; background: #475569; border: none; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-modal-confirm { flex: 2; background: #10b981; border: none; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
 
@@ -166,11 +243,19 @@
 <body onclick="dismissKeyboard(event)">
 
   <div class="container">
-    <!-- Header -->
+    <!-- Header พร้อมโลโก้ LUCKY GO ตัว O ชิปหมุน 3D -->
     <div class="top-header">
       <div class="header-left">
         <button class="back-btn" onclick="goBack()">← กลับ</button>
-        <div class="logo" onclick="goHome()">🍀 LUCKY GO</div>
+        <div class="logo-container" onclick="goHome()">
+          LUCKY G
+          <div class="chip-container">
+            <div class="chip-inner">
+              <div class="chip-front">777</div>
+              <div class="chip-back">💰</div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="user-profile">
         <div class="avatar" id="userAvatar">U</div>
@@ -270,7 +355,7 @@
   <!-- POPUP MODAL CONTAINERS -->
   <!-- ==================================================== -->
 
-  <!-- 1. Alert Modal (อยู่ด้านหน้าสุด z-index: 2000) -->
+  <!-- 1. Alert Modal -->
   <div class="modal-overlay" id="alertModalOverlay">
     <div class="modal-card" style="max-width: 360px;">
       <div class="modal-body">
@@ -311,21 +396,23 @@
         </table>
       </div>
 
-      <div class="modal-summary">
-        <div class="summary-row">
-          <span>รวมทั้งหมด:</span>
-          <span style="font-weight:bold; color:#fbbf24;" id="viewCartItemsCount">0 รายการ</span>
+      <div class="modal-sticky-bottom">
+        <div class="modal-summary">
+          <div class="summary-row">
+            <span>รวมทั้งหมด:</span>
+            <span style="font-weight:bold; color:#fbbf24;" id="viewCartItemsCount">0 รายการ</span>
+          </div>
         </div>
-      </div>
 
-      <div class="modal-footer">
-        <button class="btn-modal-cancel" style="flex:1;" onclick="closeViewCartModal()">ปิดหน้าต่าง</button>
-        <button class="btn-modal-confirm" style="flex:1;" onclick="switchFromCartToBetModal()">ไปหน้าใส่ราคา 🎯</button>
+        <div class="modal-footer">
+          <button class="btn-modal-cancel" style="flex:1;" onclick="closeViewCartModal()">ปิดหน้าต่าง</button>
+          <button class="btn-modal-confirm" style="flex:1;" onclick="switchFromCartToBetModal()">ไปหน้าใส่ราคา 🎯</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 3. Betting & Pricing Modal -->
+  <!-- 3. Betting & Pricing Modal (ปรับปรุง Sticky Bottom และปุ่มเรืองแสง) -->
   <div class="modal-overlay" id="betModalOverlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -347,35 +434,40 @@
           </thead>
           <tbody id="betTableBody"></tbody>
         </table>
-
-        <!-- แถบบวกราคาด่วน และ ปุ่มล้างราคา -->
-        <div class="quick-fill-bar">
-          <span class="quick-fill-title">เพิ่มราคา:</span>
-          <button class="btn-fill" onclick="addBulkPrice(5)">+5</button>
-          <button class="btn-fill" onclick="addBulkPrice(10)">+10</button>
-          <button class="btn-fill" onclick="addBulkPrice(25)">+25</button>
-          <button class="btn-fill" onclick="addBulkPrice(50)">+50</button>
-          <button class="btn-fill" onclick="addBulkPrice(100)">+100</button>
-          <button class="btn-fill" onclick="addBulkPrice(500)">+500</button>
-          <button class="btn-fill-clear" onclick="clearAllPrices()">🧹 ล้างราคา</button>
-        </div>
       </div>
 
-      <!-- สรุปยอด -->
-      <div class="modal-summary">
-        <div class="summary-row">
-          <span>รวมทั้งหมด:</span>
-          <span style="font-weight:bold;" id="betSummaryCount">0 รายการ</span>
+      <!-- ส่วนปักหมุดตรึงไว้ด้านล่างเสมอ (Sticky) -->
+      <div class="modal-sticky-bottom">
+        <div style="padding: 0 12px;">
+          <!-- แถบบวกราคาด่วนเรืองแสง และ ปุ่มล้างราคา -->
+          <div class="quick-fill-bar">
+            <span class="quick-fill-title">เพิ่มราคา:</span>
+            <button class="btn-fill" onclick="addBulkPrice(5)">+5 <span class="star-twinkle">✨</span></button>
+            <button class="btn-fill" onclick="addBulkPrice(10)">+10 <span class="star-twinkle">⭐</span></button>
+            <button class="btn-fill" onclick="addBulkPrice(25)">+25</button>
+            <button class="btn-fill" onclick="addBulkPrice(50)">+50</button>
+            <button class="btn-fill" onclick="addBulkPrice(100)">+100</button>
+            <button class="btn-fill" onclick="addBulkPrice(500)">+500</button>
+            <button class="btn-fill-clear" onclick="clearAllPrices()">🧹 ล้างราคา</button>
+          </div>
         </div>
-        <div class="summary-row">
-          <span>ยอดเดิมพันรวม:</span>
-          <span style="color:#4ade80; font-weight:bold; font-size:16px;" id="betSummaryTotal">0.00 บาท</span>
-        </div>
-      </div>
 
-      <div class="modal-footer">
-        <button class="btn-modal-cancel" onclick="closeBetModal()">ยกเลิก</button>
-        <button class="btn-modal-confirm" onclick="confirmSubmitBet()">ยืนยันส่งโพย</button>
+        <!-- สรุปยอด -->
+        <div class="modal-summary">
+          <div class="summary-row">
+            <span>รวมทั้งหมด:</span>
+            <span style="font-weight:bold;" id="betSummaryCount">0 รายการ</span>
+          </div>
+          <div class="summary-row">
+            <span>ยอดเดิมพันรวม:</span>
+            <span style="color:#4ade80; font-weight:bold; font-size:16px;" id="betSummaryTotal">0.00 บาท</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-modal-cancel" onclick="closeBetModal()">ยกเลิก</button>
+          <button class="btn-modal-confirm" onclick="confirmSubmitBet()">ยืนยันส่งโพย</button>
+        </div>
       </div>
     </div>
   </div>
@@ -507,11 +599,11 @@
       quickArea.innerHTML = `
         <div class="section-label">เพิ่มเลขด่วน</div>
         <div class="quick-grid">
-          <div class="btn-quick" onclick="addQuick('high')">⊕ สูง</div>
-          <div class="btn-quick" onclick="addQuick('low')">⊕ ต่ำ</div>
-          <div class="btn-quick" onclick="addQuick('even')">⊕ คู่</div>
-          <div class="btn-quick" onclick="addQuick('odd')">⊕ คี่</div>
-          <div class="btn-quick" onclick="addQuick('double')">⊕ เบิ้ล</div>
+          <div class="btn-quick-add" onclick="addQuick('high')">⊕ สูง</div>
+          <div class="btn-quick-add" onclick="addQuick('low')">⊕ ต่ำ</div>
+          <div class="btn-quick-add" onclick="addQuick('even')">⊕ คู่</div>
+          <div class="btn-quick-add" onclick="addQuick('odd')">⊕ คี่</div>
+          <div class="btn-quick-add" onclick="addQuick('double')">⊕ เบิ้ล</div>
         </div>
       `;
     } else if (currentDigitMode === '3') {
@@ -526,10 +618,10 @@
       quickArea.innerHTML = `
         <div class="section-label">เพิ่มเลขด่วน</div>
         <div class="quick-grid" style="grid-template-columns: 1fr 1fr;">
-          <div class="btn-quick" onclick="addQuick('high3')">⊕ 3 ตัวสูง</div>
-          <div class="btn-quick" onclick="addQuick('low3')">⊕ 3 ตัวต่ำ</div>
-          <div class="btn-quick" onclick="addQuick('even3')">⊕ 3 ตัวคู่</div>
-          <div class="btn-quick" onclick="addQuick('odd3')">⊕ 3 ตัวคี่</div>
+          <div class="btn-quick-add" onclick="addQuick('high3')">⊕ 3 ตัวสูง</div>
+          <div class="btn-quick-add" onclick="addQuick('low3')">⊕ 3 ตัวต่ำ</div>
+          <div class="btn-quick-add" onclick="addQuick('even3')">⊕ 3 ตัวคู่</div>
+          <div class="btn-quick-add" onclick="addQuick('odd3')">⊕ 3 ตัวคี่</div>
         </div>
       `;
       if (currentMainMode === 'board') boardFilterSection.style.display = 'block';
@@ -930,7 +1022,6 @@
     }
   }
 
-  // เพิ่มราคาแบบทบสะสม
   function addBulkPrice(amount) {
     cartItems.forEach((item, idx) => {
       item.price = (Number(item.price) || 0) + amount;
@@ -944,7 +1035,6 @@
     updateBetSummary();
   }
 
-  // ล้างราคาทั้งหมด (Reset Prices)
   function clearAllPrices() {
     cartItems.forEach((item, idx) => {
       item.price = 0;
@@ -964,7 +1054,6 @@
       return;
     }
 
-    // อัปเดตราคาจากทุกช่องให้ครบถ้วนก่อนตรวจสอบ
     cartItems.forEach((item, idx) => {
       const inputEl = document.getElementById(`priceInput_${idx}`);
       if (inputEl) item.price = parseInt(inputEl.value) || 0;
@@ -979,12 +1068,10 @@
     }
 
     if (totalBet > currentCredit) {
-      // เครดิตไม่พอ (ป๊อปอัปนี้จะลอยเด้งขึ้นด้านหน้าสุดเสมอแล้วครับ)
       showCustomAlert(`เครดิตไม่พอ!\nยอดเดิมพันรวม ${totalBet.toLocaleString()} บาท\nคุณมีเครดิต ${currentCredit.toLocaleString()} บาท`, '❌');
       return;
     }
 
-    // หักเครดิตกรณีผ่านเงื่อนไข
     let remainingCredit = currentCredit - totalBet;
     localStorage.setItem('credit', remainingCredit.toString());
     document.getElementById('displayCredit').innerText = remainingCredit.toLocaleString('en-US', {minimumFractionDigits: 2});
