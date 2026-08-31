@@ -9,12 +9,39 @@
     body { background-color: #0b0f19; color: #ffffff; margin: 0; padding: 0; padding-bottom: 80px; }
     .container { max-width: 500px; margin: 0 auto; padding: 12px; }
 
-    /* Top Bar Header */
+    /* Top Bar Header & Logo Aura Effect */
     .top-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
     .header-left { display: flex; align-items: center; gap: 8px; }
     .back-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
     .back-btn:hover { background: #334155; }
-    .logo { font-size: 18px; font-weight: 900; color: #fbbf24; cursor: pointer; }
+    
+    /* โลโก้ฟุ้งฟริ้งเรืองแสงขยับได้ */
+    .logo { 
+      font-size: 19px; 
+      font-weight: 900; 
+      color: #fbbf24; 
+      cursor: pointer;
+      position: relative;
+      display: inline-block;
+      text-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4);
+      animation: logoAura 3s infinite alternate ease-in-out;
+    }
+
+    @keyframes logoAura {
+      0% {
+        text-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24, 0 0 15px #f59e0b;
+        transform: scale(1);
+      }
+      50% {
+        text-shadow: 0 0 12px #fbbf24, 0 0 25px #f59e0b, 0 0 35px #d97706, 0 0 45px #b45309;
+        transform: scale(1.03);
+      }
+      100% {
+        text-shadow: 0 0 8px #fbbf24, 0 0 18px #fbbf24, 0 0 28px #f59e0b;
+        transform: scale(1);
+      }
+    }
+
     .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; border: 1px solid #334155; }
     .avatar { width: 22px; height: 22px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 11px; }
     .user-credit { color: #4ade80; font-weight: bold; margin-left: 4px; border-left: 1px solid #475569; padding-left: 8px; }
@@ -82,11 +109,14 @@
     .nav-tab.active { color: #fbbf24; }
 
     /* ==================================================== */
-    /* CUSTOM POPUP MODAL STYLES */
+    /* CUSTOM POPUP MODAL STYLES WITH Z-INDEX FIX */
     /* ==================================================== */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: 0.2s ease; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    
+
+    /* ALERT MODAL (อยู่ชั้นบนสุด z-index: 2000 เสมอ เพื่อไม่ให้โดนทับ) */
+    #alertModalOverlay { z-index: 2000 !important; }
+
     .modal-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; width: 92%; max-width: 480px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); overflow: hidden; transform: scale(0.95); transition: 0.2s ease; }
     .modal-overlay.active .modal-card { transform: scale(1); }
 
@@ -105,11 +135,13 @@
     .text-win { color: #fbbf24; font-weight: bold; }
     .btn-del-item { background: none; border: none; color: #f87171; cursor: pointer; font-size: 14px; }
 
-    /* Quick Fill Buttons inside Modal */
-    .quick-fill-bar { display: flex; align-items: center; gap: 6px; margin-top: 12px; background: #0f172a; padding: 8px; border-radius: 8px; border: 1px solid #334155; }
-    .quick-fill-title { font-size: 11px; color: #94a3b8; white-space: nowrap; }
-    .btn-fill { flex: 1; background: #3b82f6; border: none; color: #fff; padding: 6px 0; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    /* Quick Fill Bar & Clear Price Button */
+    .quick-fill-bar { display: flex; align-items: center; gap: 4px; margin-top: 12px; background: #0f172a; padding: 8px; border-radius: 8px; border: 1px solid #334155; flex-wrap: wrap; }
+    .quick-fill-title { font-size: 11px; color: #94a3b8; white-space: nowrap; margin-right: 2px; }
+    .btn-fill { flex: 1; min-width: 36px; background: #3b82f6; border: none; color: #fff; padding: 6px 0; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
     .btn-fill:hover { background: #2563eb; }
+    .btn-fill-clear { flex: 1.2; background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; color: #f87171; padding: 6px 0; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .btn-fill-clear:hover { background: #ef4444; color: #fff; }
 
     /* Summary Bar inside Modal */
     .modal-summary { background: #0f172a; padding: 12px 18px; border-top: 1px solid #334155; }
@@ -119,16 +151,16 @@
     .btn-modal-cancel { flex: 1; background: #475569; border: none; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-modal-confirm { flex: 2; background: #10b981; border: none; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
 
-    /* Cart Action Bar (ล้างทั้งหมด / ตัดเลขซ้ำ) */
+    /* Cart Action Bar */
     .cart-tools-bar { display: flex; gap: 8px; margin-bottom: 10px; }
     .btn-tool { flex: 1; background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
     .btn-tool.danger { color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
 
     /* General Alert Modal Content */
-    .alert-box { text-align: center; padding: 20px 10px; }
-    .alert-icon { font-size: 40px; margin-bottom: 10px; }
-    .alert-msg { font-size: 15px; color: #e2e8f0; margin-bottom: 20px; line-height: 1.4; white-space: pre-line; }
-    .btn-alert-ok { background: #0284c7; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; min-width: 100px; }
+    .alert-box { text-align: center; padding: 15px 10px; }
+    .alert-icon { font-size: 42px; margin-bottom: 8px; }
+    .alert-msg { font-size: 15px; color: #e2e8f0; margin-bottom: 20px; line-height: 1.5; white-space: pre-line; }
+    .btn-alert-ok { background: #0284c7; color: white; border: none; padding: 10px 28px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; min-width: 110px; }
   </style>
 </head>
 <body onclick="dismissKeyboard(event)">
@@ -235,10 +267,10 @@
   </div>
 
   <!-- ==================================================== -->
-  /* POPUP MODAL CONTAINERS */
+  <!-- POPUP MODAL CONTAINERS -->
   <!-- ==================================================== -->
 
-  <!-- 1. Alert Modal (ป๊อปอัปแจ้งเตือนทั่วไป) -->
+  <!-- 1. Alert Modal (อยู่ด้านหน้าสุด z-index: 2000) -->
   <div class="modal-overlay" id="alertModalOverlay">
     <div class="modal-card" style="max-width: 360px;">
       <div class="modal-body">
@@ -251,7 +283,7 @@
     </div>
   </div>
 
-  <!-- 2. View Cart Modal (ป๊อปอัปดูรายการเลข / ล้างเลข / ตัดเลขซ้ำ) -->
+  <!-- 2. View Cart Modal -->
   <div class="modal-overlay" id="viewCartModalOverlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -275,9 +307,7 @@
               <th>จัดการ</th>
             </tr>
           </thead>
-          <tbody id="viewCartTableBody">
-            <!-- Render รายการหวย -->
-          </tbody>
+          <tbody id="viewCartTableBody"></tbody>
         </table>
       </div>
 
@@ -295,7 +325,7 @@
     </div>
   </div>
 
-  <!-- 3. Betting & Pricing Modal (ป๊อปอัปใส่ราคาและยืนยันส่งโพย) -->
+  <!-- 3. Betting & Pricing Modal -->
   <div class="modal-overlay" id="betModalOverlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -315,12 +345,10 @@
               <th></th>
             </tr>
           </thead>
-          <tbody id="betTableBody">
-            <!-- Render รายการราคา -->
-          </tbody>
+          <tbody id="betTableBody"></tbody>
         </table>
 
-        <!-- ปุ่มเพิ่มราคาเท่ากัน (สะสมทบราคา) -->
+        <!-- แถบบวกราคาด่วน และ ปุ่มล้างราคา -->
         <div class="quick-fill-bar">
           <span class="quick-fill-title">เพิ่มราคา:</span>
           <button class="btn-fill" onclick="addBulkPrice(5)">+5</button>
@@ -329,6 +357,7 @@
           <button class="btn-fill" onclick="addBulkPrice(50)">+50</button>
           <button class="btn-fill" onclick="addBulkPrice(100)">+100</button>
           <button class="btn-fill" onclick="addBulkPrice(500)">+500</button>
+          <button class="btn-fill-clear" onclick="clearAllPrices()">🧹 ล้างราคา</button>
         </div>
       </div>
 
@@ -357,7 +386,7 @@
   let currentInput = "";
   let selectedWinNumbers = new Set();
   let selectedBoardNumbers = new Set();
-  let cartItems = []; // [{ id, number, type, rate, price }]
+  let cartItems = [];
   let currentBoardPrefix = "000";
   let currentRoundNumber = null;
   let isRoundClosed = false;
@@ -375,7 +404,6 @@
   function goBack() { window.location.href = '/yikee-rounds.html'; }
   function goHome() { window.location.href = '/index.html'; }
 
-  // คลิกพื้นที่ว่างเพื่อหลุดโฟกัสคีย์บอร์ดมือถือ/คอม
   function dismissKeyboard(event) {
     if (event.target.tagName !== 'INPUT') {
       if (document.activeElement && document.activeElement.tagName === 'INPUT') {
@@ -706,7 +734,7 @@
         number: num,
         type: typeName,
         rate: rateVal,
-        price: 0 // เริ่มต้นราคาเป็น 0 บาท
+        price: 0
       });
     });
     document.getElementById('cartCount').innerText = cartItems.length;
@@ -761,7 +789,7 @@
   }
 
   // ====================================================
-  // MODAL 1: VIEW CART (ดูตัวเลข / ตัดเลขซ้ำ / ล้างทั้งหมด)
+  // MODAL 1: VIEW CART
   // ====================================================
   function openViewCartModal() {
     if (cartItems.length === 0) {
@@ -836,7 +864,7 @@
   }
 
   // ====================================================
-  // MODAL 2: BETTING & PRICING (ใส่ราคาและส่งโพย)
+  // MODAL 2: BETTING & PRICING
   // ====================================================
   function openBetModal() {
     if (cartItems.length === 0) {
@@ -854,12 +882,10 @@
   function renderBetTable() {
     const tbody = document.getElementById('betTableBody');
     tbody.innerHTML = "";
-    let totalBet = 0;
 
     cartItems.forEach((item, index) => {
       const price = Number(item.price) || 0;
       const winPayout = price * item.rate;
-      totalBet += price;
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -878,12 +904,10 @@
     updateBetSummary();
   }
 
-  // พิมพ์ราคาเสร็จค่อยบันทึก (เมื่อกดหลุดช่อง / Enter / มือถือแตะที่ว่าง)
   function onPriceInputBlur(index, value) {
     const val = parseInt(value) || 0;
     cartItems[index].price = val;
     
-    // อัปเดตยอดชนะในแถวนั้นๆ
     const winPayout = val * cartItems[index].rate;
     document.getElementById(`winPayoutText_${index}`).innerText = `+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}`;
     
@@ -906,7 +930,7 @@
     }
   }
 
-  // เพิ่มราคาแบบทบสะสม (Add Bulk Price)
+  // เพิ่มราคาแบบทบสะสม
   function addBulkPrice(amount) {
     cartItems.forEach((item, idx) => {
       item.price = (Number(item.price) || 0) + amount;
@@ -920,6 +944,19 @@
     updateBetSummary();
   }
 
+  // ล้างราคาทั้งหมด (Reset Prices)
+  function clearAllPrices() {
+    cartItems.forEach((item, idx) => {
+      item.price = 0;
+      const inputEl = document.getElementById(`priceInput_${idx}`);
+      if (inputEl) inputEl.value = '';
+      
+      const winEl = document.getElementById(`winPayoutText_${idx}`);
+      if (winEl) winEl.innerText = '+0';
+    });
+    updateBetSummary();
+  }
+
   function confirmSubmitBet() {
     if (isRoundClosed) {
       closeBetModal();
@@ -927,7 +964,7 @@
       return;
     }
 
-    // อัปเดตราคาล่าสุดจากทุก Input
+    // อัปเดตราคาจากทุกช่องให้ครบถ้วนก่อนตรวจสอบ
     cartItems.forEach((item, idx) => {
       const inputEl = document.getElementById(`priceInput_${idx}`);
       if (inputEl) item.price = parseInt(inputEl.value) || 0;
@@ -942,11 +979,12 @@
     }
 
     if (totalBet > currentCredit) {
+      // เครดิตไม่พอ (ป๊อปอัปนี้จะลอยเด้งขึ้นด้านหน้าสุดเสมอแล้วครับ)
       showCustomAlert(`เครดิตไม่พอ!\nยอดเดิมพันรวม ${totalBet.toLocaleString()} บาท\nคุณมีเครดิต ${currentCredit.toLocaleString()} บาท`, '❌');
       return;
     }
 
-    // ตัดเครดิตสำเร็จ
+    // หักเครดิตกรณีผ่านเงื่อนไข
     let remainingCredit = currentCredit - totalBet;
     localStorage.setItem('credit', remainingCredit.toString());
     document.getElementById('displayCredit').innerText = remainingCredit.toLocaleString('en-US', {minimumFractionDigits: 2});
