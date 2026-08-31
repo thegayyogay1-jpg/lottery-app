@@ -35,7 +35,12 @@
   </div>
 
 <script>
-  // จำลองรายการรอบแทงยี่กี (เหมือนในภาพที่คุณส่งมา)
+  // ประกาศฟังก์ชัน selectRound ไว้ด้านนอก
+  function selectRound(roundNumber, type = '1m') {
+    window.location.href = `/betting.html?type=${encodeURIComponent(type)}&round=${roundNumber}`;
+  }
+
+  // จำลองรายการรอบแทงยี่กี
   const roundsData = [
     { round: 122, timer: '00:00:25', closeTime: '16:05 น.' },
     { round: 123, timer: '00:01:25', closeTime: '16:06 น.' },
@@ -49,10 +54,8 @@
   roundsData.forEach(r => {
     const card = document.createElement('div');
     card.className = 'round-card';
-    card.onclick = () => function selectRound(roundNumber, type) {
-  // นำทางไปยังหน้า betting.html พร้อมส่งค่ารอบและประเภทหวยไปทาง URL
-  window.location.href = `/betting.html?type=${encodeURIComponent(type || '1m')}&round=${roundNumber}`;
-}
+    // เรียกใช้ฟังก์ชัน selectRound โดยส่งค่า round ของแต่ละการ์ดเข้าไป
+    card.onclick = () => selectRound(r.round, '1m');
     card.innerHTML = `
       <div class="status-badge">เปิดรับแทง</div>
       <div class="round-title">🔵 ยี่กี รอบที่ ${r.round}</div>
