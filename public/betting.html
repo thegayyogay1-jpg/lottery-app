@@ -15,7 +15,6 @@
     .back-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
     .back-btn:hover { background: #334155; }
     .logo { font-size: 18px; font-weight: 900; color: #fbbf24; cursor: pointer; }
-    .logo:hover { opacity: 0.9; }
     .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; border: 1px solid #334155; }
     .avatar { width: 22px; height: 22px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 11px; }
     .user-credit { color: #4ade80; font-weight: bold; margin-left: 4px; border-left: 1px solid #475569; padding-left: 8px; }
@@ -45,16 +44,14 @@
     /* Quick Add Section */
     .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
     .btn-quick { background: #1e293b; border: 1px solid #334155; padding: 8px 5px; border-radius: 6px; font-size: 12px; color: #cbd5e1; text-align: center; cursor: pointer; }
-    .btn-quick:active { background: #334155; }
 
     /* Display Screen */
     .display-screen { background: #0f172a; border: 1px dashed #334155; border-radius: 8px; padding: 12px; text-align: center; font-size: 24px; font-weight: bold; color: #fbbf24; letter-spacing: 4px; margin-bottom: 12px; min-height: 52px; display: flex; align-items: center; justify-content: center; }
 
     /* Keypad */
     .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-    .btn-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 20px; font-weight: bold; padding: 14px 0; border-radius: 8px; text-align: center; cursor: pointer; position: relative; }
-    .btn-num:active { background: #334155; }
-    .btn-num.selected { background: #2563eb; border-color: #60a5fa; box-shadow: 0 0 8px rgba(37, 99, 235, 0.6); }
+    .btn-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 20px; font-weight: bold; padding: 14px 0; border-radius: 8px; text-align: center; cursor: pointer; }
+    .btn-num.selected { background: #2563eb; border-color: #60a5fa; }
     .btn-num.clear { color: #f87171; font-size: 15px; }
     .btn-num.del { color: #fbbf24; font-size: 16px; }
 
@@ -66,7 +63,7 @@
     .btn-board-num { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 13px; font-weight: bold; padding: 10px 0; border-radius: 6px; text-align: center; cursor: pointer; }
     .btn-board-num.selected { background: #2563eb; border-color: #60a5fa; color: #fff; }
 
-    /* Quick Filter 3 Digits Board */
+    /* Board Filter Grid */
     .board-filter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 8px; }
     .btn-filter-num { background: #0f172a; border: 1px solid #334155; color: #60a5fa; font-size: 11px; padding: 6px 0; border-radius: 4px; text-align: center; cursor: pointer; }
     .btn-filter-num.active { background: #2563eb; color: #fff; }
@@ -83,12 +80,55 @@
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
     .nav-tab { display: flex; flex-direction: column; align-items: center; color: #64748b; text-decoration: none; font-size: 10px; gap: 3px; cursor: pointer; }
     .nav-tab.active { color: #fbbf24; }
+
+    /* ==================================================== */
+    /* CUSTOM POPUP MODAL STYLES (ป๊อปอัปกลางจอ) */
+    /* ==================================================== */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: 0.2s ease; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .modal-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; width: 92%; max-width: 480px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); overflow: hidden; transform: scale(0.95); transition: 0.2s ease; }
+    .modal-overlay.active .modal-card { transform: scale(1); }
+
+    .modal-header { background: #0f172a; padding: 14px 18px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-weight: bold; font-size: 16px; color: #fbbf24; margin: 0; }
+    .modal-close { background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; }
+
+    .modal-body { padding: 15px; overflow-y: auto; flex: 1; }
+
+    /* Table inside Cart Modal */
+    .cart-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .cart-table th { background: #0f172a; color: #94a3b8; padding: 8px 4px; text-align: center; border-bottom: 1px solid #334155; font-weight: 500; }
+    .cart-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #334155; }
+    .cart-input-price { width: 65px; background: #0f172a; border: 1px solid #475569; color: #4ade80; text-align: center; padding: 5px; border-radius: 6px; font-weight: bold; }
+    .text-win { color: #fbbf24; font-weight: bold; }
+    .btn-del-item { background: none; border: none; color: #f87171; cursor: pointer; font-size: 14px; }
+
+    /* Quick Fill Buttons inside Modal */
+    .quick-fill-bar { display: flex; align-items: center; gap: 6px; margin-top: 12px; background: #0f172a; padding: 8px; border-radius: 8px; border: 1px solid #334155; }
+    .quick-fill-title { font-size: 11px; color: #94a3b8; white-space: nowrap; }
+    .btn-fill { flex: 1; background: #3b82f6; border: none; color: #fff; padding: 6px 0; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .btn-fill:hover { background: #2563eb; }
+
+    /* Summary Bar inside Modal */
+    .modal-summary { background: #0f172a; padding: 12px 18px; border-top: 1px solid #334155; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+
+    .modal-footer { padding: 12px 18px; background: #0f172a; border-top: 1px solid #334155; display: flex; gap: 10px; }
+    .btn-modal-cancel { flex: 1; background: #475569; border: none; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-modal-confirm { flex: 2; background: #10b981; border: none; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
+
+    /* General Alert Modal Content */
+    .alert-box { text-align: center; padding: 20px 10px; }
+    .alert-icon { font-size: 40px; margin-bottom: 10px; }
+    .alert-msg { font-size: 15px; color: #e2e8f0; margin-bottom: 20px; line-height: 1.4; }
+    .btn-alert-ok { background: #0284c7; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; min-width: 100px; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- Header with Back Button, Logo & User Info -->
+    <!-- Header -->
     <div class="top-header">
       <div class="header-left">
         <button class="back-btn" onclick="goBack()">← กลับ</button>
@@ -121,13 +161,11 @@
       <div class="btn-digit" onclick="switchDigit(this, 'win')">จับวิน</div>
     </div>
 
-    <!-- Dynamic Options Area -->
+    <!-- Dynamic Options & Quick Add Area -->
     <div id="optionsArea"></div>
-
-    <!-- Dynamic Quick Add Area -->
     <div id="quickArea"></div>
 
-    <!-- Display Entered Number Screen -->
+    <!-- Display Screen -->
     <div class="display-screen" id="displayScreen">--</div>
 
     <!-- Numpad View -->
@@ -149,7 +187,7 @@
       <button class="btn-win-submit" id="btnWinSubmit" style="display:none;" onclick="processWinSelection()">เพิ่มเลขจับวิน</button>
     </div>
 
-    <!-- Board Grid View -->
+    <!-- Board View -->
     <div id="boardView" style="display: none;">
       <div id="boardFilterSection" style="display: none;">
         <div class="section-label">เลือกลำดับตัวเลข</div>
@@ -161,12 +199,12 @@
 
     <!-- Action Buttons -->
     <div class="action-bar">
-      <button class="btn-load">📥 โหลดโพย</button>
+      <button class="btn-load" onclick="showCustomAlert('ระบบโหลดโพยกำลังเตรียมเปิดใช้งาน', 'ℹ️')">📥 โหลดโพย</button>
     </div>
 
     <div class="btn-group-bottom">
-      <button class="btn-cart" onclick="viewCart()">🛒 ตะกร้า (<span id="cartCount">0</span>)</button>
-      <button class="btn-submit" id="btnSubmitBet" onclick="submitBet()">แทงหวย</button>
+      <button class="btn-cart" onclick="openCartModal()">🛒 ตะกร้า (<span id="cartCount">0</span>)</button>
+      <button class="btn-submit" id="btnSubmitBet" onclick="openCartModal()">แทงหวย</button>
     </div>
   </div>
 
@@ -190,16 +228,91 @@
     </div>
   </div>
 
+  <!-- ==================================================== -->
+  /* POPUP MODAL CONTAINERS */
+  <!-- ==================================================== -->
+
+  <!-- 1. Alert Modal (ป๊อปอัปแจ้งเตือนทั่วไป) -->
+  <div class="modal-overlay" id="alertModalOverlay">
+    <div class="modal-card" style="max-width: 360px;">
+      <div class="modal-body">
+        <div class="alert-box">
+          <div class="alert-icon" id="alertIcon">⚠️</div>
+          <div class="alert-msg" id="alertMessage">ข้อความแจ้งเตือน</div>
+          <button class="btn-alert-ok" onclick="closeAlertModal()">ตกลง</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Cart & Price Modal (ป๊อปอัปตะกร้าและกรอกราคา) -->
+  <div class="modal-overlay" id="cartModalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🛒 ตรวจสอบรายการและกรอกราคา</h3>
+        <button class="modal-close" onclick="closeCartModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>ลำดับ</th>
+              <th>ประเภท</th>
+              <th>เลขแทง</th>
+              <th>ราคา (บาท)</th>
+              <th>จ่าย/1บ.</th>
+              <th>ชนะได้</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cartTableBody">
+            <!-- Render รายการหวย -->
+          </tbody>
+        </table>
+
+        <!-- ปุ่มเพิ่มราคาเท่ากัน -->
+        <div class="quick-fill-bar">
+          <span class="quick-fill-title">ใส่ราคาเท่ากัน:</span>
+          <button class="btn-fill" onclick="quickFillPrice(5)">+5</button>
+          <button class="btn-fill" onclick="quickFillPrice(10)">+10</button>
+          <button class="btn-fill" onclick="quickFillPrice(25)">+25</button>
+          <button class="btn-fill" onclick="quickFillPrice(50)">+50</button>
+          <button class="btn-fill" onclick="quickFillPrice(100)">+100</button>
+          <button class="btn-fill" onclick="quickFillPrice(500)">+500</button>
+        </div>
+      </div>
+
+      <!-- สรุปยอด -->
+      <div class="modal-summary">
+        <div class="summary-row">
+          <span>รวมทั้งหมด:</span>
+          <span style="font-weight:bold;" id="summaryItemsCount">0 รายการ</span>
+        </div>
+        <div class="summary-row">
+          <span>ยอดเดิมพันรวม:</span>
+          <span style="color:#4ade80; font-weight:bold; font-size:16px;" id="summaryTotalAmount">0.00 บาท</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" onclick="closeCartModal()">ยกเลิก</button>
+        <button class="btn-modal-confirm" onclick="confirmSubmitBet()">ยืนยันส่งโพย</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   let currentMainMode = 'numpad';
   let currentDigitMode = '2';
   let currentInput = "";
   let selectedWinNumbers = new Set();
   let selectedBoardNumbers = new Set();
-  let cartItems = [];
+  let cartItems = []; // [{ id, number, type, rate, price }]
   let currentBoardPrefix = "000";
   let currentRoundNumber = null;
   let isRoundClosed = false;
+  let alertCallback = null;
 
   let activeOptions = {
     top2: true, bottom2: false, reverse: false, door19: false, swipeFront: false, swipeBack: false,
@@ -208,31 +321,42 @@
     winType: '2', winDouble: false, winReverse: false
   };
 
-  // Navigation Functions
-  function goBack() {
-    window.location.href = '/yikee-rounds.html';
+  // Rates for Payout
+  const RATES = { '2 ตัว': 90, '3 ตัวตรง': 900, '3 ตัวโต๊ด': 150, 'เลขวิ่ง': 3.2 };
+
+  // Helper Functions
+  function goBack() { window.location.href = '/yikee-rounds.html'; }
+  function goHome() { window.location.href = '/index.html'; }
+
+  // Custom Alert Modal Controller
+  function showCustomAlert(msg, icon = '⚠️', callback = null) {
+    document.getElementById('alertIcon').innerText = icon;
+    document.getElementById('alertMessage').innerText = msg;
+    document.getElementById('alertModalOverlay').classList.add('active');
+    alertCallback = callback;
   }
 
-  function goHome() {
-    window.location.href = '/index.html';
+  function closeAlertModal() {
+    document.getElementById('alertModalOverlay').classList.remove('active');
+    if (alertCallback) {
+      alertCallback();
+      alertCallback = null;
+    }
   }
 
-  // Load User Info & Sync Real-Time Timer
+  // Load User Data & Timer Sync
   function initPageData() {
-    // 1. ดึงข้อมูล User
-    const username = localStorage.getItem('username') || 'user01';
+    const username = localStorage.getItem('username') || '1111';
     const credit = localStorage.getItem('credit') || '1,500.00';
     document.getElementById('displayUsername').innerText = username;
     document.getElementById('displayCredit').innerText = Number(credit.toString().replace(/,/g, '')).toLocaleString('en-US', {minimumFractionDigits: 2});
     document.getElementById('userAvatar').innerText = username.charAt(0).toUpperCase();
 
-    // 2. ดึงข้อมูลรอบจาก URL
     const urlParams = new URLSearchParams(window.location.search);
     currentRoundNumber = urlParams.get('round') || '1';
     const roundType = urlParams.get('type') === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
     document.getElementById('roundTitleText').innerText = `🔵 ${roundType} - รอบที่ ${currentRoundNumber}`;
 
-    // 3. เริ่มนับถอยหลังซิงค์จาก localStorage หน้าเลือกรอบ
     startTimerSync();
   }
 
@@ -261,10 +385,9 @@
           isRoundClosed = true;
           document.getElementById('btnSubmitBet').disabled = true;
           document.getElementById('btnSubmitBet').style.background = '#64748b';
-          alert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว! ระบบจะนำคุณกลับสู่หน้าเลือกรอบ`);
-          setTimeout(() => {
+          showCustomAlert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว! ระบบจะนำคุณกลับสู่หน้าเลือกรอบ`, '⏰', () => {
             window.location.href = '/yikee-rounds.html';
-          }, 1500);
+          });
         }
       } else {
         const h = Math.floor(remaining / 3600).toString().padStart(2, '0');
@@ -275,17 +398,15 @@
     }, 1000);
   }
 
-  // UI & Keypad Logic
+  // UI Engine
   function renderModeUI() {
     const optionsArea = document.getElementById('optionsArea');
     const quickArea = document.getElementById('quickArea');
     const btnWinSubmit = document.getElementById('btnWinSubmit');
     const boardFilterSection = document.getElementById('boardFilterSection');
 
-    optionsArea.innerHTML = "";
-    quickArea.innerHTML = "";
-    btnWinSubmit.style.display = 'none';
-    boardFilterSection.style.display = 'none';
+    optionsArea.innerHTML = ""; quickArea.innerHTML = "";
+    btnWinSubmit.style.display = 'none'; boardFilterSection.style.display = 'none';
 
     if (currentDigitMode === '2') {
       optionsArea.innerHTML = `
@@ -360,17 +481,8 @@
     if (currentMainMode === 'board') renderBoardGrid();
   }
 
-  function toggleOpt(key) {
-    if (isRoundClosed) return;
-    activeOptions[key] = !activeOptions[key];
-    renderModeUI();
-  }
-
-  function setWinType(type) {
-    if (isRoundClosed) return;
-    activeOptions.winType = type;
-    renderModeUI();
-  }
+  function toggleOpt(key) { if (!isRoundClosed) { activeOptions[key] = !activeOptions[key]; renderModeUI(); } }
+  function setWinType(type) { if (!isRoundClosed) { activeOptions.winType = type; renderModeUI(); } }
 
   function switchMainMode(mode) {
     currentMainMode = mode;
@@ -422,10 +534,8 @@
   }
 
   function clearNum() {
-    currentInput = "";
-    selectedWinNumbers.clear();
-    updateWinNumpadVisual();
-    updateDisplay();
+    currentInput = ""; selectedWinNumbers.clear();
+    updateWinNumpadVisual(); updateDisplay();
   }
 
   function delNum() {
@@ -442,15 +552,13 @@
 
   function processBetInput(inputNum) {
     let generated = [];
+    let typeName = currentDigitMode === '3' ? (activeOptions.tod3 ? '3 ตัวโต๊ด' : '3 ตัวตรง') : (currentDigitMode === 'runner' ? 'เลขวิ่ง' : '2 ตัว');
+    let rateVal = RATES[typeName] || 90;
 
     if (currentDigitMode === '2') {
       if (activeOptions.door19) {
-        const d = inputNum;
         let set19 = new Set();
-        for (let i = 0; i <= 9; i++) {
-          set19.add(i + d);
-          set19.add(d + i);
-        }
+        for (let i = 0; i <= 9; i++) { set19.add(i + inputNum); set19.add(inputNum + i); }
         generated = Array.from(set19);
       } else if (activeOptions.swipeFront) {
         for (let i = 0; i <= 9; i++) generated.push(inputNum + i);
@@ -458,21 +566,18 @@
         for (let i = 0; i <= 9; i++) generated.push(i + inputNum);
       } else {
         generated.push(inputNum);
-        if (activeOptions.reverse && inputNum[0] !== inputNum[1]) {
-          generated.push(inputNum[1] + inputNum[0]);
-        }
+        if (activeOptions.reverse && inputNum[0] !== inputNum[1]) generated.push(inputNum[1] + inputNum[0]);
       }
     } else if (currentDigitMode === '3') {
       generated.push(inputNum);
       if (activeOptions.reverse) {
-        let perm = getPermutations(inputNum);
-        perm.forEach(p => { if (!generated.includes(p)) generated.push(p); });
+        getPermutations(inputNum).forEach(p => { if (!generated.includes(p)) generated.push(p); });
       }
     } else if (currentDigitMode === 'runner') {
       generated.push(inputNum);
     }
 
-    addToCartBatch(generated);
+    addToCartBatch(generated, typeName, rateVal);
   }
 
   function getPermutations(str) {
@@ -480,10 +585,8 @@
     let results = [];
     for (let i = 0; i < str.length; i++) {
       let char = str[i];
-      let remainingChars = str.slice(0, i) + str.slice(i + 1);
-      for (let subPerm of getPermutations(remainingChars)) {
-        results.push(char + subPerm);
-      }
+      let remaining = str.slice(0, i) + str.slice(i + 1);
+      for (let sub of getPermutations(remaining)) results.push(char + sub);
     }
     return Array.from(new Set(results));
   }
@@ -492,11 +595,14 @@
     if (isRoundClosed) return;
     const arr = Array.from(selectedWinNumbers).sort();
     if (arr.length < 2) {
-      alert('กรุณาเลือกตัวเลขอย่างน้อย 2 ตัวสำหรับจับวิน');
+      showCustomAlert('กรุณาเลือกตัวเลขอย่างน้อย 2 ตัวสำหรับจับวิน', '⚠️');
       return;
     }
 
     let results = [];
+    let typeName = activeOptions.winType === '3' ? '3 ตัวตรง' : '2 ตัว';
+    let rateVal = RATES[typeName] || 90;
+
     if (activeOptions.winType === '2') {
       for (let i = 0; i < arr.length; i++) {
         for (let j = i + 1; j < arr.length; j++) {
@@ -510,47 +616,50 @@
         for (let j = i + 1; j < arr.length; j++) {
           for (let k = j + 1; k < arr.length; k++) {
             let combo = arr[i] + arr[j] + arr[k];
-            if (activeOptions.winReverse) {
-              getPermutations(combo).forEach(p => results.push(p));
-            } else {
-              results.push(combo);
-            }
+            if (activeOptions.winReverse) getPermutations(combo).forEach(p => results.push(p));
+            else results.push(combo);
           }
         }
       }
       if (activeOptions.winDouble) arr.forEach(n => results.push(n + n + n));
     }
 
-    addToCartBatch(results);
+    addToCartBatch(results, typeName, rateVal);
     clearNum();
   }
 
   function addQuick(type) {
     if (isRoundClosed) return;
     let list = [];
-    if (type === 'high') list = ['สูง (1 ต่อ 1)'];
-    else if (type === 'low') list = ['ต่ำ (1 ต่อ 1)'];
-    else if (type === 'even') list = ['คู่ (1 ต่อ 1)'];
-    else if (type === 'odd') list = ['คี่ (1 ต่อ 1)'];
-    else if (type === 'double') list = ['00','11','22','33','44','55','66','77','88','99'];
-    else if (type === 'high3') list = ['3 ตัวสูง'];
-    else if (type === 'low3') list = ['3 ตัวต่ำ'];
-    else if (type === 'even3') list = ['3 ตัวคู่'];
-    else if (type === 'odd3') list = ['3 ตัวคี่'];
+    let typeName = '2 ตัว';
+    let rateVal = 90;
 
-    addToCartBatch(list);
+    if (type === 'double') list = ['00','11','22','33','44','55','66','77','88','99'];
+    else if (type === 'high') for(let i=50; i<=99; i++) list.push(i < 10 ? '0'+i : ''+i);
+    else if (type === 'low') for(let i=0; i<=49; i++) list.push(i < 10 ? '0'+i : ''+i);
+    else if (type === 'even') for(let i=0; i<=99; i+=2) list.push(i < 10 ? '0'+i : ''+i);
+    else if (type === 'odd') for(let i=1; i<=99; i+=2) list.push(i < 10 ? '0'+i : ''+i);
+
+    addToCartBatch(list, typeName, rateVal);
   }
 
-  function addToCartBatch(items) {
-    cartItems.push(...items);
+  function addToCartBatch(numbers, typeName, rateVal) {
+    numbers.forEach(num => {
+      cartItems.push({
+        id: Date.now() + Math.random(),
+        number: num,
+        type: typeName,
+        rate: rateVal,
+        price: 1 // Default price 1 baht
+      });
+    });
     document.getElementById('cartCount').innerText = cartItems.length;
   }
 
   function renderBoardGrid() {
     const container = document.getElementById('boardGrid');
     const filterContainer = document.getElementById('boardFilterGrid');
-    container.innerHTML = "";
-    filterContainer.innerHTML = "";
+    container.innerHTML = ""; filterContainer.innerHTML = "";
 
     if (currentDigitMode === '2' || currentDigitMode === 'win') {
       for (let i = 0; i < 100; i++) {
@@ -558,19 +667,14 @@
         createBoardBtn(container, numStr);
       }
     } else if (currentDigitMode === 'runner') {
-      for (let i = 0; i <= 9; i++) {
-        createBoardBtn(container, '' + i);
-      }
+      for (let i = 0; i <= 9; i++) createBoardBtn(container, '' + i);
     } else if (currentDigitMode === '3') {
       for (let i = 0; i < 10; i++) {
         const prefix = i + "00";
         const fBtn = document.createElement('div');
         fBtn.className = `btn-filter-num ${currentBoardPrefix === prefix ? 'active' : ''}`;
         fBtn.innerText = prefix;
-        fBtn.onclick = () => {
-          currentBoardPrefix = prefix;
-          renderBoardGrid();
-        };
+        fBtn.onclick = () => { currentBoardPrefix = prefix; renderBoardGrid(); };
         filterContainer.appendChild(fBtn);
       }
       const start = parseInt(currentBoardPrefix);
@@ -600,28 +704,106 @@
     container.appendChild(btn);
   }
 
-  function viewCart() {
+  // ====================================================
+  // CART & POPUP MODAL ENGINE
+  // ====================================================
+  function openCartModal() {
     if (cartItems.length === 0) {
-      alert('ยังไม่มีรายการในตะกร้า');
+      showCustomAlert('ยังไม่มีรายการในตะกร้า กรุณาเลือกตัวเลขก่อนครับ', '🛒');
       return;
     }
-    alert(`รายการในตะกร้า (${cartItems.length} รายการ):\n${cartItems.join(', ')}`);
+    renderCartTable();
+    document.getElementById('cartModalOverlay').classList.add('active');
   }
 
-  function submitBet() {
-    if (isRoundClosed) {
-      alert('รอบนี้ปิดรับแทงแล้ว');
-      return;
-    }
+  function closeCartModal() {
+    document.getElementById('cartModalOverlay').classList.remove('active');
+  }
+
+  function renderCartTable() {
+    const tbody = document.getElementById('cartTableBody');
+    tbody.innerHTML = "";
+    let totalBet = 0;
+
+    cartItems.forEach((item, index) => {
+      const price = Number(item.price) || 0;
+      const winPayout = price * item.rate;
+      totalBet += price;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td style="color:#94a3b8; font-size:11px;">${item.type}</td>
+        <td style="color:#fbbf24; font-weight:bold; font-size:15px;">${item.number}</td>
+        <td>
+          <input type="number" class="cart-input-price" value="${price}" min="1" onchange="updateItemPrice(${index}, this.value)" onkeyup="updateItemPrice(${index}, this.value)">
+        </td>
+        <td style="color:#94a3b8;">${item.rate}</td>
+        <td class="text-win">+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}</td>
+        <td><button class="btn-del-item" onclick="removeCartItem(${index})">✕</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('summaryItemsCount').innerText = `${cartItems.length} รายการ`;
+    document.getElementById('summaryTotalAmount').innerText = `${totalBet.toLocaleString('en-US', {minimumFractionDigits: 2})} บาท`;
+  }
+
+  function updateItemPrice(index, newPrice) {
+    const val = parseInt(newPrice) || 0;
+    cartItems[index].price = val;
+    renderCartTable();
+  }
+
+  function removeCartItem(index) {
+    cartItems.splice(index, 1);
+    document.getElementById('cartCount').innerText = cartItems.length;
     if (cartItems.length === 0) {
-      alert('กรุณาเลือกตัวเลขก่อนส่งโพย');
+      closeCartModal();
+    } else {
+      renderCartTable();
+    }
+  }
+
+  function quickFillPrice(addPrice) {
+    cartItems.forEach(item => {
+      item.price = addPrice;
+    });
+    renderCartTable();
+  }
+
+  function confirmSubmitBet() {
+    if (isRoundClosed) {
+      closeCartModal();
+      showCustomAlert('รอบนี้ปิดรับแทงแล้ว', '⏰');
       return;
     }
-    alert(`ส่งโพยรอบที่ ${currentRoundNumber} สำเร็จ! รวมทั้งหมด ${cartItems.length} รายการ`);
-    cartItems = [];
-    document.getElementById('cartCount').innerText = '0';
-    selectedBoardNumbers.clear();
-    if (currentMainMode === 'board') renderBoardGrid();
+
+    let totalBet = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+    let currentCredit = parseFloat((localStorage.getItem('credit') || '1500').toString().replace(/,/g, ''));
+
+    if (totalBet <= 0) {
+      showCustomAlert('กรุณากรอกราคาแทงอย่างน้อย 1 บาท', '⚠️');
+      return;
+    }
+
+    if (totalBet > currentCredit) {
+      showCustomAlert(`เครดิตไม่พอ! ยอดเดิมพันรวม ${totalBet.toLocaleString()} บาท แต่คุณมีเครดิต ${currentCredit.toLocaleString()} บาท`, '❌');
+      return;
+    }
+
+    // ตัดเครดิตสำเร็จ
+    let remainingCredit = currentCredit - totalBet;
+    localStorage.setItem('credit', remainingCredit.toString());
+    document.getElementById('displayCredit').innerText = remainingCredit.toLocaleString('en-US', {minimumFractionDigits: 2});
+
+    closeCartModal();
+    showCustomAlert(`🎉 ส่งโพยรอบที่ ${currentRoundNumber} สำเร็จ!\nรวมทั้งหมด ${cartItems.length} รายการ ยอดแทง ${totalBet.toLocaleString()} บาท\nเครดิตคงเหลือ: ${remainingCredit.toLocaleString()} บาท`, '✅', () => {
+      cartItems = [];
+      document.getElementById('cartCount').innerText = '0';
+      selectedBoardNumbers.clear();
+      if (currentMainMode === 'board') renderBoardGrid();
+    });
   }
 
   window.addEventListener('DOMContentLoaded', () => {
