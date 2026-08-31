@@ -12,8 +12,14 @@
     /* Top Header */
     .top-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
     .logo { font-size: 24px; font-weight: 900; color: #fbbf24; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
-    .user-profile { display: flex; align-items: center; gap: 10px; background: #1e293b; padding: 6px 14px; border-radius: 20px; font-size: 13px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    
+    .user-profile { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; }
     .avatar { width: 24px; height: 24px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
+    
+    /* Logout & Menu Toggle Buttons */
+    .btn-logout-head { background: #ef4444; color: #fff; border: none; padding: 6px 10px; border-radius: 16px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .btn-menu-toggle { background: #1e293b; color: #fff; border: 1px solid #334155; width: 36px; height: 36px; border-radius: 10px; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
     /* Credit Card */
     .credit-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid #334155; border-radius: 16px; padding: 20px; margin-top: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
@@ -23,7 +29,7 @@
     .btn-deposit { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; }
     .btn-withdraw { background: #1e293b; color: white; border: 1px solid #334155; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; }
 
-    /* Shortcut Grid (ตัดแคมเปญออก) */
+    /* Shortcut Grid */
     .shortcut-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 25px 0; text-align: center; }
     .shortcut-item { background: #1e293b; border-radius: 14px; padding: 14px 5px; cursor: pointer; transition: 0.2s; border: 1px solid #334155; }
     .shortcut-item:hover { transform: translateY(-3px); background: #334155; border-color: #fbbf24; }
@@ -38,10 +44,26 @@
     .news-card { background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 10px; border: 1px solid #334155; }
     .news-tag { background: #fbbf24; color: #000; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 6px; }
 
-    /* Bottom Navigation */
+    /* Bottom Navigation Bar */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
     .nav-tab { display: flex; flex-direction: column; align-items: center; color: #64748b; text-decoration: none; font-size: 11px; gap: 4px; cursor: pointer; }
     .nav-tab.active { color: #fbbf24; }
+
+    /* Fullscreen Drawer Menu Modal */
+    .menu-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 15, 25, 0.95); z-index: 1000; overflow-y: auto; padding: 20px; }
+    .menu-modal.open { display: block; }
+    .menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; }
+    .menu-title { font-size: 18px; font-weight: bold; color: #fbbf24; }
+    .btn-close-menu { background: #334155; color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+
+    .menu-list { display: flex; flex-direction: column; gap: 10px; }
+    .menu-item { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; color: #fff; text-decoration: none; cursor: pointer; transition: 0.2s; }
+    .menu-item:active { background: #334155; }
+    .menu-item-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
+    .menu-item-icon { font-size: 20px; }
+    .arrow-icon { color: #64748b; font-size: 14px; }
+    
+    .btn-menu-logout { margin-top: 15px; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; font-weight: bold; justify-content: center; }
   </style>
 </head>
 <body>
@@ -49,9 +71,15 @@
   <div class="container">
     <div class="top-header">
       <div class="logo">🍀 LUCKY GO</div>
-      <div class="user-profile">
-        <div class="avatar">U</div>
-        <span id="displayUsername">user01</span>
+      <div class="header-right">
+        <div class="user-profile">
+          <div class="avatar">U</div>
+          <span id="displayUsername">user01</span>
+        </div>
+        <!-- ปุ่มออกจากระบบด้านบน -->
+        <button class="btn-logout-head" onclick="handleLogout()">ออก</button>
+        <!-- ปุ่มเปิดเมนู -->
+        <div class="btn-menu-toggle" onclick="toggleMenu()">☰</div>
       </div>
     </div>
 
@@ -78,11 +106,11 @@
         <div class="shortcut-icon">📄</div>
         <div class="shortcut-label">ประวัติเดิมพัน</div>
       </div>
-      <div class="shortcut-item">
+      <div class="shortcut-item" onclick="location.href='/referral.html'">
         <div class="shortcut-icon">👥</div>
         <div class="shortcut-label">แนะนำเพื่อน</div>
       </div>
-      <div class="shortcut-item">
+      <div class="shortcut-item" onclick="location.href='/results.html'">
         <div class="shortcut-icon">📊</div>
         <div class="shortcut-label">ผลรางวัล</div>
       </div>
@@ -103,6 +131,88 @@
     </div>
   </div>
 
+  <!-- Fullscreen / Overlay Member Menu Panel -->
+  <div class="menu-modal" id="menuModal">
+    <div class="menu-header">
+      <div class="menu-title">รายการเมนูทั้งหมด</div>
+      <button class="btn-close-menu" onclick="toggleMenu()">✕</button>
+    </div>
+
+    <div class="menu-list">
+      <div class="menu-item" onclick="location.href='/profile.html'">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">👤</span>
+          <span>บัญชีผู้ใช้</span>
+        </div>
+        <span class="arrow-icon">❯</span>
+      </div>
+
+      <div class="menu-item" onclick="location.href='/history.html'">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">📄</span>
+          <span>ประวัติเดิมพัน</span>
+        </div>
+        <span class="arrow-icon">❯</span>
+      </div>
+
+      <div class="menu-item" onclick="location.href='/promotions.html'">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">🎁</span>
+          <span>โปรโมชั่น</span>
+        </div>
+        <span class="arrow-icon">❯</span>
+      </div>
+
+      <div class="menu-item" onclick="location.href='/transactions.html'">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">💳</span>
+          <span>ประวัติธุรกรรม</span>
+        </div>
+        <span class="arrow-icon">❯</span>
+      </div>
+
+      <div class="menu-item" onclick="location.href='/vip.html'">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">👑</span>
+          <span>ระดับ VIP</span>
+        </div>
+        <span class="arrow-icon">❯</span>
+      </div>
+
+      <div class="menu-item" onclick="location.href='/referral.html'">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">👥</span>
+          <span>แนะนำเพื่อน</span>
+        </div>
+        <span class="arrow-icon">❯</span>
+      </div>
+
+      <div class="menu-item" onclick="location.href='/tickets.html'">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">🎟️</span>
+          <span>รายการโพย</span>
+        </div>
+        <span class="arrow-icon">❯</span>
+      </div>
+
+      <div class="menu-item" onclick="location.href='/support.html'">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">🎧</span>
+          <span>ช่วยเหลือ</span>
+        </div>
+        <span class="arrow-icon">❯</span>
+      </div>
+
+      <!-- ปุ่มออกจากระบบในหน้าเมนู -->
+      <div class="menu-item btn-menu-logout" onclick="handleLogout()">
+        <div class="menu-item-left">
+          <span class="menu-item-icon">🚪</span>
+          <span>ออกจากระบบ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
     <div class="nav-tab active">
@@ -117,11 +227,28 @@
       <div style="font-size: 20px;">📥</div>
       <div>ฝากเงิน</div>
     </div>
-    <div class="nav-tab">
-      <div style="font-size: 20px;">💬</div>
-      <div>ช่วยเหลือ</div>
+    <div class="nav-tab" onclick="toggleMenu()">
+      <div style="font-size: 20px;">☰</div>
+      <div>เมนู</div>
     </div>
   </div>
+
+<script>
+  function toggleMenu() {
+    const modal = document.getElementById('menuModal');
+    modal.classList.toggle('open');
+  }
+
+  function handleLogout() {
+    if (confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+      // เคลียร์ Session หรือ Token
+      localStorage.clear();
+      sessionStorage.clear();
+      alert("ออกจากระบบเรียบร้อยแล้ว");
+      location.href = '/login.html';
+    }
+  }
+</script>
 
 </body>
 </html>
