@@ -3,47 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เข้าสู่ระบบ</title>
+  <title>เข้าสู่ระบบ - LUCKY GO</title>
   <style>
-    body { font-family: sans-serif; max-width: 350px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+    body { font-family: sans-serif; max-width: 350px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #0b0f19; color: white; }
     .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input { width: 100%; padding: 8px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #cbd5e1; }
+    input { width: 100%; padding: 8px; box-sizing: border-box; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 4px; }
+    button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold; }
     button:hover { background-color: #0056b3; }
     #message { margin-top: 15px; text-align: center; color: red; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <h2>เข้าสู่ระบบ</h2>
+  <h2 style="text-align: center; color: #fbbf24;">🍀 LUCKY GO</h2>
+  <h3 style="text-align: center;">เข้าสู่ระบบ</h3>
+  
   <form id="loginForm">
     <div class="form-group">
       <label>ชื่อผู้ใช้งาน:</label>
-      <input type="text" id="username" required placeholder="กรอกชื่อผู้ใช้">
+      <input type="text" id="username" required placeholder="กรอกชื่อผู้ใช้ (ทดสอบ: 1111)">
     </div>
     <div class="form-group">
       <label>รหัสผ่าน:</label>
-      <input type="password" id="password" required placeholder="กรอกรหัสผ่าน">
+      <input type="password" id="password" required placeholder="กรอกรหัสผ่าน (ทดสอบ: 1111)">
     </div>
     <button type="submit" id="submitBtn">เข้าสู่ระบบ</button>
   </form>
 
   <div id="message"></div>
 
-  <!-- เพิ่มส่วนนี้ข้างใต้ <div id="message"></div> -->
-<div style="margin-top: 20px; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
-  <p style="margin-bottom: 10px; color: #666; font-size: 14px;">ยังไม่มีบัญชีผู้ใช้งาน?</p>
-  <a href="/register.html" style="display: block; width: 100%; padding: 10px; background-color: #6c757d; color: white; text-align: center; text-decoration: none; border-radius: 4px; box-sizing: border-box; font-size: 14px;">สมัครสมาชิก</a>
-</div>
+  <div style="margin-top: 20px; text-align: center; border-top: 1px solid #334155; padding-top: 15px;">
+    <p style="margin-bottom: 10px; color: #94a3b8; font-size: 14px;">ยังไม่มีบัญชีผู้ใช้งาน?</p>
+    <a href="/register.html" style="display: block; width: 100%; padding: 10px; background-color: #6c757d; color: white; text-align: center; text-decoration: none; border-radius: 4px; box-sizing: border-box; font-size: 14px;">สมัครสมาชิก</a>
+  </div>
 
   <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      // 1. สำคัญมาก! ป้องกันไม่ให้ฟอร์ม รีเฟรช หน้าเว็บอัตโนมัติ
       e.preventDefault(); 
 
-      const usernameInput = document.getElementById('username').value;
-      const passwordInput = document.getElementById('password').value;
+      const usernameInput = document.getElementById('username').value.trim();
+      const passwordInput = document.getElementById('password').value.trim();
       const messageDiv = document.getElementById('message');
       const submitBtn = document.getElementById('submitBtn');
 
@@ -51,8 +51,28 @@
       messageDiv.innerText = 'กำลังตรวจสอบข้อมูล...';
       submitBtn.disabled = true;
 
+      // ==========================================
+      // ระบบทดสอบพิเศษ (Bypass สำหรับไอดี 1111)
+      // ==========================================
+      if (usernameInput === '1111' && passwordInput === '1111') {
+        localStorage.setItem('token', 'test-token-1111');
+        localStorage.setItem('role', 'member');
+        localStorage.setItem('username', '1111');
+        localStorage.setItem('credit', '1500.00');
+
+        messageDiv.style.color = '#4ade80';
+        messageDiv.innerText = 'ล็อกอินบัญชีทดสอบสำเร็จ! กำลังไปหน้าแทงหวย...';
+
+        setTimeout(() => {
+          window.location.href = '/betting.html';
+        }, 600);
+        return;
+      }
+
+      // ==========================================
+      // ระบบเชื่อมต่อ Backend จริง (/api/login)
+      // ==========================================
       try {
-        // 2. ยิง API ไปที่ Backend (/api/login)
         const res = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -65,33 +85,31 @@
         const data = await res.json();
 
         if (res.ok && data.success) {
-          // 3. บันทึกข้อมูล Token และ Role ลง LocalStorage
           localStorage.setItem('token', data.token);
           localStorage.setItem('role', data.user.role);
           localStorage.setItem('username', data.user.username);
+          localStorage.setItem('credit', data.user.credit || '0.00');
 
-          messageDiv.style.color = 'green';
+          messageDiv.style.color = '#4ade80';
           messageDiv.innerText = 'ล็อกอินสำเร็จ! กำลังนำคุณไป...';
 
-          // 4. แยกการย้ายหน้าตามระดับสิทธิ์ (Role)
           setTimeout(() => {
             if (data.user.role === 'admin' || data.user.role === 'superadmin') {
               window.location.href = '/admin.html';
             } else {
-              window.location.href = '/index.html';
+              window.location.href = '/betting.html';
             }
           }, 500);
 
         } else {
-          // แจ้งเตือนกรณีรหัสผ่านผิดหรือหาผู้ใช้ไม่เจอ
-          messageDiv.style.color = 'red';
+          messageDiv.style.color = '#f87171';
           messageDiv.innerText = data.message || 'เกิดข้อผิดพลาดในการล็อกอิน';
           submitBtn.disabled = false;
         }
 
       } catch (err) {
         console.error('Login Error:', err);
-        messageDiv.style.color = 'red';
+        messageDiv.style.color = '#f87171';
         messageDiv.innerText = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
         submitBtn.disabled = false;
       }
