@@ -320,6 +320,20 @@
       renderBoardGrid();
     }
   }
+  // วางไว้ด้านล่างสุดของ <script> ในหน้า betting.html
+window.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const round = urlParams.get('round');
+  const type = urlParams.get('type');
+
+  if (round) {
+    const roundTitleEl = document.querySelector('.round-title');
+    if (roundTitleEl) {
+      const typeText = type === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
+      roundTitleEl.innerText = `🔵 ${typeText} - รอบที่ ${round}`;
+    }
+  }
+});
 </script>
 </body>
 </html>
