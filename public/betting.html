@@ -972,30 +972,38 @@ function startTimerSync() {
     document.getElementById('betModalOverlay').classList.remove('active');
   }
 
-  function renderBetTable() {
-    const tbody = document.getElementById('betTableBody');
-    tbody.innerHTML = "";
+ function renderBetTable() {
+  const tbody = document.getElementById('betTableBody');
+  if (!tbody) return;
+  
+  tbody.innerHTML = "";
 
-    cartItems.forEach((item, index) => {
-      const price = Number(item.price) || 0;
-      const winPayout = price * item.rate;
+  cartItems.forEach((item, index) => {
+    const price = Number(item.price) || 0;
+    const winPayout = price * item.rate;
 
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td style="color:#fbbf24; font-weight:bold; font-size:15px;">${item.number}</td>
-        <td>
-          <input type="number" class="cart-input-price" id="priceInput_${index}" value="${price === 0 ? '' : price}" placeholder="0" min="0" onblur="onPriceInputBlur(${index}, this.value)">
-        </td>
-        <td style="color:#94a3b8;">${item.rate}</td>
-        <td class="text-win" id="winPayoutText_${index}">+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}</td>
-        <td><button class="btn-del-item" onclick="removeBetItem(${index})">✕</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
+    // ดึงประเภทหวย เช่น "2 ตัวบน", "2 ตัวล่าง" (ถ้าไม่มีให้แสดงเป็นข้อความว่าง)
+    const categoryName = item.typeName || item.type || item.category || '';
 
-    updateBetSummary();
-  }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>
+        <div style="color:#fbbf24; font-weight:bold; font-size:16px; line-height:1.2;">${item.number}</div>
+        <div style="color:#38bdf8; font-size:11px; font-weight:normal; margin-top:2px;">${categoryName}</div>
+      </td>
+      <td>
+        <input type="number" class="cart-input-price" id="priceInput_${index}" value="${price === 0 ? '' : price}" placeholder="0" min="0" onblur="onPriceInputBlur(${index}, this.value)">
+      </td>
+      <td style="color:#94a3b8;">${item.rate}</td>
+      <td class="text-win" id="winPayoutText_${index}">+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}</td>
+      <td><button class="btn-del-item" onclick="removeBetItem(${index})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  updateBetSummary();
+}
 
   function onPriceInputBlur(index, value) {
     const val = parseInt(value) || 0;
