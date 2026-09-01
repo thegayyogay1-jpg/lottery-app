@@ -66,42 +66,48 @@
 
   // คำนวณเวลาและสถานะรอบตามเวลาจริงของเครื่อง
   function syncRoundsWithTime() {
-    const now = Math.floor(Date.now() / 1000);
-    
-    // เวลาเริ่มต้น 00:00:00 น. ของวันนี้
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const startOfDay = Math.floor(today.getTime() / 1000);
-    
-    const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  const now = Math.floor(Date.now() / 1000);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startOfDay = Math.floor(today.getTime() / 1000);
+  
+  const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
-    for (let i = 1; i <= TOTAL_ROUNDS; i++) {
-      const startTime = startOfDay + ((i - 1) * ROUND_DURATION);
-      const endTime = startTime + ROUND_DURATION;
+  for (let i = 1; i <= TOTAL_ROUNDS; i++) {
+    const startTime = startOfDay + ((i - 1) * ROUND_DURATION);
+    const endTime = startTime + ROUND_DURATION;
 
-      if (!roundsState[i]) {
-        roundsState[i] = { status: 'open', result: null, endTime: endTime };
-      }
+    if (!roundsState[i]) {
+      roundsState[i] = { status: 'open', result: null, endTime: endTime };
+    }
 
-      roundsState[i].endTime = endTime;
+    roundsState[i].endTime = endTime;
 
-      if (now < endTime) {
+    // ถ้าเวลาปัจจุบันผ่าน endTime ไปแล้ว
+    if (now >= endTime) {
+      if (savedState[i]) {
+        roundsState[i].status = 'closed';
+        roundsState[i].result = savedState[i];
+      } else if (roundsState[i].status !== 'closed') {
+        // เปลี่ยนเป็นส้ม (waiting) ก่อนออกผล
         if (roundsState[i].status !== 'waiting') {
-          roundsState[i].status = 'open';
-        }
-      } else {
-        if (savedState[i]) {
-          roundsState[i].status = 'closed';
-          roundsState[i].result = savedState[i];
-        } else if (roundsState[i].status !== 'closed' && roundsState[i].status !== 'waiting') {
-          roundsState[i].status = 'closed';
-          roundsState[i].result = generateRandomResult();
-          savedState[i] = roundsState[i].result;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
+          roundsState[i].status = 'waiting';
+          
+          // รอ 3 วินาทีเพื่อจำลองการออกผล แล้วเปลี่ยนเป็นเขียว (closed)
+          setTimeout(() => {
+            roundsState[i].status = 'closed';
+            roundsState[i].result = generateRandomResult();
+            savedState[i] = roundsState[i].result;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
+            renderRounds();
+          }, 3000);
         }
       }
+    } else {
+      roundsState[i].status = 'open';
     }
   }
+}
 
   function selectRound(roundNumber, status) {
     if (status !== 'open') {
