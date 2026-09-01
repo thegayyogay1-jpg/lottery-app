@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LUCKY GO - เลือกรอบยี่กี 5 นาที</title>
+  <title>LUCKY GO - เลือกรอบยี่กี</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Thonburi, Tahoma, sans-serif; user-select: none; }
     body { background-color: #0b0f19; color: #fff; margin: 0; padding: 15px; padding-bottom: 40px; }
@@ -34,7 +34,7 @@
   <div class="container">
     <div class="header">
       <button class="back-btn" onclick="location.href='/lotto-menu.html'">← กลับ</button>
-      <h3 style="margin:0; font-size: 18px; color: #fbbf24;">⚡ ยี่กี 5 นาที</h3>
+      <h3 id="pageTitle" style="margin:0; font-size: 18px; color: #fbbf24;">⚡ ยี่กี</h3>
     </div>
 
     <div class="rounds-grid" id="roundsContainer">
@@ -43,9 +43,19 @@
   </div>
 
 <script>
-  const ROUND_DURATION = 300; // รอบละ 5 นาที (300 วินาที)
-  const TOTAL_ROUNDS = 288;   // 24 ชม. x 12 รอบ/ชม. = 288 รอบต่อวัน
+  // อ่านค่าจาก URL ?type=1m หรือ ?type=5m (ถ้าไม่ระบุจะเลือก 1m ให้อัตโนมัติ)
+  const urlParams = new URLSearchParams(window.location.search);
+  const LOTTO_TYPE = urlParams.get('type') === '5m' ? '5m' : '1m';
+
+  // ตั้งค่าระยะเวลาและจำนวนรอบต่อวันตามประเภท
+  const ROUND_DURATION = LOTTO_TYPE === '5m' ? 300 : 60; // 5 นาที (300 วิ) หรือ 1 นาที (60 วิ)
+  const TOTAL_ROUNDS = LOTTO_TYPE === '5m' ? 288 : 1440; // 288 รอบ หรือ 1440 รอบต่อวัน
+  const STORAGE_KEY = `yikee_${LOTTO_TYPE}_results`;
+
   let roundsState = {};
+
+  // แสดงหัวข้อตามประเภท
+  document.getElementById('pageTitle').innerText = LOTTO_TYPE === '5m' ? '⚡ ยี่กี 5 นาที' : '⚡ ยี่กี 1 นาที';
 
   // สุ่มผลหวย 3 ตัวบน และ 2 ตัวล่าง
   function generateRandomResult() {
@@ -54,16 +64,16 @@
     return `${top3} - ${bottom2}`;
   }
 
-  // คำนวณสถานะรอบปัจจุบันตามเวลาจริงของเครื่อง (Real-time Timeline)
+  // คำนวณเวลาและสถานะรอบตามเวลาจริงของเครื่อง
   function syncRoundsWithTime() {
     const now = Math.floor(Date.now() / 1000);
     
-    // หาสัยยะเวลาเริ่มของวันปัจจุบัน (00:00:00 น.)
+    // เวลาเริ่มต้น 00:00:00 น. ของวันนี้
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const startOfDay = Math.floor(today.getTime() / 1000);
     
-    const savedState = JSON.parse(localStorage.getItem('yikee_5m_results') || '{}');
+    const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
     for (let i = 1; i <= TOTAL_ROUNDS; i++) {
       const startTime = startOfDay + ((i - 1) * ROUND_DURATION);
@@ -76,21 +86,18 @@
       roundsState[i].endTime = endTime;
 
       if (now < endTime) {
-        // รอบที่ยังไม่หมดเวลา
         if (roundsState[i].status !== 'waiting') {
           roundsState[i].status = 'open';
         }
       } else {
-        // รอบที่หมดเวลาแล้ว
         if (savedState[i]) {
           roundsState[i].status = 'closed';
           roundsState[i].result = savedState[i];
         } else if (roundsState[i].status !== 'closed' && roundsState[i].status !== 'waiting') {
-          // สุ่มออกผลหากยังไม่มีบันทึก
           roundsState[i].status = 'closed';
           roundsState[i].result = generateRandomResult();
           savedState[i] = roundsState[i].result;
-          localStorage.setItem('yikee_5m_results', JSON.stringify(savedState));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
         }
       }
     }
@@ -102,7 +109,7 @@
       else alert(`รอบที่ ${roundNumber} ปิดรับแทงแล้ว กำลังรอคำนวณผล`);
       return;
     }
-    window.location.href = `/betting.html?type=5m&round=${roundNumber}`;
+    window.location.href = `/betting.html?type=${LOTTO_TYPE}&round=${roundNumber}`;
   }
 
   function formatTimer(seconds) {
@@ -118,7 +125,7 @@
     container.innerHTML = '';
     const now = Math.floor(Date.now() / 1000);
 
-    // ค้นหารอบปัจจุบันที่กำลังวิ่งอยู่
+    // ค้นหารอบปัจจุบัน
     let currentRound = 1;
     for (let r = 1; r <= TOTAL_ROUNDS; r++) {
       if (now < roundsState[r].endTime) {
@@ -127,9 +134,7 @@
       }
     }
 
-    // กำหนดรอบที่จะนำมาแสดงผล:
-    // 1. แสดงรอบที่เพิ่งออกผลเล็กล่าสุด 1 รอบ (ถ้ามี)
-    // 2. แสดงรอบปัจจุบัน และรอบถัดๆ ไปที่เปิดรับแทง
+    // กำหนดรอบที่จะแสดง: ค้างรอบล่าสุดที่เพิ่งออกผลไว้ 1 รอบ + รอบปัจจุบันและรอบอนาคตถัดไปอีก 10 รอบ
     let displayRounds = [];
     
     let latestClosedRound = currentRound - 1;
@@ -137,7 +142,6 @@
       displayRounds.push(latestClosedRound);
     }
     
-    // ดึงรอบปัจจุบันและรอบอนาคตถัดไปอีก 10 รอบ
     for (let r = currentRound; r <= Math.min(currentRound + 10, TOTAL_ROUNDS); r++) {
       displayRounds.push(r);
     }
@@ -146,18 +150,18 @@
       let data = roundsState[r];
       let remaining = data.endTime - now;
 
-      // ตรวจสอบเมื่อหมดเวลา
+      // ตรวจสอบเมื่อเวลาหมด
       if (remaining <= 0 && data.status === 'open') {
         data.status = 'waiting';
         
-        // จำลองเวลาสุ่มออกผลรางวัลหลังจากปิดรอบ 3 วินาที
+        // จำลองเวลาสุ่มออกผลรางวัล 3 วินาทีหลังปิดรอบ
         setTimeout(() => {
           data.status = 'closed';
           data.result = generateRandomResult();
           
-          const savedState = JSON.parse(localStorage.getItem('yikee_5m_results') || '{}');
+          const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
           savedState[r] = data.result;
-          localStorage.setItem('yikee_5m_results', JSON.stringify(savedState));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
           
           renderRounds();
         }, 3000);
