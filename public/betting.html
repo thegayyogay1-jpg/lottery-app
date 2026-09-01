@@ -128,7 +128,7 @@
     .btn-cart { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
     .btn-submit { background: #0284c7; border: none; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-around; padding: 8px 0; z-index: 100; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
     .nav-tab { display: flex; flex-direction: column; align-items: center; color: #64748b; text-decoration: none; font-size: 10px; gap: 3px; cursor: pointer; }
     .nav-tab.active { color: #fbbf24; }
 
@@ -316,6 +316,7 @@
     </div>
   </div>
 
+  <!-- MODAL ตะกร้าสินค้า -->
   <div class="modal-overlay" id="viewCartModalOverlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -355,6 +356,7 @@
     </div>
   </div>
 
+  <!-- MODAL ใส่ราคา -->
   <div class="modal-overlay" id="betModalOverlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -366,11 +368,12 @@
           <thead>
             <tr>
               <th>ลำดับ</th>
+              <th>ประเภท</th>
               <th>เลขแทง</th>
               <th>ราคา (บาท)</th>
               <th>จ่าย/1บ.</th>
               <th>ชนะได้</th>
-              <th></th>
+              <th>จัดการ</th>
             </tr>
           </thead>
           <tbody id="betTableBody"></tbody>
@@ -426,10 +429,8 @@
     winType: '2', winDouble: false, winReverse: false
   };
 
-  // ดึงอัตราจ่ายแบบไดนามิกเริ่มต้น
   let RATES = { '2 ตัว': 90, '3 ตัวตรง': 900, '3 ตัวโต๊ด': 150, 'เลขวิ่งบน': 3.2, 'วิ่งล่าง': 4.2, 'สูง/ต่ำ': 1.9, 'คู่/คี่': 1.9 };
 
-  // ดึงตั้งค่าอัตราจ่ายจาก API ซุปเปอร์แอดมิน
   async function fetchLivePayRates() {
     try {
       const res = await fetch('/api/settings/rates');
@@ -474,89 +475,82 @@
   }
 
   function initPageData() {
-  const username = localStorage.getItem('username') || 'user01';
-  const credit = localStorage.getItem('credit') || '1,500.00';
-  
-  if (document.getElementById('displayUsername')) {
-    document.getElementById('displayUsername').innerText = username;
-  }
-  if (document.getElementById('displayCredit')) {
-    document.getElementById('displayCredit').innerText = Number(credit.toString().replace(/,/g, '')).toLocaleString('en-US', {minimumFractionDigits: 2});
-  }
-  if (document.getElementById('userAvatar')) {
-    document.getElementById('userAvatar').innerText = username.charAt(0).toUpperCase();
-  }
-
-  // อ่านค่ารอบและประเภทหวยจาก URL
-  const urlParams = new URLSearchParams(window.location.search);
-  currentRoundNumber = urlParams.get('round') || '1';
-  const lottoType = urlParams.get('type') === '5m' ? '5m' : '1m';
-  const roundTypeLabel = lottoType === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
-
-  if (document.getElementById('roundTitleText')) {
-    document.getElementById('roundTitleText').innerText = `🔵 ${roundTypeLabel} - รอบที่ ${currentRoundNumber}`;
-  }
-
-  // เรียกสั่งเริ่มนับถอยหลัง
-  startTimerSync();
-
-  if (typeof fetchLivePayRates === 'function') {
-    fetchLivePayRates();
-  }
-}
-
-function startTimerSync() {
-  const timerEl = document.getElementById('roundTimer');
-  if (!timerEl) return;
-
-  // อ่านค่าประเภทหวยจาก URL (1m หรือ 5m)
-  const urlParams = new URLSearchParams(window.location.search);
-  const lottoType = urlParams.get('type') === '5m' ? '5m' : '1m';
-  
-  // กำหนดความยาวรอบตามประเภท (1 นาที = 60 วิ, 5 นาที = 300 วิ)
-  const roundDuration = lottoType === '5m' ? 300 : 60;
-  const roundNum = parseInt(currentRoundNumber);
-
-  setInterval(() => {
-    const now = Math.floor(Date.now() / 1000);
-
-    // คำนวณ endTime จากเวลาจริงของวัน (00:00:00 น.) ร่วมกับเลขรอบ
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const startOfDay = Math.floor(today.getTime() / 1000);
-    const endTime = startOfDay + (roundNum * roundDuration);
-
-    let remaining = endTime - now;
-
-    if (remaining <= 0) {
-      timerEl.innerText = "00:00:00";
-      timerEl.classList.add('closed');
-      
-      if (typeof isRoundClosed !== 'undefined' && !isRoundClosed) {
-        isRoundClosed = true;
-        const btnSubmit = document.getElementById('btnSubmitBet');
-        if (btnSubmit) {
-          btnSubmit.disabled = true;
-          btnSubmit.style.background = '#64748b';
-        }
-        
-        if (typeof showCustomAlert === 'function') {
-          showCustomAlert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว! ระบบจะนำคุณกลับสู่หน้าเลือกรอบ`, '⏰', () => {
-            window.location.href = `/yikee-rounds.html?type=${lottoType}`;
-          });
-        } else {
-          alert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว!`);
-          window.location.href = `/yikee-rounds.html?type=${lottoType}`;
-        }
-      }
-    } else {
-      const h = Math.floor(remaining / 3600).toString().padStart(2, '0');
-      const m = Math.floor((remaining % 3600) / 60).toString().padStart(2, '0');
-      const s = Math.floor(remaining % 60).toString().padStart(2, '0');
-      timerEl.innerText = `${h}:${m}:${s}`;
+    const username = localStorage.getItem('username') || 'user01';
+    const credit = localStorage.getItem('credit') || '1,500.00';
+    
+    if (document.getElementById('displayUsername')) {
+      document.getElementById('displayUsername').innerText = username;
     }
-  }, 1000);
-}
+    if (document.getElementById('displayCredit')) {
+      document.getElementById('displayCredit').innerText = Number(credit.toString().replace(/,/g, '')).toLocaleString('en-US', {minimumFractionDigits: 2});
+    }
+    if (document.getElementById('userAvatar')) {
+      document.getElementById('userAvatar').innerText = username.charAt(0).toUpperCase();
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    currentRoundNumber = urlParams.get('round') || '1';
+    const lottoType = urlParams.get('type') === '5m' ? '5m' : '1m';
+    const roundTypeLabel = lottoType === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
+
+    if (document.getElementById('roundTitleText')) {
+      document.getElementById('roundTitleText').innerText = `🔵 ${roundTypeLabel} - รอบที่ ${currentRoundNumber}`;
+    }
+
+    startTimerSync();
+
+    if (typeof fetchLivePayRates === 'function') {
+      fetchLivePayRates();
+    }
+  }
+
+  function startTimerSync() {
+    const timerEl = document.getElementById('roundTimer');
+    if (!timerEl) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const lottoType = urlParams.get('type') === '5m' ? '5m' : '1m';
+    const roundDuration = lottoType === '5m' ? 300 : 60;
+    const roundNum = parseInt(currentRoundNumber);
+
+    setInterval(() => {
+      const now = Math.floor(Date.now() / 1000);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const startOfDay = Math.floor(today.getTime() / 1000);
+      const endTime = startOfDay + (roundNum * roundDuration);
+
+      let remaining = endTime - now;
+
+      if (remaining <= 0) {
+        timerEl.innerText = "00:00:00";
+        timerEl.classList.add('closed');
+        
+        if (typeof isRoundClosed !== 'undefined' && !isRoundClosed) {
+          isRoundClosed = true;
+          const btnSubmit = document.getElementById('btnSubmitBet');
+          if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.style.background = '#64748b';
+          }
+          
+          if (typeof showCustomAlert === 'function') {
+            showCustomAlert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว! ระบบจะนำคุณกลับสู่หน้าเลือกรอบ`, '⏰', () => {
+              window.location.href = `/yikee-rounds.html?type=${lottoType}`;
+            });
+          } else {
+            alert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว!`);
+            window.location.href = `/yikee-rounds.html?type=${lottoType}`;
+          }
+        }
+      } else {
+        const h = Math.floor(remaining / 3600).toString().padStart(2, '0');
+        const m = Math.floor((remaining % 3600) / 60).toString().padStart(2, '0');
+        const s = Math.floor(remaining % 60).toString().padStart(2, '0');
+        timerEl.innerText = `${h}:${m}:${s}`;
+      }
+    }, 1000);
+  }
 
   function renderModeUI() {
     const optionsArea = document.getElementById('optionsArea');
@@ -715,6 +709,7 @@ function startTimerSync() {
         id: Date.now() + Math.random(),
         number: num,
         type: typeName,
+        typeName: typeName,
         rate: rateVal,
         price: 0
       });
@@ -722,21 +717,9 @@ function startTimerSync() {
     document.getElementById('cartCount').innerText = cartItems.length;
   }
 
+  // ปรับการประมวลผลให้แยก "บน" และ "ล่าง" แยกเป็นแถวๆ ตามที่คุณเลือก
   function processBetInput(inputNum) {
     let generated = [];
-    let typeName = "";
-    let rateVal = 90;
-
-    if (currentDigitMode === '3') {
-      typeName = activeOptions.tod3 ? '3 ตัวโต๊ด' : '3 ตัวตรง';
-      rateVal = RATES[typeName] || 900;
-    } else if (currentDigitMode === 'runner') {
-      typeName = activeOptions.runBottom ? 'วิ่งล่าง' : 'วิ่งบน';
-      rateVal = RATES[typeName] || 3.2;
-    } else {
-      typeName = '2 ตัว';
-      rateVal = RATES[typeName] || 90;
-    }
 
     if (currentDigitMode === '2') {
       if (activeOptions.door19) {
@@ -751,16 +734,26 @@ function startTimerSync() {
         generated.push(inputNum);
         if (activeOptions.reverse && inputNum[0] !== inputNum[1]) generated.push(inputNum[1] + inputNum[0]);
       }
+
+      const rateVal = RATES['2 ตัว'] || 90;
+      if (activeOptions.top2) addToCartBatch(generated, '2 ตัวบน', rateVal);
+      if (activeOptions.bottom2) addToCartBatch(generated, '2 ตัวล่าง', rateVal);
+      if (!activeOptions.top2 && !activeOptions.bottom2) addToCartBatch(generated, '2 ตัวบน', rateVal);
+
     } else if (currentDigitMode === '3') {
       generated.push(inputNum);
       if (activeOptions.reverse) {
         getPermutations(inputNum).forEach(p => { if (!generated.includes(p)) generated.push(p); });
       }
+      
+      if (activeOptions.straight3) addToCartBatch(generated, '3 ตัวตรง', RATES['3 ตัวตรง'] || 900);
+      if (activeOptions.tod3) addToCartBatch(generated, '3 ตัวโต๊ด', RATES['3 ตัวโต๊ด'] || 150);
+
     } else if (currentDigitMode === 'runner') {
       generated.push(inputNum);
+      if (activeOptions.runTop) addToCartBatch(generated, 'เลขวิ่งบน', RATES['เลขวิ่งบน'] || 3.2);
+      if (activeOptions.runBottom) addToCartBatch(generated, 'วิ่งล่าง', RATES['วิ่งล่าง'] || 4.2);
     }
-
-    addToCartBatch(generated, typeName, rateVal);
   }
 
   function getPermutations(str) {
@@ -783,8 +776,6 @@ function startTimerSync() {
     }
 
     let results = [];
-    let typeName = activeOptions.winType === '3' ? '3 ตัวตรง' : '2 ตัว';
-    let rateVal = RATES[typeName] || 90;
 
     if (activeOptions.winType === '2') {
       for (let i = 0; i < arr.length; i++) {
@@ -794,6 +785,12 @@ function startTimerSync() {
         }
       }
       if (activeOptions.winDouble) arr.forEach(n => results.push(n + n));
+
+      const rateVal = RATES['2 ตัว'] || 90;
+      if (activeOptions.top2) addToCartBatch(results, '2 ตัวบน', rateVal);
+      if (activeOptions.bottom2) addToCartBatch(results, '2 ตัวล่าง', rateVal);
+      if (!activeOptions.top2 && !activeOptions.bottom2) addToCartBatch(results, '2 ตัวบน', rateVal);
+
     } else if (activeOptions.winType === '3') {
       for (let i = 0; i < arr.length; i++) {
         for (let j = i + 1; j < arr.length; j++) {
@@ -805,9 +802,10 @@ function startTimerSync() {
         }
       }
       if (activeOptions.winDouble) arr.forEach(n => results.push(n + n + n));
+      
+      addToCartBatch(results, '3 ตัวตรง', RATES['3 ตัวตรง'] || 900);
     }
 
-    addToCartBatch(results, typeName, rateVal);
     clearNum();
   }
 
@@ -815,8 +813,11 @@ function startTimerSync() {
     if (isRoundClosed) return;
     if (type === 'double') {
       let list = ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
-      addToCartBatch(list, '2 ตัว', RATES['2 ตัว'] || 90);
-      showCustomAlert('เพิ่มเลขเบิ้ล 2 ตัว (10 รายการ) เข้าตะกร้าแล้ว', '🎯');
+      const rateVal = RATES['2 ตัว'] || 90;
+      if (activeOptions.top2) addToCartBatch(list, '2 ตัวบน', rateVal);
+      if (activeOptions.bottom2) addToCartBatch(list, '2 ตัวล่าง', rateVal);
+      if (!activeOptions.top2 && !activeOptions.bottom2) addToCartBatch(list, '2 ตัวบน', rateVal);
+      showCustomAlert('เพิ่มเลขเบิ้ล 2 ตัว เข้าตะกร้าเรียบร้อยแล้ว', '🎯');
       return;
     }
 
@@ -835,6 +836,7 @@ function startTimerSync() {
       id: Date.now() + Math.random(),
       number: labelName,
       type: categoryType,
+      typeName: categoryType,
       rate: rateVal,
       price: 0
     });
@@ -904,18 +906,20 @@ function startTimerSync() {
     document.getElementById('viewCartModalOverlay').classList.remove('active');
   }
 
+  // 1. เรนเดอร์หน้าตรวจสอบรายการในตะกร้า แยกเป็นคอลัมน์ "ประเภท"
   function renderViewCartTable() {
     const tbody = document.getElementById('viewCartTableBody');
     tbody.innerHTML = "";
 
     cartItems.forEach((item, index) => {
+      const categoryName = item.typeName || item.type || '2 ตัว';
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td style="color:#94a3b8; font-size:11px;">${item.type}</td>
-        <td style="color:#fbbf24; font-weight:bold; font-size:16px;">${item.number}</td>
-        <td style="color:#94a3b8;">${item.rate}</td>
-        <td><button class="btn-del-item" onclick="removeCartItem(${index})">✕</button></td>
+        <td style="text-align: center;">${index + 1}</td>
+        <td style="color: #38bdf8; text-align: center;">${categoryName}</td>
+        <td style="color: #fbbf24; font-weight: bold; font-size: 16px; text-align: center;">${item.number}</td>
+        <td style="color: #94a3b8; text-align: center;">${item.rate}</td>
+        <td style="text-align: center;"><button class="btn-del-item" onclick="removeCartItem(${index})">✕</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -943,7 +947,7 @@ function startTimerSync() {
     let seen = new Set();
     let initialCount = cartItems.length;
     cartItems = cartItems.filter(item => {
-      let key = item.number + '_' + item.type;
+      let key = item.number + '_' + (item.typeName || item.type);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -972,38 +976,36 @@ function startTimerSync() {
     document.getElementById('betModalOverlay').classList.remove('active');
   }
 
- function renderBetTable() {
-  const tbody = document.getElementById('betTableBody');
-  if (!tbody) return;
-  
-  tbody.innerHTML = "";
+  // 2. เรนเดอร์หน้าใส่ราคา แยกเป็นคอลัมน์ "ประเภท" พร้อมกล่องใส่ราคา ปุ่มเพิ่มราคา และปุ่มลบรายการ
+  function renderBetTable() {
+    const tbody = document.getElementById('betTableBody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = "";
 
-  cartItems.forEach((item, index) => {
-    const price = Number(item.price) || 0;
-    const winPayout = price * item.rate;
+    cartItems.forEach((item, index) => {
+      const price = Number(item.price) || 0;
+      const rate = Number(item.rate) || 90;
+      const winPayout = price * rate;
+      const categoryName = item.typeName || item.type || '2 ตัว';
 
-    // ดึงประเภทหวย เช่น "2 ตัวบน", "2 ตัวล่าง" (ถ้าไม่มีให้แสดงเป็นข้อความว่าง)
-    const categoryName = item.typeName || item.type || item.category || '';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="text-align: center;">${index + 1}</td>
+        <td style="color: #38bdf8; text-align: center; font-size: 13px;">${categoryName}</td>
+        <td style="color: #fbbf24; font-weight: bold; font-size: 16px; text-align: center;">${item.number}</td>
+        <td style="text-align: center;">
+          <input type="number" class="cart-input-price" id="priceInput_${index}" value="${price === 0 ? '' : price}" placeholder="0" min="0" onblur="onPriceInputBlur(${index}, this.value)">
+        </td>
+        <td style="color: #94a3b8; text-align: center;">${rate}</td>
+        <td class="text-win" id="winPayoutText_${index}" style="color: #4ade80; font-weight: bold; text-align: center;">+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}</td>
+        <td style="text-align: center;"><button class="btn-del-item" onclick="removeBetItem(${index})">✕</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${index + 1}</td>
-      <td>
-        <div style="color:#fbbf24; font-weight:bold; font-size:16px; line-height:1.2;">${item.number}</div>
-        <div style="color:#38bdf8; font-size:11px; font-weight:normal; margin-top:2px;">${categoryName}</div>
-      </td>
-      <td>
-        <input type="number" class="cart-input-price" id="priceInput_${index}" value="${price === 0 ? '' : price}" placeholder="0" min="0" onblur="onPriceInputBlur(${index}, this.value)">
-      </td>
-      <td style="color:#94a3b8;">${item.rate}</td>
-      <td class="text-win" id="winPayoutText_${index}">+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}</td>
-      <td><button class="btn-del-item" onclick="removeBetItem(${index})">✕</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  updateBetSummary();
-}
+    updateBetSummary();
+  }
 
   function onPriceInputBlur(index, value) {
     const val = parseInt(value) || 0;
@@ -1075,7 +1077,6 @@ function startTimerSync() {
       return;
     }
 
-    // ยืนยันการแทงส่งไปยัง Backend จริง
     const token = localStorage.getItem('token');
     try {
       const res = await fetch('/api/bet/submit', {
@@ -1110,7 +1111,6 @@ function startTimerSync() {
       });
 
     } catch (err) {
-      // Fallback ระบบจำลองกรณี API ปลายทางยังไม่อยู่ในเซิร์ฟเวอร์
       let remainingCredit = currentCredit - totalBet;
       localStorage.setItem('credit', remainingCredit.toString());
       document.getElementById('displayCredit').innerText = remainingCredit.toLocaleString('en-US', {minimumFractionDigits: 2});
