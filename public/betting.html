@@ -316,7 +316,6 @@
     </div>
   </div>
 
-  <!-- MODAL ตะกร้าสินค้า -->
   <div class="modal-overlay" id="viewCartModalOverlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -356,7 +355,6 @@
     </div>
   </div>
 
-  <!-- MODAL ใส่ราคา -->
   <div class="modal-overlay" id="betModalOverlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -368,12 +366,11 @@
           <thead>
             <tr>
               <th>ลำดับ</th>
-              <th>ประเภท</th>
               <th>เลขแทง</th>
               <th>ราคา (บาท)</th>
               <th>จ่าย/1บ.</th>
               <th>ชนะได้</th>
-              <th>จัดการ</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="betTableBody"></tbody>
@@ -510,11 +507,13 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const lottoType = urlParams.get('type') === '5m' ? '5m' : '1m';
+    
     const roundDuration = lottoType === '5m' ? 300 : 60;
     const roundNum = parseInt(currentRoundNumber);
 
     setInterval(() => {
       const now = Math.floor(Date.now() / 1000);
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const startOfDay = Math.floor(today.getTime() / 1000);
@@ -717,9 +716,21 @@
     document.getElementById('cartCount').innerText = cartItems.length;
   }
 
-  // ปรับการประมวลผลให้แยก "บน" และ "ล่าง" แยกเป็นแถวๆ ตามที่คุณเลือก
   function processBetInput(inputNum) {
     let generated = [];
+    let typeName = "";
+    let rateVal = 90;
+
+    if (currentDigitMode === '3') {
+      typeName = activeOptions.tod3 ? '3 ตัวโต๊ด' : '3 ตัวตรง';
+      rateVal = RATES[typeName] || 900;
+    } else if (currentDigitMode === 'runner') {
+      typeName = activeOptions.runBottom ? 'วิ่งล่าง' : 'วิ่งบน';
+      rateVal = RATES[typeName] || 3.2;
+    } else {
+      typeName = '2 ตัว';
+      rateVal = RATES[typeName] || 90;
+    }
 
     if (currentDigitMode === '2') {
       if (activeOptions.door19) {
@@ -734,26 +745,16 @@
         generated.push(inputNum);
         if (activeOptions.reverse && inputNum[0] !== inputNum[1]) generated.push(inputNum[1] + inputNum[0]);
       }
-
-      const rateVal = RATES['2 ตัว'] || 90;
-      if (activeOptions.top2) addToCartBatch(generated, '2 ตัวบน', rateVal);
-      if (activeOptions.bottom2) addToCartBatch(generated, '2 ตัวล่าง', rateVal);
-      if (!activeOptions.top2 && !activeOptions.bottom2) addToCartBatch(generated, '2 ตัวบน', rateVal);
-
     } else if (currentDigitMode === '3') {
       generated.push(inputNum);
       if (activeOptions.reverse) {
         getPermutations(inputNum).forEach(p => { if (!generated.includes(p)) generated.push(p); });
       }
-      
-      if (activeOptions.straight3) addToCartBatch(generated, '3 ตัวตรง', RATES['3 ตัวตรง'] || 900);
-      if (activeOptions.tod3) addToCartBatch(generated, '3 ตัวโต๊ด', RATES['3 ตัวโต๊ด'] || 150);
-
     } else if (currentDigitMode === 'runner') {
       generated.push(inputNum);
-      if (activeOptions.runTop) addToCartBatch(generated, 'เลขวิ่งบน', RATES['เลขวิ่งบน'] || 3.2);
-      if (activeOptions.runBottom) addToCartBatch(generated, 'วิ่งล่าง', RATES['วิ่งล่าง'] || 4.2);
     }
+
+    addToCartBatch(generated, typeName, rateVal);
   }
 
   function getPermutations(str) {
@@ -776,6 +777,8 @@
     }
 
     let results = [];
+    let typeName = activeOptions.winType === '3' ? '3 ตัวตรง' : '2 ตัว';
+    let rateVal = RATES[typeName] || 90;
 
     if (activeOptions.winType === '2') {
       for (let i = 0; i < arr.length; i++) {
@@ -785,12 +788,6 @@
         }
       }
       if (activeOptions.winDouble) arr.forEach(n => results.push(n + n));
-
-      const rateVal = RATES['2 ตัว'] || 90;
-      if (activeOptions.top2) addToCartBatch(results, '2 ตัวบน', rateVal);
-      if (activeOptions.bottom2) addToCartBatch(results, '2 ตัวล่าง', rateVal);
-      if (!activeOptions.top2 && !activeOptions.bottom2) addToCartBatch(results, '2 ตัวบน', rateVal);
-
     } else if (activeOptions.winType === '3') {
       for (let i = 0; i < arr.length; i++) {
         for (let j = i + 1; j < arr.length; j++) {
@@ -802,10 +799,9 @@
         }
       }
       if (activeOptions.winDouble) arr.forEach(n => results.push(n + n + n));
-      
-      addToCartBatch(results, '3 ตัวตรง', RATES['3 ตัวตรง'] || 900);
     }
 
+    addToCartBatch(results, typeName, rateVal);
     clearNum();
   }
 
@@ -813,11 +809,8 @@
     if (isRoundClosed) return;
     if (type === 'double') {
       let list = ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
-      const rateVal = RATES['2 ตัว'] || 90;
-      if (activeOptions.top2) addToCartBatch(list, '2 ตัวบน', rateVal);
-      if (activeOptions.bottom2) addToCartBatch(list, '2 ตัวล่าง', rateVal);
-      if (!activeOptions.top2 && !activeOptions.bottom2) addToCartBatch(list, '2 ตัวบน', rateVal);
-      showCustomAlert('เพิ่มเลขเบิ้ล 2 ตัว เข้าตะกร้าเรียบร้อยแล้ว', '🎯');
+      addToCartBatch(list, '2 ตัว', RATES['2 ตัว'] || 90);
+      showCustomAlert('เพิ่มเลขเบิ้ล 2 ตัว (10 รายการ) เข้าตะกร้าแล้ว', '🎯');
       return;
     }
 
@@ -906,20 +899,18 @@
     document.getElementById('viewCartModalOverlay').classList.remove('active');
   }
 
-  // 1. เรนเดอร์หน้าตรวจสอบรายการในตะกร้า แยกเป็นคอลัมน์ "ประเภท"
   function renderViewCartTable() {
     const tbody = document.getElementById('viewCartTableBody');
     tbody.innerHTML = "";
 
     cartItems.forEach((item, index) => {
-      const categoryName = item.typeName || item.type || '2 ตัว';
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td style="text-align: center;">${index + 1}</td>
-        <td style="color: #38bdf8; text-align: center;">${categoryName}</td>
-        <td style="color: #fbbf24; font-weight: bold; font-size: 16px; text-align: center;">${item.number}</td>
-        <td style="color: #94a3b8; text-align: center;">${item.rate}</td>
-        <td style="text-align: center;"><button class="btn-del-item" onclick="removeCartItem(${index})">✕</button></td>
+        <td>${index + 1}</td>
+        <td style="color:#94a3b8; font-size:11px;">${item.type}</td>
+        <td style="color:#fbbf24; font-weight:bold; font-size:16px;">${item.number}</td>
+        <td style="color:#94a3b8;">${item.rate}</td>
+        <td><button class="btn-del-item" onclick="removeCartItem(${index})">✕</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -947,7 +938,7 @@
     let seen = new Set();
     let initialCount = cartItems.length;
     cartItems = cartItems.filter(item => {
-      let key = item.number + '_' + (item.typeName || item.type);
+      let key = item.number + '_' + item.type;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -976,7 +967,6 @@
     document.getElementById('betModalOverlay').classList.remove('active');
   }
 
-  // 2. เรนเดอร์หน้าใส่ราคา แยกเป็นคอลัมน์ "ประเภท" พร้อมกล่องใส่ราคา ปุ่มเพิ่มราคา และปุ่มลบรายการ
   function renderBetTable() {
     const tbody = document.getElementById('betTableBody');
     if (!tbody) return;
@@ -985,21 +975,22 @@
 
     cartItems.forEach((item, index) => {
       const price = Number(item.price) || 0;
-      const rate = Number(item.rate) || 90;
-      const winPayout = price * rate;
-      const categoryName = item.typeName || item.type || '2 ตัว';
+      const winPayout = price * item.rate;
+      const categoryName = item.typeName || item.type || item.category || '';
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td style="text-align: center;">${index + 1}</td>
-        <td style="color: #38bdf8; text-align: center; font-size: 13px;">${categoryName}</td>
-        <td style="color: #fbbf24; font-weight: bold; font-size: 16px; text-align: center;">${item.number}</td>
-        <td style="text-align: center;">
+        <td>${index + 1}</td>
+        <td>
+          <div style="color:#fbbf24; font-weight:bold; font-size:16px; line-height:1.2;">${item.number}</div>
+          <div style="color:#38bdf8; font-size:11px; font-weight:normal; margin-top:2px;">${categoryName}</div>
+        </td>
+        <td>
           <input type="number" class="cart-input-price" id="priceInput_${index}" value="${price === 0 ? '' : price}" placeholder="0" min="0" onblur="onPriceInputBlur(${index}, this.value)">
         </td>
-        <td style="color: #94a3b8; text-align: center;">${rate}</td>
-        <td class="text-win" id="winPayoutText_${index}" style="color: #4ade80; font-weight: bold; text-align: center;">+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}</td>
-        <td style="text-align: center;"><button class="btn-del-item" onclick="removeBetItem(${index})">✕</button></td>
+        <td style="color:#94a3b8;">${item.rate}</td>
+        <td class="text-win" id="winPayoutText_${index}">+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}</td>
+        <td><button class="btn-del-item" onclick="removeBetItem(${index})">✕</button></td>
       `;
       tbody.appendChild(tr);
     });
