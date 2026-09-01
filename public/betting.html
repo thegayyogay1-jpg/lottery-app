@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LUCKY GO - หน้าแทงหวย</title>
+  
+  <!-- โหลด React, ReactDOM และ Babel สำหรับประมวลผล JSX -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Thonburi, Tahoma, sans-serif; user-select: none; }
     body { background-color: #0b0f19; color: #ffffff; margin: 0; padding: 0; padding-bottom: 80px; }
@@ -316,44 +322,8 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="viewCartModalOverlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title">🛒 ตรวจสอบรายการตัวเลขในตะกร้า</h3>
-        <button class="modal-close" onclick="closeViewCartModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="cart-tools-bar">
-          <button class="btn-tool" onclick="removeDuplicateItems()">✂️ ตัดเลขซ้ำ</button>
-          <button class="btn-tool danger" onclick="clearAllCartItems()">🧹 ล้างเลขทั้งหมด</button>
-        </div>
-        <table class="cart-table">
-          <thead>
-            <tr>
-              <th>ลำดับ</th>
-              <th>ประเภท</th>
-              <th>เลขแทง</th>
-              <th>อัตราจ่าย</th>
-              <th>จัดการ</th>
-            </tr>
-          </thead>
-          <tbody id="viewCartTableBody"></tbody>
-        </table>
-      </div>
-      <div class="modal-sticky-bottom">
-        <div class="modal-summary">
-          <div class="summary-row">
-            <span>รวมทั้งหมด:</span>
-            <span style="font-weight:bold; color:#fbbf24;" id="viewCartItemsCount">0 รายการ</span>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-modal-cancel" style="flex:1;" onclick="closeViewCartModal()">ปิดหน้าต่าง</button>
-          <button class="btn-modal-confirm" style="flex:1;" onclick="switchFromCartToBetModal()">ไปหน้าใส่ราคา 🎯</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- CONTAINER สำหรับแสดง REACT MODAL ตะกร้าจัดกลุ่ม -->
+  <div id="react-cart-modal-root"></div>
 
   <div class="modal-overlay" id="betModalOverlay">
     <div class="modal-card">
@@ -407,13 +377,151 @@
     </div>
   </div>
 
+<!-- REACT COMPONENT (ตะกร้าจัดกลุ่มบน/ล่าง) -->
+<script type="text/babel">
+  const CartModalReact = ({ isOpen, onClose, cartItems, onRemoveItem, onClearAll, onProceedToBet, onRemoveDuplicates }) => {
+    if (!isOpen) return null;
+
+    const [openGroups, setOpenGroups] = React.useState({});
+
+    // จัดกลุ่มรายการใน cartItems ออกเป็น หมวดบน และ หมวดล่าง
+    const groupItems = (items) => {
+      const topGroup = [];
+      const bottomGroup = [];
+      const otherGroup = [];
+
+      items.forEach(item => {
+        const typeStr = item.type || item.typeName || '';
+        if (typeStr.includes('บน')) {
+          topGroup.push(item);
+        } else if (typeStr.includes('ล่าง')) {
+          bottomGroup.push(item);
+        } else {
+          // หากไม่มีคำว่า บน หรือ ล่าง จัดไว้หมวดทั่วไป
+          topGroup.push(item);
+        }
+      });
+
+      return [
+        { groupName: 'รายการกลุ่มบน', items: topGroup },
+        { groupName: 'รายการกลุ่มล่าง', items: bottomGroup }
+      ].filter(g => g.items.length > 0);
+    };
+
+    const groupedData = groupItems(cartItems);
+
+    const toggleGroup = (index) => {
+      setOpenGroups((prev) => ({ ...prev, [index]: !prev[index] }));
+    };
+
+    return (
+      <div className="modal-overlay active">
+        <div className="modal-card">
+          <div class="modal-header">
+            <h3 class="modal-title">🛒 ตรวจสอบรายการตัวเลขในตะกร้า</h3>
+            <button class="modal-close" onClick={onClose}>✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="cart-tools-bar">
+              <button class="btn-tool" onClick={onRemoveDuplicates}>✂️ ตัดเลขซ้ำ</button>
+              <button class="btn-tool danger" onClick={onClearAll}>🧹 ล้างเลขทั้งหมด</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {groupedData.map((group, groupIdx) => {
+                const isOpen = !!openGroups[groupIdx];
+                return (
+                  <div key={groupIdx} style={{ backgroundColor: '#1e2235', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <button
+                      onClick={() => toggleGroup(groupIdx)}
+                      style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '10px 12px', color: '#fff', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+                    >
+                      <span>{isOpen ? '▲' : '▼'} {group.groupName}</span>
+                      <span style={{ color: '#94a3b8' }}>({group.items.length})</span>
+                    </button>
+
+                    {isOpen && (
+                      <div style={{ padding: '8px 12px', backgroundColor: '#171a29', borderTop: '1px solid #334155' }}>
+                        <table class="cart-table">
+                          <thead>
+                            <tr>
+                              <th>ประเภท</th>
+                              <th>เลขแทง</th>
+                              <th>อัตราจ่าย</th>
+                              <th>จัดการ</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {group.items.map((item) => (
+                              <tr key={item.id}>
+                                <td style={{ color: '#94a3b8', fontSize: '11px' }}>{item.type}</td>
+                                <td style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: '16px' }}>{item.number}</td>
+                                <td style={{ color: '#94a3b8' }}>{item.rate}</td>
+                                <td>
+                                  <button class="btn-del-item" onClick={() => onRemoveItem(item.id)}>✕</button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div class="modal-sticky-bottom">
+            <div class="modal-summary">
+              <div class="summary-row">
+                <span>รวมทั้งหมด:</span>
+                <span style={{ fontWeight: 'bold', color: '#fbbf24' }}>{cartItems.length} รายการ</span>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-modal-cancel" style={{ flex: 1 }} onClick={onClose}>ปิดหน้าต่าง</button>
+              <button class="btn-modal-confirm" style={{ flex: 1 }} onClick={onProceedToBet}>ไปหน้าใส่ราคา 🎯</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render React Component ลง DOM
+  window.renderCartModal = function() {
+    const rootEl = document.getElementById('react-cart-modal-root');
+    const root = ReactDOM.createRoot(rootEl);
+    root.render(
+      <CartModalReact
+        isOpen={window.isReactCartOpen}
+        onClose={() => { window.isReactCartOpen = false; window.renderCartModal(); }}
+        cartItems={window.cartItems || []}
+        onRemoveItem={(id) => {
+          window.cartItems = window.cartItems.filter(item => item.id !== id);
+          document.getElementById('cartCount').innerText = window.cartItems.length;
+          if (window.cartItems.length === 0) window.isReactCartOpen = false;
+          window.renderCartModal();
+        }}
+        onClearAll={() => { window.clearAllCartItems(); window.isReactCartOpen = false; window.renderCartModal(); }}
+        onProceedToBet={() => { window.isReactCartOpen = false; window.renderCartModal(); window.openBetModal(); }}
+        onRemoveDuplicates={() => { window.removeDuplicateItems(); window.renderCartModal(); }}
+      />
+    );
+  };
+</script>
+
+<!-- JAVASCRIPT LOGIC เดิม -->
 <script>
   let currentMainMode = 'numpad';
   let currentDigitMode = '2';
   let currentInput = "";
   let selectedWinNumbers = new Set();
   let selectedBoardNumbers = new Set();
-  let cartItems = [];
+  window.cartItems = [];
+  window.isReactCartOpen = false;
+
   let currentBoardPrefix = "000";
   let currentRoundNumber = null;
   let isRoundClosed = false;
@@ -507,13 +615,11 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const lottoType = urlParams.get('type') === '5m' ? '5m' : '1m';
-    
     const roundDuration = lottoType === '5m' ? 300 : 60;
     const roundNum = parseInt(currentRoundNumber);
 
     setInterval(() => {
       const now = Math.floor(Date.now() / 1000);
-
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const startOfDay = Math.floor(today.getTime() / 1000);
@@ -704,16 +810,15 @@
 
   function addToCartBatch(numberList, typeName, rateVal) {
     numberList.forEach(num => {
-      cartItems.push({
+      window.cartItems.push({
         id: Date.now() + Math.random(),
         number: num,
         type: typeName,
-        typeName: typeName,
         rate: rateVal,
         price: 0
       });
     });
-    document.getElementById('cartCount').innerText = cartItems.length;
+    document.getElementById('cartCount').innerText = window.cartItems.length;
   }
 
   function processBetInput(inputNum) {
@@ -728,8 +833,11 @@
       typeName = activeOptions.runBottom ? 'วิ่งล่าง' : 'วิ่งบน';
       rateVal = RATES[typeName] || 3.2;
     } else {
-      typeName = '2 ตัว';
-      rateVal = RATES[typeName] || 90;
+      // กำหนดประเภทแยก บน / ล่าง ชัดเจน
+      if (activeOptions.top2 && activeOptions.bottom2) typeName = '2 ตัว (บน-ล่าง)';
+      else if (activeOptions.bottom2) typeName = '2 ตัวล่าง';
+      else typeName = '2 ตัวบน';
+      rateVal = RATES['2 ตัว'] || 90;
     }
 
     if (currentDigitMode === '2') {
@@ -777,7 +885,7 @@
     }
 
     let results = [];
-    let typeName = activeOptions.winType === '3' ? '3 ตัวตรง' : '2 ตัว';
+    let typeName = activeOptions.winType === '3' ? '3 ตัวตรง' : (activeOptions.bottom2 ? '2 ตัวล่าง' : '2 ตัวบน');
     let rateVal = RATES[typeName] || 90;
 
     if (activeOptions.winType === '2') {
@@ -807,34 +915,33 @@
 
   function addQuick(type) {
     if (isRoundClosed) return;
-    if (type === 'double') {
-      let list = ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
-      addToCartBatch(list, '2 ตัว', RATES['2 ตัว'] || 90);
-      showCustomAlert('เพิ่มเลขเบิ้ล 2 ตัว (10 รายการ) เข้าตะกร้าแล้ว', '🎯');
-      return;
-    }
-
     let labelName = "";
     let categoryType = "";
     let rateVal = RATES['สูง/ต่ำ'] || 1.9;
 
-    switch (type) {
-      case 'high': labelName = "แทงสูง (50-99)"; categoryType = "สูง/ต่ำ"; rateVal = RATES['สูง/ต่ำ'] || 1.9; break;
-      case 'low': labelName = "แทงต่ำ (00-49)"; categoryType = "สูง/ต่ำ"; rateVal = RATES['สูง/ต่ำ'] || 1.9; break;
-      case 'even': labelName = "แทงเลขคู่"; categoryType = "คู่/คี่"; rateVal = RATES['คู่/คี่'] || 1.9; break;
-      case 'odd': labelName = "แทงเลขคี่"; categoryType = "คู่/คี่"; rateVal = RATES['คู่/คี่'] || 1.9; break;
+    if (type === 'double') {
+      let list = ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'];
+      addToCartBatch(list, activeOptions.bottom2 ? '2 ตัวล่าง' : '2 ตัวบน', RATES['2 ตัว'] || 90);
+      showCustomAlert('เพิ่มเลขเบิ้ล 2 ตัว (10 รายการ) เข้าตะกร้าแล้ว', '🎯');
+      return;
     }
 
-    cartItems.push({
+    switch (type) {
+      case 'high': labelName = "สูง (บน/ล่าง)"; categoryType = activeOptions.bottom2 ? "สูง (ล่าง)" : "สูง (บน)"; rateVal = RATES['สูง/ต่ำ'] || 1.9; break;
+      case 'low': labelName = "ต่ำ (บน/ล่าง)"; categoryType = activeOptions.bottom2 ? "ต่ำ (ล่าง)" : "ต่ำ (บน)"; rateVal = RATES['สูง/ต่ำ'] || 1.9; break;
+      case 'even': labelName = "คู่ (บน/ล่าง)"; categoryType = activeOptions.bottom2 ? "คู่ (ล่าง)" : "คู่ (บน)"; rateVal = RATES['คู่/คี่'] || 1.9; break;
+      case 'odd': labelName = "คี่ (บน/ล่าง)"; categoryType = activeOptions.bottom2 ? "คี่ (ล่าง)" : "คี่ (บน)"; rateVal = RATES['คู่/คี่'] || 1.9; break;
+    }
+
+    window.cartItems.push({
       id: Date.now() + Math.random(),
       number: labelName,
       type: categoryType,
-      typeName: categoryType,
       rate: rateVal,
       price: 0
     });
 
-    document.getElementById('cartCount').innerText = cartItems.length;
+    document.getElementById('cartCount').innerText = window.cartItems.length;
     showCustomAlert(`เพิ่มรายการ "${labelName}" เข้าตะกร้าแล้ว`, '🎯');
   }
 
@@ -886,76 +993,40 @@
     container.appendChild(btn);
   }
 
+  // เรียกใช้ REACT CART MODAL
   function openViewCartModal() {
-    if (cartItems.length === 0) {
+    if (window.cartItems.length === 0) {
       showCustomAlert('ยังไม่มีรายการในตะกร้า กรุณาเลือกตัวเลขก่อนครับ', '🛒');
       return;
     }
-    renderViewCartTable();
-    document.getElementById('viewCartModalOverlay').classList.add('active');
-  }
-
-  function closeViewCartModal() {
-    document.getElementById('viewCartModalOverlay').classList.remove('active');
-  }
-
-  function renderViewCartTable() {
-    const tbody = document.getElementById('viewCartTableBody');
-    tbody.innerHTML = "";
-
-    cartItems.forEach((item, index) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td style="color:#94a3b8; font-size:11px;">${item.type}</td>
-        <td style="color:#fbbf24; font-weight:bold; font-size:16px;">${item.number}</td>
-        <td style="color:#94a3b8;">${item.rate}</td>
-        <td><button class="btn-del-item" onclick="removeCartItem(${index})">✕</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById('viewCartItemsCount').innerText = `${cartItems.length} รายการ`;
-  }
-
-  function removeCartItem(index) {
-    cartItems.splice(index, 1);
-    document.getElementById('cartCount').innerText = cartItems.length;
-    if (cartItems.length === 0) closeViewCartModal();
-    else renderViewCartTable();
+    window.isReactCartOpen = true;
+    window.renderCartModal();
   }
 
   function clearAllCartItems() {
-    cartItems = [];
+    window.cartItems = [];
     selectedBoardNumbers.clear();
     document.getElementById('cartCount').innerText = '0';
-    closeViewCartModal();
     if (currentMainMode === 'board') renderBoardGrid();
     showCustomAlert('ล้างรายการในตะกร้าเรียบร้อยแล้ว', '🧹');
   }
 
   function removeDuplicateItems() {
     let seen = new Set();
-    let initialCount = cartItems.length;
-    cartItems = cartItems.filter(item => {
+    let initialCount = window.cartItems.length;
+    window.cartItems = window.cartItems.filter(item => {
       let key = item.number + '_' + item.type;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
 
-    document.getElementById('cartCount').innerText = cartItems.length;
-    renderViewCartTable();
-    showCustomAlert(`ตัดเลขซ้ำออกเรียบร้อยแล้วทั้งหมด ${initialCount - cartItems.length} รายการ`, '✂️');
-  }
-
-  function switchFromCartToBetModal() {
-    closeViewCartModal();
-    openBetModal();
+    document.getElementById('cartCount').innerText = window.cartItems.length;
+    showCustomAlert(`ตัดเลขซ้ำออกเรียบร้อยแล้วทั้งหมด ${initialCount - window.cartItems.length} รายการ`, '✂️');
   }
 
   function openBetModal() {
-    if (cartItems.length === 0) {
+    if (window.cartItems.length === 0) {
       showCustomAlert('ยังไม่มีรายการในตะกร้า กรุณาเลือกตัวเลขก่อนครับ', '🎯');
       return;
     }
@@ -973,9 +1044,10 @@
     
     tbody.innerHTML = "";
 
-    cartItems.forEach((item, index) => {
+    window.cartItems.forEach((item, index) => {
       const price = Number(item.price) || 0;
       const winPayout = price * item.rate;
+
       const categoryName = item.typeName || item.type || item.category || '';
 
       const tr = document.createElement('tr');
@@ -1000,27 +1072,27 @@
 
   function onPriceInputBlur(index, value) {
     const val = parseInt(value) || 0;
-    cartItems[index].price = val;
-    const winPayout = val * cartItems[index].rate;
+    window.cartItems[index].price = val;
+    const winPayout = val * window.cartItems[index].rate;
     document.getElementById(`winPayoutText_${index}`).innerText = `+${winPayout.toLocaleString('en-US', {minimumFractionDigits: 0})}`;
     updateBetSummary();
   }
 
   function updateBetSummary() {
-    let totalBet = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
-    document.getElementById('betSummaryCount').innerText = `${cartItems.length} รายการ`;
+    let totalBet = window.cartItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+    document.getElementById('betSummaryCount').innerText = `${window.cartItems.length} รายการ`;
     document.getElementById('betSummaryTotal').innerText = `${totalBet.toLocaleString('en-US', {minimumFractionDigits: 2})} บาท`;
   }
 
   function removeBetItem(index) {
-    cartItems.splice(index, 1);
-    document.getElementById('cartCount').innerText = cartItems.length;
-    if (cartItems.length === 0) closeBetModal();
+    window.cartItems.splice(index, 1);
+    document.getElementById('cartCount').innerText = window.cartItems.length;
+    if (window.cartItems.length === 0) closeBetModal();
     else renderBetTable();
   }
 
   function addBulkPrice(amount) {
-    cartItems.forEach((item, idx) => {
+    window.cartItems.forEach((item, idx) => {
       item.price = (Number(item.price) || 0) + amount;
       const inputEl = document.getElementById(`priceInput_${idx}`);
       if (inputEl) inputEl.value = item.price;
@@ -1033,7 +1105,7 @@
   }
 
   function clearAllPrices() {
-    cartItems.forEach((item, idx) => {
+    window.cartItems.forEach((item, idx) => {
       item.price = 0;
       const inputEl = document.getElementById(`priceInput_${idx}`);
       if (inputEl) inputEl.value = '';
@@ -1050,12 +1122,12 @@
       return;
     }
 
-    cartItems.forEach((item, idx) => {
+    window.cartItems.forEach((item, idx) => {
       const inputEl = document.getElementById(`priceInput_${idx}`);
       if (inputEl) item.price = parseInt(inputEl.value) || 0;
     });
 
-    let totalBet = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+    let totalBet = window.cartItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
     let currentCredit = parseFloat((localStorage.getItem('credit') || '1500').toString().replace(/,/g, ''));
 
     if (totalBet <= 0) {
@@ -1078,7 +1150,7 @@
         },
         body: JSON.stringify({
           round: currentRoundNumber,
-          items: cartItems,
+          items: window.cartItems,
           totalAmount: totalBet
         })
       });
@@ -1094,8 +1166,8 @@
       document.getElementById('displayCredit').innerText = remainingCredit.toLocaleString('en-US', {minimumFractionDigits: 2});
 
       closeBetModal();
-      showCustomAlert(`🎉 ส่งโพยรอบที่ ${currentRoundNumber} สำเร็จ!\nรวมทั้งหมด ${cartItems.length} รายการ\nยอดแทง ${totalBet.toLocaleString()} บาท\nเครดิตคงเหลือ: ${remainingCredit.toLocaleString()} บาท`, '✅', () => {
-        cartItems = [];
+      showCustomAlert(`🎉 ส่งโพยรอบที่ ${currentRoundNumber} สำเร็จ!\nรวมทั้งหมด ${window.cartItems.length} รายการ\nยอดแทง ${totalBet.toLocaleString()} บาท\nเครดิตคงเหลือ: ${remainingCredit.toLocaleString()} บาท`, '✅', () => {
+        window.cartItems = [];
         document.getElementById('cartCount').innerText = '0';
         selectedBoardNumbers.clear();
         if (currentMainMode === 'board') renderBoardGrid();
@@ -1106,8 +1178,8 @@
       localStorage.setItem('credit', remainingCredit.toString());
       document.getElementById('displayCredit').innerText = remainingCredit.toLocaleString('en-US', {minimumFractionDigits: 2});
       closeBetModal();
-      showCustomAlert(`🎉 ส่งโพยรอบที่ ${currentRoundNumber} สำเร็จ!\nรวมทั้งหมด ${cartItems.length} รายการ\nยอดแทง ${totalBet.toLocaleString()} บาท`, '✅', () => {
-        cartItems = [];
+      showCustomAlert(`🎉 ส่งโพยรอบที่ ${currentRoundNumber} สำเร็จ!\nรวมทั้งหมด ${window.cartItems.length} รายการ\nยอดแทง ${totalBet.toLocaleString()} บาท`, '✅', () => {
+        window.cartItems = [];
         document.getElementById('cartCount').innerText = '0';
         selectedBoardNumbers.clear();
         if (currentMainMode === 'board') renderBoardGrid();
