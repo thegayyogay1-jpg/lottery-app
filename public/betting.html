@@ -474,14 +474,40 @@
   }
 
   function initPageData() {
-    const username = localStorage.getItem('username') || 'user01';
-    const credit = localStorage.getItem('credit') || '1,500.00';
+  const username = localStorage.getItem('username') || 'user01';
+  const credit = localStorage.getItem('credit') || '1,500.00';
+  
+  if (document.getElementById('displayUsername')) {
     document.getElementById('displayUsername').innerText = username;
+  }
+  if (document.getElementById('displayCredit')) {
     document.getElementById('displayCredit').innerText = Number(credit.toString().replace(/,/g, '')).toLocaleString('en-US', {minimumFractionDigits: 2});
+  }
+  if (document.getElementById('userAvatar')) {
     document.getElementById('userAvatar').innerText = username.charAt(0).toUpperCase();
+  }
 
-   function startTimerSync() {
+  // อ่านค่ารอบและประเภทหวยจาก URL
+  const urlParams = new URLSearchParams(window.location.search);
+  currentRoundNumber = urlParams.get('round') || '1';
+  const lottoType = urlParams.get('type') === '5m' ? '5m' : '1m';
+  const roundTypeLabel = lottoType === '5m' ? 'ยี่กี 5 นาที' : 'ยี่กี 1 นาที';
+
+  if (document.getElementById('roundTitleText')) {
+    document.getElementById('roundTitleText').innerText = `🔵 ${roundTypeLabel} - รอบที่ ${currentRoundNumber}`;
+  }
+
+  // เรียกสั่งเริ่มนับถอยหลัง
+  startTimerSync();
+
+  if (typeof fetchLivePayRates === 'function') {
+    fetchLivePayRates();
+  }
+}
+
+function startTimerSync() {
   const timerEl = document.getElementById('roundTimer');
+  if (!timerEl) return;
 
   // อ่านค่าประเภทหวยจาก URL (1m หรือ 5m)
   const urlParams = new URLSearchParams(window.location.search);
@@ -506,16 +532,22 @@
       timerEl.innerText = "00:00:00";
       timerEl.classList.add('closed');
       
-      if (!isRoundClosed) {
+      if (typeof isRoundClosed !== 'undefined' && !isRoundClosed) {
         isRoundClosed = true;
         const btnSubmit = document.getElementById('btnSubmitBet');
         if (btnSubmit) {
           btnSubmit.disabled = true;
           btnSubmit.style.background = '#64748b';
         }
-        showCustomAlert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว! ระบบจะนำคุณกลับสู่หน้าเลือกรอบ`, '⏰', () => {
+        
+        if (typeof showCustomAlert === 'function') {
+          showCustomAlert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว! ระบบจะนำคุณกลับสู่หน้าเลือกรอบ`, '⏰', () => {
+            window.location.href = `/yikee-rounds.html?type=${lottoType}`;
+          });
+        } else {
+          alert(`⏰ รอบที่ ${currentRoundNumber} หมดเวลาแทงแล้ว!`);
           window.location.href = `/yikee-rounds.html?type=${lottoType}`;
-        });
+        }
       }
     } else {
       const h = Math.floor(remaining / 3600).toString().padStart(2, '0');
